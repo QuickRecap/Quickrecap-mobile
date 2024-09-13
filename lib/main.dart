@@ -31,7 +31,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Login Demo',
+      debugShowCheckedModeBanner: false, // Desactiva el banner de "Debug"
       theme: ThemeData(
+        fontFamily: 'Poppins',
         primarySwatch: Colors.blue,
       ),
       home: LoginScreen(),

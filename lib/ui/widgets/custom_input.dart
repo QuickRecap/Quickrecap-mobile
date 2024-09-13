@@ -4,14 +4,14 @@ class CustomInput extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final bool obscureText;
-  final String? Function(String?)? validator;  // Mantener el validador
+  final String? Function(String?)? validator;
 
   const CustomInput({
     Key? key,
     required this.controller,
     required this.label,
     this.obscureText = false,
-    this.validator,  // Usar la función de validación
+    this.validator,
   }) : super(key: key);
 
   @override
@@ -19,15 +19,33 @@ class CustomInput extends StatelessWidget {
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
-      validator: validator,  // Usar la validación
+      validator: validator,
+      style: TextStyle(color: Colors.black87),
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: TextStyle(
+          fontFamily: 'Poppins',
+          fontWeight: FontWeight.w500, // Medium
+          color: Color(0xFF585858),
+        ),
+        floatingLabelStyle: TextStyle(
+          fontFamily: 'Poppins',
+          fontWeight: FontWeight.w500, // Medium
+          color: Colors.white,
+        ),
         filled: true,
         fillColor: Colors.white,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide.none,
         ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.white, width: 2),
+        ),
+        contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+        floatingLabelBehavior: FloatingLabelBehavior.auto,
+        alignLabelWithHint: true,
       ),
     );
   }
