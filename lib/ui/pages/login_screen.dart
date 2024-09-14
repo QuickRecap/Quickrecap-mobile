@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart'; // Importa el paquete flutter_svg
 import 'package:provider/provider.dart';
-import '../widgets/custom_input.dart'; // Asegúrate de que la ruta es correcta
+import '../widgets/custom_input.dart';
 import '../../ui/providers/login_provider.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -23,33 +22,31 @@ class _LoginScreenState extends State<LoginScreen> {
         children: [
           SizedBox.expand(
             child: Image.asset(
-              'assets/images/background-authentication.png', // Ruta correcta del PNG
+              'assets/images/background-authentication.png',
               fit: BoxFit.cover,
             ),
           ),
-
-          // Contenido de la pantalla
           Center(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.symmetric(horizontal: 62.0),
                 child: Form(
                   key: _formKey,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Logo y nombre de la app
                       Text(
                         "QUICK\nRECAP",
                         style: TextStyle(
                           fontFamily: 'Poppins',
-                          fontWeight: FontWeight.bold, // o FontWeight.w700
+                          fontWeight: FontWeight.bold,
                           fontSize: 57,
                           height: 0.98,
                           color: Colors.white,
                           shadows: [
                             Shadow(
-                              offset: Offset(0, 4),  // Ajusta los valores según el efecto deseado
+                              offset: Offset(0, 4),
                               blurRadius: 30.0,
                               color: Color.fromARGB(70, 0, 0, 0),
                             ),
@@ -57,29 +54,22 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       SizedBox(height: 40),
-
-                      // Campo de correo electrónico utilizando CustomInput
                       CustomInput(
                         controller: emailController,
-                        width: 300, // O cualquier otro valor que desees
                         label: 'Correo',
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Por favor ingresa tu correo';
                           }
-                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
-                              .hasMatch(value)) {
+                          if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
                             return 'Por favor ingresa un correo válido';
                           }
                           return null;
                         },
                       ),
                       SizedBox(height: 16),
-
-                      // Campo de contraseña utilizando CustomInput
                       CustomInput(
                         controller: passwordController,
-                        width: 300, // O cualquier otro valor que desees
                         label: 'Contraseña',
                         obscureText: true,
                         validator: (value) {
@@ -90,8 +80,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                       SizedBox(height: 16),
-
-                      // Checkbox de 'Recordarme'
                       Row(
                         children: [
                           Checkbox(
@@ -102,13 +90,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               });
                             },
                           ),
-                          Text('Recordarme', style: TextStyle(color: Colors.white)),
+                          Text('Recordar credenciales',
+                              style: TextStyle(color: Colors.white)),
                         ],
                       ),
-
-                      SizedBox(height: 16),
-
-                      // Botón de iniciar sesión
+                      SizedBox(height: 24),
                       ElevatedButton(
                         onPressed: _isLoading ? null : _handleLogin,
                         child: _isLoading
@@ -126,11 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-
-                      // Espacio entre el botón de iniciar sesión y el botón de registrarme
                       SizedBox(height: 16),
-
-                      // Botón de registrarse
                       TextButton(
                         onPressed: () {
                           Navigator.pushNamed(context, '/register');
