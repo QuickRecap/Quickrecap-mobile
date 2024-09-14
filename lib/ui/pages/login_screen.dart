@@ -61,6 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Campo de correo electrónico utilizando CustomInput
                       CustomInput(
                         controller: emailController,
+                        width: 300, // O cualquier otro valor que desees
                         label: 'Correo',
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -78,6 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Campo de contraseña utilizando CustomInput
                       CustomInput(
                         controller: passwordController,
+                        width: 300, // O cualquier otro valor que desees
                         label: 'Contraseña',
                         obscureText: true,
                         validator: (value) {

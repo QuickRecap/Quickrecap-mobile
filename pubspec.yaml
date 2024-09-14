@@ -75,19 +75,14 @@ flutter:
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/assets-and-images/#from-packages
 
-  # To add custom fonts to your application, add a fonts section here,
-  # in this "flutter" section. Each entry in this list should have a
-  # "family" key with the font family name, and a "fonts" key with a
-  # list giving the asset and other descriptors for the font. For
-  # example:
   fonts:
     - family: Poppins
       fonts:
-        - asset: fonts/Poppins-Regular.ttf
+        - asset: assets/fonts/Poppins-Regular.ttf
           weight: 400
-        - asset: fonts/Poppins-Bold.ttf
+        - asset: assets/fonts/Poppins-Bold.ttf
           weight: 700
-        - asset: fonts/Poppins-ExtraBold.ttf
+        - asset: assets/fonts/Poppins-ExtraBold.ttf
           weight: 800
   # fonts:
   #   - family: Schyler
