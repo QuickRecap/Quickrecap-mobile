@@ -36,21 +36,23 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(
-                        "QUICK\nRECAP",
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.bold,
-                          fontSize: 57,
-                          height: 0.98,
-                          color: Colors.white,
-                          shadows: [
-                            Shadow(
-                              offset: Offset(0, 4),
-                              blurRadius: 30.0,
-                              color: Color.fromARGB(70, 0, 0, 0),
-                            ),
-                          ],
+                      Center(
+                        child: Text(
+                          "QUICK\nRECAP",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.bold,
+                            fontSize: 57,
+                            height: 0.98,
+                            color: Colors.white,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(0, 4),
+                                blurRadius: 30.0,
+                                color: Color.fromARGB(70, 0, 0, 0),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       SizedBox(height: 40),
@@ -89,26 +91,53 @@ class _LoginScreenState extends State<LoginScreen> {
                                 _rememberMe = value ?? false;
                               });
                             },
+                            activeColor: Colors.white, // El color del fondo cuando está activo
+                            checkColor: Color(0xFF7566FC),  // Color del check dentro del checkbox
+                            side: BorderSide(color: Colors.white, width: 2), // Borde blanco
                           ),
-                          Text('Recordar credenciales',
-                              style: TextStyle(color: Colors.white)),
+                          Text(
+                            'Recordar credenciales',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ],
                       ),
+                      SizedBox(height: 12),
+                      Divider(
+                        color: Colors.white.withOpacity(0.5), // Blanco al 50% de opacidad
+                        thickness: 2, // 2 píxeles de alto
+                      ),
                       SizedBox(height: 24),
-                      ElevatedButton(
-                        onPressed: _isLoading ? null : _handleLogin,
-                        child: _isLoading
-                            ? CircularProgressIndicator(color: Colors.white)
-                            : Text("Iniciar Sesión"),
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Colors.orange,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          textStyle: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                      Center(
+                        child: SizedBox(
+                          width: 200, // Ajusta este valor para cambiar el ancho del botón
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _handleLogin,
+                            child: _isLoading
+                                ? SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                                : Text("Iniciar Sesion"),
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              backgroundColor: Color(0xFFFF6803),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20), // Aumentado el radio del borde
+                              ),
+                              textStyle: TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -122,6 +151,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 16,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),

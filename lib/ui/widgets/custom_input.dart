@@ -48,7 +48,7 @@ class CustomInput extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide(color: Colors.white, width: 2),
           ),
-          contentPadding: EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
           floatingLabelBehavior: FloatingLabelBehavior.never,
           alignLabelWithHint: true,
         ),
