@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:quickrecap/ui/controllers/tab_index_controller.dart';
+import 'package:quickrecap/ui/pages/entrypoint.dart';
 import '../widgets/custom_input.dart';
 import '../../ui/providers/login_provider.dart';
+import 'package:get/get.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
