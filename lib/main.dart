@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'application/login_use_case.dart';
+import 'application/register_use_case.dart';
 import 'data/repositories/user_repository_impl.dart';
 import 'ui/pages/login_screen.dart';
+import 'ui/pages/register_screen.dart';
 import 'ui/providers/login_provider.dart';
+import 'ui/providers/register_provider.dart';
 import 'data/api/user_api.dart';
 
 void main() {
@@ -17,9 +20,17 @@ void main() {
             create: (_) => LoginProvider(
                 LoginUseCase(
                     UserRepositoryImpl(userApi)
-                )
+                ),
             )
         ),
+        ChangeNotifierProvider(
+            create: (_) => RegisterProvider(
+                RegisterUseCase(
+                    UserRepositoryImpl(userApi)
+                ),
+            )
+        ),
+
       ],
       child: MyApp(),
     ),
@@ -36,7 +47,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Poppins',
         primarySwatch: Colors.blue,
       ),
-      home: LoginScreen(),
+      home: RegisterScreen(),
     );
   }
 }

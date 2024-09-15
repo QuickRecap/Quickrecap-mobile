@@ -11,4 +11,10 @@ class UserRepositoryImpl implements UserRepository {
   Future<User?> login(String email, String password) async {
     return await userApi.login(email, password);
   }
+
+  @override
+  Future<User?> register(String name, String lastname, String gender, String phone, String email, String password) {
+    // TODO: implement register
+    throw UnimplementedError();
+  }
 }

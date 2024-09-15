@@ -5,7 +5,8 @@ class CustomInput extends StatelessWidget {
   final String label;
   final bool obscureText;
   final String? Function(String?)? validator;
-  final double? width;  // Nuevo parámetro para el ancho
+  final TextInputType? keyboardType;  // Añadimos el parámetro para el tipo de teclado
+  final double? width;  // Parámetro para el ancho
 
   const CustomInput({
     Key? key,
@@ -13,6 +14,7 @@ class CustomInput extends StatelessWidget {
     required this.label,
     this.obscureText = false,
     this.validator,
+    this.keyboardType,  // Añadimos el parámetro de tipo de teclado al constructor
     this.width,  // Añadimos el parámetro de ancho
   }) : super(key: key);
 
@@ -24,6 +26,7 @@ class CustomInput extends StatelessWidget {
         controller: controller,
         obscureText: obscureText,
         validator: validator,
+        keyboardType: keyboardType,  // Pasamos el tipo de teclado al TextFormField
         cursorColor: Color(0xFF585858),
         style: TextStyle(color: Colors.black87),
         decoration: InputDecoration(
@@ -39,7 +42,7 @@ class CustomInput extends StatelessWidget {
             color: Colors.white,
           ),
           filled: true,
-          fillColor: Colors.white,
+          fillColor: Color(0xFFF1F1F1),  // Cambiado el color de fondo a #F1F1F1
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide.none,
