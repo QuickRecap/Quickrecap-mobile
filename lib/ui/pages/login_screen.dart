@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/custom_input.dart';
 import '../../ui/providers/login_provider.dart';
+import '../../data/repositories/local_storage_service.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -14,6 +15,24 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   bool _rememberMe = false;
+  final LocalStorageService _storageService = LocalStorageService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials();
+  }
+
+  void _loadSavedCredentials() async {
+    final credentials = await _storageService.getCredentials();
+    if (credentials != null) {
+      setState(() {
+        emailController.text = credentials['email'];
+        passwordController.text = credentials['password'];
+        _rememberMe = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +105,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             onChanged: (bool? value) {
                               setState(() {
                                 _rememberMe = value ?? false;
+                                if(_rememberMe == false){
+                                  _storageService.clearCredentials();
+                                }
                               });
                             },
                             activeColor: Colors.white, // El color del fondo cuando está activo
@@ -166,7 +188,16 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleLogin() async {
-    if (_formKey.currentState!.validate()) {
+    if (_rememberMe) {
+      await _storageService.saveCredentials(
+          emailController.text,
+          passwordController.text,
+          true
+      );
+    } else {
+      await _storageService.clearCredentials();
+    }
+    /*if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
       try {
@@ -177,6 +208,15 @@ class _LoginScreenState extends State<LoginScreen> {
         );
 
         if (success) {
+          if (_rememberMe) {
+            await _storageService.saveCredentials(
+                emailController.text,
+                passwordController.text,
+                true
+            );
+          } else {
+            await _storageService.clearCredentials();
+          }
           Navigator.pushReplacementNamed(context, '/home');
         } else {
           _showErrorSnackBar("Login fallido. Por favor verifica tus credenciales.");
@@ -186,7 +226,7 @@ class _LoginScreenState extends State<LoginScreen> {
       } finally {
         setState(() => _isLoading = false);
       }
-    }
+    }*/
   }
 
   void _showErrorSnackBar(String message) {
