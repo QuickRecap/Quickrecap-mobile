@@ -164,13 +164,31 @@ class _RegisterScreen extends State<RegisterScreen> {
                                 checkColor: Colors.white,
                               ),
                               Expanded(
-                                child: Text(
-                                  'Acepto los Términos y Condiciones y Políticas de privacidad',
-                                  style: TextStyle(
-                                    color: Color(0xFF585858),
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 12,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.pushNamed(context, '/terms_conditions');
+                                  },
+                                  child: Text.rich(
+                                    TextSpan(
+                                      text: 'Acepto los ',
+                                      style: TextStyle(
+                                        color: Color(0xFF585858),
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 12,
+                                      ),
+                                      children: <TextSpan>[
+                                        TextSpan(
+                                          text: 'Términos y Condiciones y Políticas de privacidad',
+                                          style: TextStyle(
+                                            color: Color(0xFF585858),
+                                            fontFamily: 'Poppins',
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 12,
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
