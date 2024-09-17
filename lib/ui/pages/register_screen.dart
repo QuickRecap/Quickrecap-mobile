@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/custom_input.dart';
 import '../../ui/providers/register_provider.dart';
+import '../widgets/custom_select_input.dart';  // Importa tu CustomSelectInput
+
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -45,7 +47,7 @@ class _RegisterScreen extends State<RegisterScreen> {
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.bold,
-                        fontSize: 42,
+                        fontSize: 38,
                         height: 1,
                         color: Colors.white,
                         shadows: [
@@ -82,7 +84,7 @@ class _RegisterScreen extends State<RegisterScreen> {
                               "Registra una cuenta",
                               style: TextStyle(
                                 fontFamily: 'Poppins',
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                                 fontSize: 18,
                                 color: Colors.black,
                               ),
@@ -99,15 +101,37 @@ class _RegisterScreen extends State<RegisterScreen> {
                             label: 'Apellidos',
                           ),
                           SizedBox(height: 16),
-                          CustomInput(
-                            controller: genderController,
-                            label: 'Género',
-                          ),
-                          SizedBox(height: 16),
-                          CustomInput(
-                            controller: phoneController,
-                            label: 'Celular',
-                            keyboardType: TextInputType.phone,
+                          Row(
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: CustomSelectInput(
+                                  label: 'Género',
+                                  value: genderController.text.isEmpty ? null : genderController.text,  // Valor seleccionado
+                                  options: ['Masculino', 'Femenino', 'Otro'],  // Opciones para el dropdown
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      genderController.text = newValue ?? '';  // Actualiza el valor seleccionado
+                                    });
+                                  },
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Por favor selecciona un género';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              SizedBox(width: 16),
+                              Expanded(
+                                flex: 1,
+                                child: CustomInput(
+                                  controller: phoneController,
+                                  label: 'Celular',
+                                  keyboardType: TextInputType.phone,
+                                ),
+                              ),
+                            ],
                           ),
                           SizedBox(height: 16),
                           CustomInput(
@@ -143,7 +167,7 @@ class _RegisterScreen extends State<RegisterScreen> {
                                 child: Text(
                                   'Acepto los Términos y Condiciones y Políticas de privacidad',
                                   style: TextStyle(
-                                    color: Colors.black,
+                                    color: Color(0xFF585858),
                                     fontFamily: 'Poppins',
                                     fontWeight: FontWeight.w500,
                                     fontSize: 12,
@@ -153,29 +177,33 @@ class _RegisterScreen extends State<RegisterScreen> {
                             ],
                           ),
                           SizedBox(height: 20),
-                          ElevatedButton(
-                            onPressed: _isLoading ? null : _handleRegister,
-                            child: _isLoading
-                                ? SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
-                                : Text("Registrarme"),
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 12),
-                              backgroundColor: Color(0xFFFF6803),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              minimumSize: Size(double.infinity, 50),
-                              textStyle: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                          Center(
+                            child: ElevatedButton(
+                              onPressed: _isLoading ? null : _handleRegister,
+                              child: _isLoading
+                                  ? SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                                  : Text("Registrarme"),
+                              style: ElevatedButton.styleFrom(
+                                padding: EdgeInsets.symmetric(vertical: 12),
+                                backgroundColor: Color(0xFFFF6803),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                minimumSize: Size(200, 50),
+                                textStyle: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white
+                                ),
+                                foregroundColor: Colors.white, // Aquí se establece el color del texto
                               ),
                             ),
                           ),
@@ -186,7 +214,7 @@ class _RegisterScreen extends State<RegisterScreen> {
                               Text(
                                 'Ya tienes una cuenta?',
                                 style: TextStyle(
-                                  color: Colors.black,
+                                  color: Color(0xFF4D5057),
                                   fontSize: 14,
                                   fontFamily: 'Poppins',
                                 ),

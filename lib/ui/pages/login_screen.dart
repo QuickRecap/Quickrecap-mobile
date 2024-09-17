@@ -134,6 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
+                              foregroundColor: Colors.white,
                             ),
                           ),
                         ),
@@ -147,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           'Registrarme',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 16,
+                            fontSize: 17,
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.bold,
                           ),
