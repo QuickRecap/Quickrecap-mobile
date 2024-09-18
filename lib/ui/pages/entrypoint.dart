@@ -64,7 +64,7 @@ class MainScreen extends StatelessWidget {
                                   fontFamily: 'Poppins',
                                   fontWeight: FontWeight.w500,
                                     fontSize:
-                                        15)), // Puedes ajustar el estilo del texto si lo deseas
+                                        15)), 
                           ],
                         ),
                       ),
