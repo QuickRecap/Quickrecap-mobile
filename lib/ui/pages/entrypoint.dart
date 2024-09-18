@@ -20,103 +20,83 @@ class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(TabIndexController());
-    return Obx(() => Scaffold(
-          body: Stack(children: [
-            pageList[controller.tabIndex],
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Theme(
-                data: Theme.of(context).copyWith(canvasColor: Colors.white),
-                child: BottomNavigationBar(
-                  // ------- UNSELECTED STYLES ------- //
-                  showUnselectedLabels: true,
-                  unselectedIconTheme:
-                      const IconThemeData(color: kDisabled, size: 45),
-                  unselectedItemColor: kDisabled,
-                  unselectedLabelStyle: const TextStyle(color: kDisabled),
+    return Obx(
+      () => Scaffold(
+        body: Stack(children: [
+          pageList[controller.tabIndex],
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Theme(
+              data: Theme.of(context).copyWith(canvasColor: Colors.white),
+              child: BottomNavigationBar(
+                // ------- UNSELECTED STYLES ------- //
 
-                  // ------- SELECTED STYLES ------- //
-                  showSelectedLabels: true,
-                  selectedIconTheme:
-                      const IconThemeData(color: kDark, size: 45),
-                  selectedItemColor:
-                      kDark, // Color del label cuando está seleccionado
-                  selectedLabelStyle: const TextStyle(color: kDark),
-
-                  // ------- FUNCTIONS ------- //
-                  type: BottomNavigationBarType.fixed,
-                  currentIndex: controller.tabIndex,
-                  onTap: (value) {
-                    controller.tabIndex = value;
-                  },
-
-                  // ------- ITEMS ------- //
-                  items: [
-                    const BottomNavigationBarItem(
-                      icon: Padding(
-                        padding: EdgeInsets.all(5.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.home),
-                            Text('Home',
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w500,
-                                    fontSize:
-                                        15)), 
-                          ],
-                        ),
-                      ),
-                      label: '',
-                    ),
-                    const BottomNavigationBarItem(
-                      icon: Padding(
-                        padding: EdgeInsets.all(5.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.dashboard),
-                            Text('Minijuegos', style: TextStyle(fontFamily: 'Poppins', fontSize: 15)),
-                          ],
-                        ),
-                      ),
-                      label: '',
-                    ),
-                    const BottomNavigationBarItem(
-                      icon: Padding(
-                        padding: EdgeInsets.all(5.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.add_circle_outline),
-                            Text('Crear', style: TextStyle(fontFamily: 'Poppins', fontSize: 15)),
-                          ],
-                        ),
-                      ),
-                      label: '',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            controller.tabIndex == 3
-                                ? const Icon(Icons.person)
-                                : const Icon(Icons.person_2_outlined),
-                            const Text('Perfil',
-                                style: TextStyle(fontFamily: 'Poppins', fontSize: 15)),
-                          ],
-                        ),
-                      ),
-                      label: '',
-                    ),
-                  ],
+                showUnselectedLabels: true,
+                unselectedIconTheme:
+                    const IconThemeData(color: kDisabled, size: 40),
+                unselectedItemColor: kDisabled,
+                unselectedLabelStyle: const TextStyle(
+                  color: kDisabled,
+                  fontFamily: 'Poppins',
+                  fontSize: 15,
                 ),
+
+                showSelectedLabels: true,
+                selectedIconTheme: const IconThemeData(color: kDark, size: 40),
+                selectedItemColor: kDark,
+                selectedLabelStyle: const TextStyle(
+                  color: kDark,
+                  fontFamily: 'Poppins',
+                  fontSize: 15,
+                ),
+
+                type: BottomNavigationBarType.fixed,
+                currentIndex: controller.tabIndex,
+                onTap: (value) {
+                  controller.tabIndex = value;
+                },
+                items: [
+                  const BottomNavigationBarItem(
+                    icon: Padding(
+                      padding: EdgeInsets.all(7.0),
+                      child: Icon(Icons.home),
+                    ),
+                    label: 'Home',
+                  ),
+                  const BottomNavigationBarItem(
+                    icon: Padding(
+                      padding: EdgeInsets.all(7.0),
+                      child: Icon(Icons.dashboard),
+                    ),
+                    label: 'Minijuegos',
+                  ),
+                  const BottomNavigationBarItem(
+                    icon: Padding(
+                      padding: EdgeInsets.all(7.0),
+                      child: Icon(Icons.add_circle_outline),
+                    ),
+                    label: 'Crear',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Padding(
+                      padding: const EdgeInsets.all(7.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          controller.tabIndex == 3
+                              ? const Icon(Icons.person)
+                              : const Icon(Icons.person_2_outlined),
+                        ],
+                      ),
+                    ),
+                    label: 'Perfil',
+                  ),
+                ],
               ),
             ),
-          ]),
-        ));
+          ),
+        ]),
+      ),
+    );
   }
 }
