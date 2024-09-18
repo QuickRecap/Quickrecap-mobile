@@ -77,7 +77,7 @@ class MainScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.dashboard),
-                            Text('Minijuegos', style: TextStyle(fontFamily: 'Poppins', fontSize: 15)),
+                            Text('Minijuegos', style: TextStyle(fontFamily: 'Poppins', fontSize: 15, color: Color(0xff565656))),
                           ],
                         ),
                       ),
