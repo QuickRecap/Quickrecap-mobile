@@ -30,12 +30,14 @@ class MainScreen extends StatelessWidget {
               child: Theme(
                 data: Theme.of(context).copyWith(canvasColor: Colors.white),
                 child: BottomNavigationBar(
+                  // ------- UNSELECTED STYLES ------- //
                   showUnselectedLabels: true,
                   unselectedIconTheme:
                       const IconThemeData(color: kDisabled, size: 45),
                   unselectedItemColor: kDisabled,
                   unselectedLabelStyle: const TextStyle(color: kDisabled),
 
+                  // ------- SELECTED STYLES ------- //
                   showSelectedLabels: true,
                   selectedIconTheme:
                       const IconThemeData(color: kDark, size: 45),
@@ -43,10 +45,14 @@ class MainScreen extends StatelessWidget {
                       kDark, // Color del label cuando está seleccionado
                   selectedLabelStyle: const TextStyle(color: kDark),
 
+                  // ------- FUNCTIONS ------- //
+                  type: BottomNavigationBarType.fixed,
+                  currentIndex: controller.tabIndex,
                   onTap: (value) {
                     controller.tabIndex = value;
                   },
-                  currentIndex: controller.tabIndex,
+
+                  // ------- ITEMS ------- //
                   items: [
                     const BottomNavigationBarItem(
                       icon: Padding(
@@ -57,8 +63,10 @@ class MainScreen extends StatelessWidget {
                             Icon(Icons.home),
                             Text('Home',
                                 style: TextStyle(
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w500,
                                     fontSize:
-                                        13)), // Puedes ajustar el estilo del texto si lo deseas
+                                        15)), // Puedes ajustar el estilo del texto si lo deseas
                           ],
                         ),
                       ),
@@ -71,7 +79,7 @@ class MainScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.dashboard),
-                            Text('Minijuegos', style: TextStyle(fontSize: 13)),
+                            Text('Minijuegos', style: TextStyle(fontFamily: 'Poppins', fontSize: 15)),
                           ],
                         ),
                       ),
@@ -84,7 +92,7 @@ class MainScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.add_circle_outline),
-                            Text('Crear', style: TextStyle(fontSize: 13)),
+                            Text('Crear', style: TextStyle(fontFamily: 'Poppins', fontSize: 15)),
                           ],
                         ),
                       ),
@@ -100,7 +108,7 @@ class MainScreen extends StatelessWidget {
                                 ? const Icon(Icons.person)
                                 : const Icon(Icons.person_2_outlined),
                             const Text('Perfil',
-                                style: TextStyle(fontSize: 13)),
+                                style: TextStyle(fontFamily: 'Poppins', fontSize: 15)),
                           ],
                         ),
                       ),
