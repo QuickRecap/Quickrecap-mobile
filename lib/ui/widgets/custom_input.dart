@@ -27,31 +27,31 @@ class CustomInput extends StatelessWidget {
         obscureText: obscureText,
         validator: validator,
         keyboardType: keyboardType,  // Pasamos el tipo de teclado al TextFormField
-        cursorColor: Color(0xFF585858),
-        style: TextStyle(color: Colors.black87),
+        cursorColor: const Color(0xFF585858),
+        style: const TextStyle(color: Colors.black87),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: TextStyle(
+          labelStyle: const TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w500,
             color: Color(0xFF454545),
           ),
-          floatingLabelStyle: TextStyle(
+          floatingLabelStyle: const TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w500,
             color: Colors.white,
           ),
           filled: true,
-          fillColor: Color(0xFFF1F1F1),  // Cambiado el color de fondo a #F1F1F1
+          fillColor: const Color(0xFFF1F1F1),  // Cambiado el color de fondo a #F1F1F1
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide.none,
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: Colors.white, width: 2),
+            borderSide: const BorderSide(color: Colors.white, width: 2),
           ),
-          contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+          contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
           floatingLabelBehavior: FloatingLabelBehavior.never,
           alignLabelWithHint: true,
         ),

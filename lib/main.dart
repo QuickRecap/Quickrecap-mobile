@@ -33,7 +33,7 @@ void main() {
             )
         ),
       ],
-      child: MyApp(),
+      child: const MyApp(),
     ),
   );
 }
@@ -53,7 +53,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/login', // Establecer la ruta inicial
       routes: {
         '/login': (context) => LoginScreen(),  // Ruta para la pantalla de Login
-        '/register': (context) => RegisterScreen(),  // Ruta para la pantalla de Registro
+        '/register': (context) => const RegisterScreen(),  // Ruta para la pantalla de Registro
         '/terms_conditions': (context) => TermsConditionsScreen(),
         '/home': (context) => HomeScreen(),
       },

@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:quickrecap/ui/controllers/tab_index_controller.dart';
-import 'package:quickrecap/ui/pages/entrypoint.dart';
 import '../widgets/custom_input.dart';
-import '../../ui/providers/login_provider.dart';
 import '../../data/repositories/local_storage_service.dart';
-import 'package:get/get.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -16,7 +11,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  bool _isLoading = false;
+  final bool _isLoading = false;
   bool _rememberMe = false;
   final LocalStorageService _storageService = LocalStorageService();
 
@@ -58,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Center(
+                      const Center(
                         child: Text(
                           "QUICK\nRECAP",
                           style: TextStyle(
@@ -77,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 40),
+                      const SizedBox(height: 40),
                       CustomInput(
                         controller: emailController,
                         label: 'Correo',
@@ -88,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           return null;
                         },
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       CustomInput(
                         controller: passwordController,
                         label: 'Contraseña',
@@ -100,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           return null;
                         },
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       Row(
                         children: [
                           Checkbox(
@@ -114,10 +109,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               });
                             },
                             activeColor: Colors.white, // El color del fondo cuando está activo
-                            checkColor: Color(0xFF7566FC),  // Color del check dentro del checkbox
-                            side: BorderSide(color: Colors.white, width: 2), // Borde blanco
+                            checkColor: const Color(0xFF7566FC),  // Color del check dentro del checkbox
+                            side: const BorderSide(color: Colors.white, width: 2), // Borde blanco
                           ),
-                          Text(
+                          const Text(
                             'Recordar credenciales',
                             style: TextStyle(
                                 color: Colors.white,
@@ -127,19 +122,32 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 12),
+                      const SizedBox(height: 12),
                       Divider(
                         color: Colors.white.withOpacity(0.5), // Blanco al 50% de opacidad
                         thickness: 2, // 2 píxeles de alto
                       ),
-                      SizedBox(height: 24),
+                      const SizedBox(height: 24),
                       Center(
                         child: SizedBox(
                           width: 200, // Ajusta este valor para cambiar el ancho del botón
                           child: ElevatedButton(
                             onPressed: _isLoading ? null : _handleLogin,
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              backgroundColor: const Color(0xFFFF6803),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20), // Aumentado el radio del borde
+                              ),
+                              textStyle: const TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              foregroundColor: Colors.white,
+                            ),
                             child: _isLoading
-                                ? SizedBox(
+                                ? const SizedBox(
                               width: 24,
                               height: 24,
                               child: CircularProgressIndicator(
@@ -147,29 +155,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                 strokeWidth: 2,
                               ),
                             )
-                                : Text("Iniciar Sesion"),
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 12),
-                              backgroundColor: Color(0xFFFF6803),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20), // Aumentado el radio del borde
-                              ),
-                              textStyle: TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                              foregroundColor: Colors.white,
-                            ),
+                                : const Text("Iniciar Sesion"),
                           ),
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       TextButton(
                         onPressed: () {
                           Navigator.pushNamed(context, '/register');
                         },
-                        child: Text(
+                        child: const Text(
                           'Registrarme',
                           style: TextStyle(
                             color: Colors.white,

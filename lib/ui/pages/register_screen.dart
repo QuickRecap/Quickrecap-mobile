@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:quickrecap/ui/constants/constants.dart';
 import '../widgets/custom_input.dart';
 import '../../ui/providers/register_provider.dart';
 import '../widgets/custom_select_input.dart';  // Importa tu CustomSelectInput
 
-
 class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
   @override
   _RegisterScreen createState() => _RegisterScreen();
 }
@@ -40,8 +42,8 @@ class _RegisterScreen extends State<RegisterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  SizedBox(height: 60),
-                  Center(
+                  const SizedBox(height: 60),
+                  const Center(
                     child: Text(
                       "QUICK\nRECAP",
                       style: TextStyle(
@@ -49,7 +51,7 @@ class _RegisterScreen extends State<RegisterScreen> {
                         fontWeight: FontWeight.bold,
                         fontSize: 38,
                         height: 1,
-                        color: Colors.white,
+                        color: kWhite,
                         shadows: [
                           Shadow(
                             offset: Offset(0, 4),
@@ -60,26 +62,26 @@ class _RegisterScreen extends State<RegisterScreen> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 15),
+                  const SizedBox(height: 15),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: kWhite,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.1),
                           blurRadius: 10,
-                          offset: Offset(0, 5),
+                          offset: const Offset(0, 5),
                         ),
                       ],
                     ),
-                    padding: EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(20),
                     child: Form(
                       key: _formKey,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Center(
+                          const Center(
                             child: Text(
                               "Registra una cuenta",
                               style: TextStyle(
@@ -90,17 +92,17 @@ class _RegisterScreen extends State<RegisterScreen> {
                               ),
                             ),
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           CustomInput(
                             controller: nameController,
                             label: 'Nombre',
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           CustomInput(
                             controller: lastNameController,
                             label: 'Apellidos',
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Row(
                             children: [
                               Expanded(
@@ -108,7 +110,7 @@ class _RegisterScreen extends State<RegisterScreen> {
                                 child: CustomSelectInput(
                                   label: 'Género',
                                   value: genderController.text.isEmpty ? null : genderController.text,  // Valor seleccionado
-                                  options: ['Masculino', 'Femenino', 'Otro'],  // Opciones para el dropdown
+                                  options: const ['Masculino', 'Femenino', 'Otro'],  // Opciones para el dropdown
                                   onChanged: (String? newValue) {
                                     setState(() {
                                       genderController.text = newValue ?? '';  // Actualiza el valor seleccionado
@@ -122,7 +124,7 @@ class _RegisterScreen extends State<RegisterScreen> {
                                   },
                                 ),
                               ),
-                              SizedBox(width: 16),
+                              const SizedBox(width: 16),
                               Expanded(
                                 flex: 1,
                                 child: CustomInput(
@@ -133,24 +135,24 @@ class _RegisterScreen extends State<RegisterScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           CustomInput(
                             controller: emailController,
                             label: 'Correo',
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           CustomInput(
                             controller: passwordController,
                             label: 'Contraseña',
                             obscureText: true,
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           CustomInput(
                             controller: repeatPasswordController,
                             label: 'Repetir Contraseña',
                             obscureText: true,
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           Row(
                             children: [
                               Checkbox(
@@ -160,19 +162,19 @@ class _RegisterScreen extends State<RegisterScreen> {
                                     _acceptTerms = value ?? false;
                                   });
                                 },
-                                activeColor: Color(0xFFFF6803),
-                                checkColor: Colors.white,
+                                activeColor: kSecondary,
+                                checkColor: kWhite,
                               ),
                               Expanded(
                                 child: GestureDetector(
                                   onTap: () {
                                     Navigator.pushNamed(context, '/terms_conditions');
                                   },
-                                  child: Text.rich(
+                                  child: const Text.rich(
                                     TextSpan(
                                       text: 'Acepto los ',
                                       style: TextStyle(
-                                        color: Color(0xFF585858),
+                                        color: kGrey,
                                         fontFamily: 'Poppins',
                                         fontWeight: FontWeight.w500,
                                         fontSize: 12,
@@ -181,7 +183,7 @@ class _RegisterScreen extends State<RegisterScreen> {
                                         TextSpan(
                                           text: 'Términos y Condiciones y Políticas de privacidad',
                                           style: TextStyle(
-                                            color: Color(0xFF585858),
+                                            color: kGrey,
                                             fontFamily: 'Poppins',
                                             fontWeight: FontWeight.w700,
                                             fontSize: 12,
@@ -194,45 +196,45 @@ class _RegisterScreen extends State<RegisterScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 20),
+                          const SizedBox(height: 20),
                           Center(
                             child: ElevatedButton(
                               onPressed: _isLoading ? null : _handleRegister,
-                              child: _isLoading
-                                  ? SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                                  : Text("Registrarme"),
                               style: ElevatedButton.styleFrom(
-                                padding: EdgeInsets.symmetric(vertical: 12),
-                                backgroundColor: Color(0xFFFF6803),
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                backgroundColor: kSecondary,
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(20),
                                 ),
-                                minimumSize: Size(200, 50),
-                                textStyle: TextStyle(
+                                minimumSize: const Size(200, 50),
+                                textStyle: const TextStyle(
                                   fontFamily: 'Poppins',
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white
+                                  color: kWhite
                                 ),
-                                foregroundColor: Colors.white, // Aquí se establece el color del texto
+                                foregroundColor: kWhite, // Aquí se establece el color del texto
                               ),
+                              child: _isLoading
+                                  ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                  color: kWhite,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                                  : const Text("Registrarme"),
                             ),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(
+                              const Text(
                                 'Ya tienes una cuenta?',
                                 style: TextStyle(
-                                  color: Color(0xFF4D5057),
+                                  color:kGrey,
                                   fontSize: 14,
                                   fontFamily: 'Poppins',
                                 ),
@@ -241,10 +243,10 @@ class _RegisterScreen extends State<RegisterScreen> {
                                 onPressed: () {
                                   Navigator.pushNamed(context, '/login');
                                 },
-                                child: Text(
+                                child: const Text(
                                   'Inicia sesión',
                                   style: TextStyle(
-                                    color: Color(0xFF7566FC),
+                                    color: kPrimary,
                                     fontSize: 14,
                                     fontFamily: 'Poppins',
                                     fontWeight: FontWeight.bold,

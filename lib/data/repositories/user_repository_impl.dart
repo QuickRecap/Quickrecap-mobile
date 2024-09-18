@@ -14,7 +14,6 @@ class UserRepositoryImpl implements UserRepository {
 
   @override
   Future<User?> register(String name, String lastname, String gender, String phone, String email, String password) {
-    // TODO: implement register
     throw UnimplementedError();
   }
 }

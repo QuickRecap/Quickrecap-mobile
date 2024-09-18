@@ -7,8 +7,6 @@ import 'package:quickrecap/ui/pages/views/games/games_screen.dart';
 import 'package:quickrecap/ui/pages/views/home/home_screen.dart';
 import 'package:quickrecap/ui/pages/views/profile/profile_dart.dart';
 
-import 'package:flutter_vector_icons/flutter_vector_icons.dart';
-
 class MainScreen extends StatelessWidget {
   MainScreen({super.key});
 

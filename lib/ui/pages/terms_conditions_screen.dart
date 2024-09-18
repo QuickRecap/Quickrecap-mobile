@@ -5,7 +5,7 @@ class TermsConditionsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Términos y Condiciones',
           style: TextStyle(
             fontFamily: 'Poppins',
@@ -13,21 +13,21 @@ class TermsConditionsScreen extends StatelessWidget {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Color(0xFF7C6AF7), // Color púrpura del encabezado
+        backgroundColor: const Color(0xFF7C6AF7), // Color púrpura del encabezado
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
       body: Container(
         color: Colors.white, // Fondo blanco puro #FFFFFF
         child: SingleChildScrollView(
-          padding: EdgeInsets.all(20),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Términos y Condiciones de Uso',
                 style: TextStyle(
                   fontFamily: 'Poppins',
@@ -36,7 +36,7 @@ class TermsConditionsScreen extends StatelessWidget {
                   color: Colors.black,
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Text(
                 'Última actualización: [Fecha]',
                 style: TextStyle(
@@ -45,8 +45,8 @@ class TermsConditionsScreen extends StatelessWidget {
                   color: Colors.grey[600],
                 ),
               ),
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'Bienvenido a Quick Recap. Al utilizar nuestra aplicación, usted acepta los siguientes términos y condiciones:',
                 style: TextStyle(
                   fontFamily: 'Poppins',
@@ -54,7 +54,7 @@ class TermsConditionsScreen extends StatelessWidget {
                   color: Colors.black87,
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               _buildSection('1. Uso de la Aplicación',
                   'Quick Recap es una herramienta diseñada para [descripción breve]. Usted se compromete a utilizar la aplicación de manera responsable y de acuerdo con todas las leyes aplicables.'),
               _buildSection('2. Registro de Cuenta',
@@ -77,23 +77,23 @@ class TermsConditionsScreen extends StatelessWidget {
       children: [
         Text(
           title,
-          style: TextStyle(
+          style: const TextStyle(
             fontFamily: 'Poppins',
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.black,
           ),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Text(
           content,
-          style: TextStyle(
+          style: const TextStyle(
             fontFamily: 'Poppins',
             fontSize: 16,
             color: Colors.black87,
           ),
         ),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
       ],
     );
   }

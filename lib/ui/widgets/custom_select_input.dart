@@ -7,7 +7,7 @@ class CustomSelectInput extends StatelessWidget {
   final void Function(String?) onChanged;
   final String? Function(String?)? validator;
 
-  CustomSelectInput({
+  const CustomSelectInput({super.key, 
     required this.label,
     required this.value,
     required this.options,
@@ -21,7 +21,7 @@ class CustomSelectInput extends StatelessWidget {
       value: value?.isEmpty ?? true ? null : value,
       hint: Text(
         label,
-        style: TextStyle(
+        style: const TextStyle(
           fontFamily: 'Poppins',
           fontWeight: FontWeight.w500,
           color: Color(0xFF454545),  // Color del label
@@ -30,26 +30,26 @@ class CustomSelectInput extends StatelessWidget {
       ),
       decoration: InputDecoration(
         filled: true,
-        fillColor: Color(0xffF1F1F1),
+        fillColor: const Color(0xffF1F1F1),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: Colors.transparent),
+          borderSide: const BorderSide(color: Colors.transparent),
         ),
-        contentPadding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.transparent),
+          borderSide: const BorderSide(color: Colors.transparent),
           borderRadius: BorderRadius.circular(10),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFFF1F1F1), width: 2),
+          borderSide: const BorderSide(color: Color(0xFFF1F1F1), width: 2),
           borderRadius: BorderRadius.circular(10),
         ),
       ),
-      dropdownColor: Color(0xffffffff), // Color de fondo del dropdown
+      dropdownColor: const Color(0xffffffff), // Color de fondo del dropdown
       isExpanded: true,
       onChanged: onChanged,
       validator: validator,
-      style: TextStyle(
+      style: const TextStyle(
         fontFamily: 'Poppins',
         fontWeight: FontWeight.w500,
         color: Color(0xFF454545),  // Color del texto seleccionado
@@ -60,7 +60,7 @@ class CustomSelectInput extends StatelessWidget {
           value: option,
           child: Text(
             option,
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: 'Poppins',
               fontWeight: FontWeight.w500,
               color: Color(0xFF454545),  // Color del texto en las opciones
