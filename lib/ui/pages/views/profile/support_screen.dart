@@ -203,6 +203,7 @@ class SupportScreen extends StatelessWidget {
                       nameController.text,
                       descriptionController.text,
                     );
+                    print(success);
 
                     if (success) {
                       Navigator.of(context).pop(); // Cierra el diálogo si la respuesta es exitosa
