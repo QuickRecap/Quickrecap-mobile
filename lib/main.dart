@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'application/password_use_case.dart';
+import 'ui/providers/password_provider.dart';
 import 'application/support_use_case.dart';
 import 'data/api/support_api.dart';
 import 'data/repositories/support_repository_impl.dart';
@@ -39,6 +41,10 @@ void main() async{
             create: (_) => RegisterProvider(
                   RegisterUseCase(UserRepositoryImpl(userApi)),
                 )),
+        ChangeNotifierProvider(
+            create: (_) => PasswordProvider(
+              PasswordUseCase(UserRepositoryImpl(userApi)),
+            )),
         ChangeNotifierProvider(
             create: (_) => SupportProvider(
               SupportUseCase(SupportRepositoryImpl(supportApi)),

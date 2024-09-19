@@ -42,4 +42,18 @@ class UserApi {
       return null;
     }
   }
+
+  Future<bool> changePassword(String userId, String oldPassword, String newPassword) async {
+    final response = await http.put(
+      Uri.parse('http://10.0.2.2:8000/quickrecap/change-password/'),
+      body: {
+        'id': userId, // Agrega el user_id
+        'old_password': oldPassword,
+        'new_password': newPassword,
+      },
+    );
+
+    return response.statusCode == 200 || response.statusCode == 201;
+  }
+
 }
