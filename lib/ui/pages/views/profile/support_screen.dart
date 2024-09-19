@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:quickrecap/ui/constants/constants.dart';
 
 class SupportScreen extends StatelessWidget {
   const SupportScreen({super.key});
@@ -88,13 +89,19 @@ class SupportScreen extends StatelessWidget {
   void _showReportDialog(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true, // Permite que el diálogo se ajuste cuando aparece el teclado
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
       ),
       backgroundColor: Colors.white,
       builder: (BuildContext context) {
         return Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.only(
+            left: 16.0,
+            right: 16.0,
+            bottom: MediaQuery.of(context).viewInsets.bottom, // Ajusta la posición según el teclado
+            top: 16.0,
+          ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -121,31 +128,68 @@ class SupportScreen extends StatelessWidget {
               TextField(
                 decoration: InputDecoration(
                   labelText: 'Nombre',
+                  labelStyle: TextStyle(
+                    color: Color(0xFF676767),
+                  ),
+                  floatingLabelStyle: TextStyle(
+                    color: kPrimary,
+                  ),
                   contentPadding: const EdgeInsets.all(10),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.grey, width: 1),
+                    borderSide: BorderSide(color: Color(0xFF676767), width: 1),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: kPrimary, width: 2),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Color(0xFF676767), width: 1),
                   ),
                 ),
+                style: TextStyle(
+                  color: Color(0xFF585858),
+                ),
+                keyboardType: TextInputType.text,
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 15),
               TextField(
                 decoration: InputDecoration(
                   labelText: 'Descripción',
+                  labelStyle: TextStyle(
+                    color: Color(0xFF676767),
+                  ),
+                  floatingLabelStyle: TextStyle(
+                    color: kPrimary,
+                  ),
                   contentPadding: const EdgeInsets.all(10),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Colors.grey, width: 1),
+                    borderSide: BorderSide(color: Color(0xFF676767), width: 1),
                   ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: kPrimary, width: 2),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide(color: Color(0xFF676767), width: 1),
+                  ),
+                  alignLabelWithHint: true,
                 ),
-                maxLines: 3,
+                style: TextStyle(
+                  color: Color(0xFF585858),
+                ),
+                keyboardType: TextInputType.multiline,
+                maxLines: null,
+                minLines: 5,
               ),
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Lógica para enviar reporte
                     Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
@@ -164,12 +208,14 @@ class SupportScreen extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
             ],
           ),
         );
       },
     );
   }
+
 
 
 }
