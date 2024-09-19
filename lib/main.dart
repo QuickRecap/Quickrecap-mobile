@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:quickrecap/domain/entities/user.dart';
+import 'application/support_use_case.dart';
+import 'data/api/support_api.dart';
+import 'data/repositories/support_repository_impl.dart';
 import 'package:quickrecap/ui/pages/entrypoint.dart';
 import 'application/login_use_case.dart';
 import 'application/register_use_case.dart';
@@ -15,6 +17,7 @@ import 'ui/pages/views/profile/password_screen.dart';
 import 'ui/pages/views/profile/information_screen.dart';
 import 'ui/providers/login_provider.dart';
 import 'ui/providers/register_provider.dart';
+import 'ui/providers/support_provider.dart';
 import 'data/api/user_api.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Importar flutter_screenutil
 
@@ -23,6 +26,7 @@ void main() async{
   await Firebase.initializeApp();
   // Crear una instancia de UserApi
   final userApi = UserApi();
+  final supportApi = SupportApi();
 
   runApp(
     MultiProvider(
@@ -35,6 +39,10 @@ void main() async{
             create: (_) => RegisterProvider(
                   RegisterUseCase(UserRepositoryImpl(userApi)),
                 )),
+        ChangeNotifierProvider(
+            create: (_) => SupportProvider(
+              SupportUseCase(SupportRepositoryImpl(supportApi)),
+            )),
       ],
       child: const MyApp(),
     ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart'; // Asegúrate de tener este import
 import 'package:quickrecap/ui/constants/constants.dart';
+import 'package:quickrecap/ui/providers/support_provider.dart'; // Asegúrate de tener este import
 
 class SupportScreen extends StatelessWidget {
   const SupportScreen({super.key});
@@ -8,33 +10,33 @@ class SupportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Row(
-            children: [
-              Text(
-                'Soporte y Ayuda',
-                style: TextStyle(
-                  color: Color(0xff212121), // Cambia el color del texto del título
-                  fontSize: 20.sp, // Ajusta el tamaño del texto según tu diseño
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w600,
-                ),
+      appBar: AppBar(
+        title: Row(
+          children: [
+            Text(
+              'Soporte y Ayuda',
+              style: TextStyle(
+                color: Color(0xff212121),
+                fontSize: 20.sp,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w600,
               ),
-            ],
-          ),
-          centerTitle: false,
-          backgroundColor: Colors.white,
-          elevation: 0,
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back_ios, color: Colors.black),
-            onPressed: () {
-              if (Navigator.canPop(context)) {
-                Navigator.pop(context);
-              }
-            },
-          ),
+            ),
+          ],
         ),
-        body: Padding(
+        centerTitle: false,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: Colors.black),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            }
+          },
+        ),
+      ),
+      body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
@@ -45,18 +47,16 @@ class SupportScreen extends StatelessWidget {
             const SizedBox(height: 10),
             _buildExpansionTile(
               title: '¿Cómo puedo generar un quiz?',
-              content:
-              'Solo tienes que subir el PDF de tu resumen o clase, seleccionar el tipo de juego que quieres, el número de preguntas que quieres responder, el tiempo que quieres para cada pregunta, y ¡voilá! ¡Tu actividad está lista para poner a prueba tus habilidades!',
+              content: 'Solo tienes que subir el PDF de tu resumen o clase, seleccionar el tipo de juego que quieres, el número de preguntas que quieres responder, el tiempo que quieres para cada pregunta, y ¡voilá! ¡Tu actividad está lista para poner a prueba tus habilidades!',
             ),
             const SizedBox(height: 10),
             _buildExpansionTile(
               title: '¿Cómo juego el quiz?',
-              content:
-              'Puedes jugar el quiz accediendo a la sección de juegos, seleccionando el quiz que generaste, y respondiendo a las preguntas dentro del tiempo establecido.',
+              content: 'Puedes jugar el quiz accediendo a la sección de juegos, seleccionando el quiz que generaste, y respondiendo a las preguntas dentro del tiempo establecido.',
             ),
             const Spacer(),
             SizedBox(
-              width: double.infinity, // Ocupa todo el ancho disponible
+              width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: () {
                   _showReportDialog(context);
@@ -67,12 +67,12 @@ class SupportScreen extends StatelessWidget {
                   style: TextStyle(color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF6D5BFF), // Color de fondo
+                  backgroundColor: Color(0xFF6D5BFF),
                   padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 24.0),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),
                   ),
-                  elevation: 5, // Añade sombra para un efecto elevado
+                  elevation: 5,
                 ),
               ),
             )
@@ -90,9 +90,12 @@ class SupportScreen extends StatelessWidget {
   }
 
   void _showReportDialog(BuildContext context) {
+    final TextEditingController nameController = TextEditingController();
+    final TextEditingController descriptionController = TextEditingController();
+
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // Permite que el diálogo se ajuste cuando aparece el teclado
+      isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
       ),
@@ -102,7 +105,7 @@ class SupportScreen extends StatelessWidget {
           padding: EdgeInsets.only(
             left: 16.0,
             right: 16.0,
-            bottom: MediaQuery.of(context).viewInsets.bottom, // Ajusta la posición según el teclado
+            bottom: MediaQuery.of(context).viewInsets.bottom,
             top: 16.0,
           ),
           child: Column(
@@ -120,15 +123,16 @@ class SupportScreen extends StatelessWidget {
                   Text(
                     'Reportar un error',
                     style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xff424242)
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff424242),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 10),
               TextField(
+                controller: nameController,
                 decoration: InputDecoration(
                   labelText: 'Nombre',
                   labelStyle: TextStyle(
@@ -158,6 +162,7 @@ class SupportScreen extends StatelessWidget {
               ),
               const SizedBox(height: 15),
               TextField(
+                controller: descriptionController,
                 decoration: InputDecoration(
                   labelText: 'Descripción',
                   labelStyle: TextStyle(
@@ -192,8 +197,27 @@ class SupportScreen extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
+                  onPressed: () async {
+                    final supportProvider = Provider.of<SupportProvider>(context, listen: false);
+                    bool success = await supportProvider.reportError(
+                      nameController.text,
+                      descriptionController.text,
+                    );
+
+                    if (success) {
+                      Navigator.of(context).pop(); // Cierra el diálogo si la respuesta es exitosa
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Error reportado exitosamente.'),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('No se pudo reportar el error.'),
+                        ),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF6D5BFF),
@@ -218,9 +242,6 @@ class SupportScreen extends StatelessWidget {
       },
     );
   }
-
-
-
 }
 
 class _CustomExpansionTile extends StatefulWidget {
@@ -242,7 +263,7 @@ class _CustomExpansionTileState extends State<_CustomExpansionTile> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
-          color: _isExpanded ? Color(0xFF6D5BFF) : Color(0xFFC6C6C6), // Cambia el color según el estado
+          color: _isExpanded ? Color(0xFF6D5BFF) : Color(0xFFC6C6C6),
           width: 1.0,
         ),
       ),
@@ -261,25 +282,22 @@ class _CustomExpansionTileState extends State<_CustomExpansionTile> {
           ),
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
               child: Text(
                 widget.content,
-                style: const TextStyle(fontSize: 14, color: Colors.black54),
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                ),
               ),
             ),
           ],
-          textColor: Color(0xFF6D5BFF),
-          iconColor: Color(0xFF6D5BFF),
-          collapsedTextColor: Colors.black,
-          collapsedIconColor: Colors.black,
-          tilePadding: const EdgeInsets.symmetric(horizontal: 16.0),
-          expandedCrossAxisAlignment: CrossAxisAlignment.start,
-          childrenPadding: const EdgeInsets.only(bottom: 16.0),
           onExpansionChanged: (bool expanded) {
             setState(() {
               _isExpanded = expanded;
             });
           },
+          initiallyExpanded: _isExpanded,
         ),
       ),
     );
