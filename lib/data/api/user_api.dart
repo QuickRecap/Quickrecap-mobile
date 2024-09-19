@@ -19,4 +19,27 @@ class UserApi {
       return null;
     }
   }
+
+  Future<User?> register(String nombre, String apellidos, String gender,
+      String phone, String email, String password) async {
+    print(gender);
+    final response = await http.post(
+      Uri.parse('http://10.0.2.2:8000/quickrecap/register/'),
+      body: {
+        'email': email,
+        'password': password,
+        'nombres': nombre,
+        'apellidos': apellidos,
+        'celular': phone,
+        'genero': gender,
+      },
+    );
+
+    if (response.statusCode == 201) {
+      final data = json.decode(response.body);
+      return User.fromJson(data['user']);
+    } else {
+      return null;
+    }
+  }
 }

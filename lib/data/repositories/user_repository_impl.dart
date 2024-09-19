@@ -13,7 +13,7 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<User?> register(String name, String lastname, String gender, String phone, String email, String password) {
-    throw UnimplementedError();
+  Future<User?> register(String name, String lastname, String gender, String phone, String email, String password) async {
+    return await userApi.register(name, lastname, gender, phone, email, password);
   }
 }
