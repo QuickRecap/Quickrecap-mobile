@@ -10,6 +10,7 @@ import 'ui/pages/terms_conditions_screen.dart';
 import 'ui/pages/views/profile/configuration_screen.dart';
 import 'ui/pages/views/profile/support_screen.dart';
 import 'ui/pages/views/profile/password_screen.dart';
+import 'ui/pages/views/profile/information_screen.dart';
 import 'ui/providers/login_provider.dart';
 import 'ui/providers/register_provider.dart';
 import 'data/api/user_api.dart';
@@ -66,6 +67,7 @@ class MyApp extends StatelessWidget {
             '/configuration': (context) => ConfigurationScreen(),
             '/support': (context) => SupportScreen(),
             '/password': (context) => PasswordScreen(),
+            '/information': (context) => ProfileInformationScreen(),
           },
         );
       },
