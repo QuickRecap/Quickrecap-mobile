@@ -55,6 +55,7 @@ class ConfigurationScreen extends StatelessWidget {
               icon: Icons.help,
               text: 'Soporte y Ayuda',
               onTap: () {
+                Navigator.pushReplacementNamed(context, '/support');
                 // Acción al presionar
               },
             ),
