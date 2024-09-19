@@ -9,8 +9,12 @@ class PasswordScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          icon: Icon(Icons.arrow_back_ios),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            }
+          },
         ),
         title: Text('Cambiar Contraseña',
               style: TextStyle(

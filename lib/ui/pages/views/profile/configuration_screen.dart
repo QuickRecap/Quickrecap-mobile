@@ -8,6 +8,14 @@ class ConfigurationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios, color: Color(0xFF000000)), // Color negro
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            }
+          },
+        ),
         title: Text('Configuración'),
         backgroundColor: Colors.white, // Color del AppBar
         elevation: 0, // Sin sombra en el AppBar
@@ -16,8 +24,7 @@ class ConfigurationScreen extends StatelessWidget {
           color: Color(0xff212121), // Cambia el color del texto del título
           fontSize: 25.sp, // Ajusta el tamaño del texto según tu diseño
           fontWeight: FontWeight.w600,
-        ),
-        iconTheme: IconThemeData(color: Colors.black), // Color del ícono
+        ), // Color del ícono
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 24.w), // Margen
@@ -37,7 +44,7 @@ class ConfigurationScreen extends StatelessWidget {
               icon: Icons.lock,
               text: 'Cambiar Contraseña',
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/password');
+                Navigator.pushNamed(context, '/password');
                 // Acción al presionar
               },
             ),
@@ -56,7 +63,7 @@ class ConfigurationScreen extends StatelessWidget {
               icon: Icons.help,
               text: 'Soporte y Ayuda',
               onTap: () {
-                Navigator.pushReplacementNamed(context, '/support');
+                Navigator.pushNamed(context, '/support');
                 // Acción al presionar
               },
             ),

@@ -138,7 +138,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               IconButton(
                 icon: Icon(Icons.settings),
                 onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/configuration');
+                  Navigator.pushNamed(context, '/configuration');
                   // Acción para el botón de configuración
                 },
               ),
