@@ -4,6 +4,10 @@ import 'package:quickrecap/ui/widgets/custom_input.dart';
 import 'package:quickrecap/ui/widgets/custom_select_input.dart';
 import 'package:quickrecap/ui/widgets/custom_date_input.dart';
 import 'package:quickrecap/ui/constants/constants.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io'; // Importa dart:io para el manejo de archivos
+
+
 
 class ProfileInformationScreen extends StatefulWidget {
   const ProfileInformationScreen({Key? key}) : super(key: key);
@@ -18,6 +22,18 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
   final TextEditingController phoneController = TextEditingController(text: '924052944');
   final TextEditingController genderController = TextEditingController(text: 'Masculino');
   final TextEditingController birthDateController = TextEditingController(text: 'dd/mm/aaaa');
+
+  XFile? _image;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickImage() async {
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    if (image != null) {
+      setState(() {
+        _image = image;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,12 +72,12 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
             children: [
               CircleAvatar(
                 radius: 50,
-                backgroundImage: AssetImage('assets/images/profile_pic.png'),
+                backgroundImage: _image != null
+                    ? FileImage(File(_image!.path)) as ImageProvider
+                    : AssetImage('assets/images/profile_pic.png'),
               ),
               TextButton(
-                onPressed: () {
-                  // Implementar lógica para cambiar la foto
-                },
+                onPressed: _pickImage,
                 child: Text(
                   'Cambiar foto',
                   style: TextStyle(color: Color(0xff6D5BFF)),
