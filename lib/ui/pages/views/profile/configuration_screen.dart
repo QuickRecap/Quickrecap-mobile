@@ -37,6 +37,7 @@ class ConfigurationScreen extends StatelessWidget {
               icon: Icons.lock,
               text: 'Cambiar Contraseña',
               onTap: () {
+                Navigator.pushReplacementNamed(context, '/password');
                 // Acción al presionar
               },
             ),

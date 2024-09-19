@@ -16,6 +16,7 @@ class SupportScreen extends StatelessWidget {
                 style: TextStyle(
                   color: Color(0xff212121), // Cambia el color del texto del título
                   fontSize: 20.sp, // Ajusta el tamaño del texto según tu diseño
+                  fontFamily: 'Poppins',
                   fontWeight: FontWeight.w600,
                 ),
               ),
