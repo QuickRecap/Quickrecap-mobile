@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:quickrecap/domain/entities/user.dart';
+import 'package:quickrecap/main.dart';
+import 'package:quickrecap/ui/pages/views/profile/information_screen.dart';
+import 'package:quickrecap/ui/providers/login_provider.dart';
 import '../widgets/custom_input.dart';
 import '../../data/repositories/local_storage_service.dart';
 
@@ -11,7 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  final bool _isLoading = false;
+  bool _isLoading = false;
   bool _rememberMe = false;
   final LocalStorageService _storageService = LocalStorageService();
 
@@ -103,41 +108,47 @@ class _LoginScreenState extends State<LoginScreen> {
                             onChanged: (bool? value) {
                               setState(() {
                                 _rememberMe = value ?? false;
-                                if(_rememberMe == false){
+                                if (_rememberMe == false) {
                                   _storageService.clearCredentials();
                                 }
                               });
                             },
-                            activeColor: Colors.white, // El color del fondo cuando está activo
-                            checkColor: const Color(0xFF7566FC),  // Color del check dentro del checkbox
-                            side: const BorderSide(color: Colors.white, width: 2), // Borde blanco
+                            activeColor: Colors
+                                .white, // El color del fondo cuando está activo
+                            checkColor: const Color(
+                                0xFF7566FC), // Color del check dentro del checkbox
+                            side: const BorderSide(
+                                color: Colors.white, width: 2), // Borde blanco
                           ),
                           const Text(
                             'Recordar credenciales',
                             style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: 'Poppins',
-                                fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: 12),
                       Divider(
-                        color: Colors.white.withOpacity(0.5), // Blanco al 50% de opacidad
+                        color: Colors.white
+                            .withOpacity(0.5), // Blanco al 50% de opacidad
                         thickness: 2, // 2 píxeles de alto
                       ),
                       const SizedBox(height: 24),
                       Center(
                         child: SizedBox(
-                          width: 200, // Ajusta este valor para cambiar el ancho del botón
+                          width:
+                              200, // Ajusta este valor para cambiar el ancho del botón
                           child: ElevatedButton(
                             onPressed: _isLoading ? null : _handleLogin,
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               backgroundColor: const Color(0xFFFF6803),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20), // Aumentado el radio del borde
+                                borderRadius: BorderRadius.circular(
+                                    20), // Aumentado el radio del borde
                               ),
                               textStyle: const TextStyle(
                                 fontFamily: 'Poppins',
@@ -148,13 +159,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             child: _isLoading
                                 ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
-                            )
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
                                 : const Text("Iniciar Sesion"),
                           ),
                         ),
@@ -188,44 +199,47 @@ class _LoginScreenState extends State<LoginScreen> {
   void _handleLogin() async {
     if (_rememberMe) {
       await _storageService.saveCredentials(
-          emailController.text,
-          passwordController.text,
-          true
+        emailController.text,
+        passwordController.text,
+        true,
       );
     } else {
       await _storageService.clearCredentials();
     }
-    Navigator.pushReplacementNamed(context, '/entrypoint');
-    /*if (_formKey.currentState!.validate()) {
+
+    if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
       try {
-        final loginProvider = Provider.of<LoginProvider>(context, listen: false);
-        bool success = await loginProvider.login(
+        final loginProvider =
+            Provider.of<LoginProvider>(context, listen: false);
+        User? user = await loginProvider.login(
           emailController.text,
           passwordController.text,
         );
 
-        if (success) {
+        if (user != null) {
           if (_rememberMe) {
             await _storageService.saveCredentials(
-                emailController.text,
-                passwordController.text,
-                true
+              emailController.text,
+              passwordController.text,
+              true,
             );
           } else {
             await _storageService.clearCredentials();
           }
-          Navigator.pushReplacementNamed(context, '/home');
+          Navigator.pushNamed(context, '/entrypoint');
+          //navigateToProfileInformation(context, user);
         } else {
-          _showErrorSnackBar("Login fallido. Por favor verifica tus credenciales.");
+          _showErrorSnackBar(
+              "Login fallido. Por favor verifica tus credenciales.");
         }
       } catch (e) {
         _showErrorSnackBar("Ocurrió un error. Inténtalo de nuevo.");
       } finally {
         setState(() => _isLoading = false);
       }
-    }*/
+    }
   }
 
   void _showErrorSnackBar(String message) {

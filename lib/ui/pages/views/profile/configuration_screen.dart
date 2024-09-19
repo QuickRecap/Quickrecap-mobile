@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:quickrecap/main.dart';
 
 class ConfigurationScreen extends StatelessWidget {
   const ConfigurationScreen({super.key});
@@ -35,7 +36,8 @@ class ConfigurationScreen extends StatelessWidget {
               icon: Icons.person,
               text: 'Información Personal',
               onTap: () {
-                Navigator.pushNamed(context, '/information');
+                //navigateToProfileInformation(context, user);
+                //Navigator.pushNamed(context, '/information');
                 // Acción al presionar
               },
             ),

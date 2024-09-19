@@ -4,6 +4,7 @@ class User {
   final String gender;
   final String phone;
   final String email;
+  final String birthday;
 
   User({
     required this.firstName,
@@ -11,27 +12,30 @@ class User {
     required this.gender,
     required this.phone,
     required this.email,
+    required this.birthday,
   });
 
   // Método para crear una instancia de User desde un JSON
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      firstName: json['firstName'],
-      lastName: json['lastName'],
-      gender: json['gender'],
-      phone: json['phone'],
+      firstName: json['nombres'],
+      lastName: json['apellidos'],
+      gender: json['genero'],
+      phone: json['celular'],
       email: json['email'],
+      birthday: json['fecha_nacimiento'],
     );
   }
 
   // Método para convertir una instancia de User a un JSON
   Map<String, dynamic> toJson() {
     return {
-      'firstName': firstName,
-      'lastName': lastName,
-      'gender': gender,
-      'phone': phone,
+      'nombres': firstName,
+      'apellidos': lastName,
+      'genero': gender,
+      'celular': phone,
       'email': email,
+      'fecha_nacimiento': birthday,
     };
   }
 }

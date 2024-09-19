@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:quickrecap/domain/entities/user.dart';
 import 'package:quickrecap/ui/pages/entrypoint.dart';
 import 'application/login_use_case.dart';
 import 'application/register_use_case.dart';
@@ -25,12 +26,12 @@ void main() {
       providers: [
         ChangeNotifierProvider(
             create: (_) => LoginProvider(
-              LoginUseCase(UserRepositoryImpl(userApi)),
-            )),
+                  LoginUseCase(UserRepositoryImpl(userApi)),
+                )),
         ChangeNotifierProvider(
             create: (_) => RegisterProvider(
-              RegisterUseCase(UserRepositoryImpl(userApi)),
-            )),
+                  RegisterUseCase(UserRepositoryImpl(userApi)),
+                )),
       ],
       child: const MyApp(),
     ),
@@ -60,20 +61,30 @@ class MyApp extends StatelessWidget {
           ),
           initialRoute: '/login', // Establecer la ruta inicial
           routes: {
-            '/login': (context) => LoginScreen(), // Ruta para la pantalla de Login
-            '/register': (context) => const RegisterScreen(), // Ruta para la pantalla de Registro
+            '/login': (context) =>
+                LoginScreen(), // Ruta para la pantalla de Login
+            '/register': (context) =>
+                const RegisterScreen(), // Ruta para la pantalla de Registro
             '/terms_conditions': (context) => TermsConditionsScreen(),
             '/entrypoint': (context) => MainScreen(),
             '/configuration': (context) => ConfigurationScreen(),
             '/support': (context) => SupportScreen(),
             '/password': (context) => PasswordScreen(),
-            '/information': (context) => ProfileInformationScreen(),
           },
         );
       },
-      child: const HomePage(title: 'First Method'), // Widget principal de la app
+      child:
+          const HomePage(title: 'First Method'), // Widget principal de la app
     );
   }
+}
+
+void navigateToProfileInformation(BuildContext context, User user) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+        builder: (context) => new ProfileInformationScreen(user: user)),
+  );
 }
 
 class HomePage extends StatelessWidget {

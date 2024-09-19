@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:quickrecap/domain/entities/user.dart';
 import 'package:quickrecap/ui/widgets/custom_input.dart';
 import 'package:quickrecap/ui/widgets/custom_select_input.dart';
 import 'package:quickrecap/ui/widgets/custom_date_input.dart';
@@ -10,18 +11,29 @@ import 'dart:io'; // Importa dart:io para el manejo de archivos
 
 
 class ProfileInformationScreen extends StatefulWidget {
-  const ProfileInformationScreen({Key? key}) : super(key: key);
+  final User user;
+  ProfileInformationScreen({Key? key, required this.user}) : super(key: key);
 
   @override
   _ProfileInformationScreenState createState() => _ProfileInformationScreenState();
 }
 
 class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
-  final TextEditingController nameController = TextEditingController(text: 'Diego');
-  final TextEditingController lastNameController = TextEditingController(text: 'Talledo Sanchez');
-  final TextEditingController phoneController = TextEditingController(text: '924052944');
-  final TextEditingController genderController = TextEditingController(text: 'Masculino');
-  final TextEditingController birthDateController = TextEditingController(text: 'dd/mm/aaaa');
+  late TextEditingController nameController;
+  late TextEditingController lastNameController;
+  late TextEditingController phoneController;
+  late TextEditingController genderController;
+  late TextEditingController birthDateController;
+
+    @override
+  void initState() {
+    super.initState();
+    nameController = TextEditingController(text: widget.user.firstName);
+    lastNameController = TextEditingController(text: widget.user.lastName);
+    phoneController = TextEditingController(text: widget.user.phone);
+    genderController = TextEditingController(text: widget.user.gender);
+    birthDateController = TextEditingController(text: widget.user.birthday);
+  }
 
   XFile? _image;
   final ImagePicker _picker = ImagePicker();
@@ -195,7 +207,7 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    primary: Color(0xff6D5BFF),
+                    backgroundColor: kPrimary,
                     padding: EdgeInsets.symmetric(vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(17),
