@@ -51,7 +51,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 size: 30.sp,
                               ),
                               onPressed: () {
-                                // Acción al presionar el botón de salir
                               },
                             ),
                           ],
@@ -139,6 +138,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               IconButton(
                 icon: Icon(Icons.settings),
                 onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/configuration');
                   // Acción para el botón de configuración
                 },
               ),
