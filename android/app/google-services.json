@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1025750249832",
+    "project_id": "quickrecap-5d9ea",
+    "storage_bucket": "quickrecap-5d9ea.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1025750249832:android:5832cf6662baf5b9aee6dd",
+        "android_client_info": {
+          "package_name": "com.quickrecap.quickrecap"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8NuQSxuvgMcTNfgEa8I-ZzWZTCHrzpq8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

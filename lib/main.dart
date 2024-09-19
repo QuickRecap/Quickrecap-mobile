@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:quickrecap/domain/entities/user.dart';
 import 'package:quickrecap/ui/pages/entrypoint.dart';
 import 'application/login_use_case.dart';
@@ -17,7 +18,9 @@ import 'ui/providers/register_provider.dart';
 import 'data/api/user_api.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Importar flutter_screenutil
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   // Crear una instancia de UserApi
   final userApi = UserApi();
 
@@ -70,6 +73,7 @@ class MyApp extends StatelessWidget {
             '/configuration': (context) => ConfigurationScreen(),
             '/support': (context) => SupportScreen(),
             '/password': (context) => PasswordScreen(),
+            '/information': (context) => ProfileInformationScreen(),
           },
         );
       },
@@ -77,14 +81,6 @@ class MyApp extends StatelessWidget {
           const HomePage(title: 'First Method'), // Widget principal de la app
     );
   }
-}
-
-void navigateToProfileInformation(BuildContext context, User user) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-        builder: (context) => new ProfileInformationScreen(user: user)),
-  );
 }
 
 class HomePage extends StatelessWidget {

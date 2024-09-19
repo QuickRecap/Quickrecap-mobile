@@ -6,16 +6,16 @@ import 'package:quickrecap/ui/widgets/custom_select_input.dart';
 import 'package:quickrecap/ui/widgets/custom_date_input.dart';
 import 'package:quickrecap/ui/constants/constants.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io'; // Importa dart:io para el manejo de archivos
-
-
+import 'package:firebase_storage/firebase_storage.dart'; // Firebase Storage
+import 'dart:io';
+import 'package:path/path.dart' as path; // Manejo de nombres de archivos
 
 class ProfileInformationScreen extends StatefulWidget {
-  final User user;
-  ProfileInformationScreen({Key? key, required this.user}) : super(key: key);
+  ProfileInformationScreen({Key? key}) : super(key: key);
 
   @override
-  _ProfileInformationScreenState createState() => _ProfileInformationScreenState();
+  _ProfileInformationScreenState createState() =>
+      _ProfileInformationScreenState();
 }
 
 class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
@@ -25,18 +25,20 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
   late TextEditingController genderController;
   late TextEditingController birthDateController;
 
-    @override
-  void initState() {
-    super.initState();
-    nameController = TextEditingController(text: widget.user.firstName);
-    lastNameController = TextEditingController(text: widget.user.lastName);
-    phoneController = TextEditingController(text: widget.user.phone);
-    genderController = TextEditingController(text: widget.user.gender);
-    birthDateController = TextEditingController(text: widget.user.birthday);
-  }
-
   XFile? _image;
   final ImagePicker _picker = ImagePicker();
+  bool _isUploading = false;
+  String? _downloadURL;
+
+  @override
+  void initState() {
+    super.initState();
+    nameController = TextEditingController(text: "Diego");
+    lastNameController = TextEditingController(text: "Talledo Sanchez");
+    phoneController = TextEditingController(text: "924052944");
+    genderController = TextEditingController(text: "Masculino");
+    birthDateController = TextEditingController(text: "19/09/2024");
+  }
 
   Future<void> _pickImage() async {
     final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
@@ -44,6 +46,40 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
       setState(() {
         _image = image;
       });
+    }
+  }
+
+  Future<void> _uploadImage() async {
+    if (_image == null) return;
+
+    setState(() {
+      _isUploading = true;
+    });
+
+    FirebaseStorage storage = FirebaseStorage.instance;
+    String fileName = path.basename(_image!.path);
+    Reference storageRef = storage.ref().child('profile_pics/$fileName');
+
+    try {
+      await storageRef.putFile(File(_image!.path));
+      String downloadURL = await storageRef.getDownloadURL();
+
+      setState(() {
+        _downloadURL = downloadURL;
+        _isUploading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Imagen subida exitosamente'),
+      ));
+    } catch (e) {
+      setState(() {
+        _isUploading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Error al subir la imagen'),
+      ));
     }
   }
 
@@ -56,8 +92,8 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
             Text(
               'Informacion Personal',
               style: TextStyle(
-                color: Color(0xff212121), // Cambia el color del texto del título
-                fontSize: 20.sp, // Ajusta el tamaño del texto según tu diseño
+                color: Color(0xff212121),
+                fontSize: 20.sp,
                 fontFamily: 'Poppins',
                 fontWeight: FontWeight.w600,
               ),
@@ -95,6 +131,7 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                   style: TextStyle(color: Color(0xff6D5BFF)),
                 ),
               ),
+              if (_isUploading) CircularProgressIndicator(),
               SizedBox(height: 20),
               Align(
                 alignment: Alignment.centerLeft,
@@ -194,8 +231,8 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Implementa la lógica de actualización de contraseña aquí
+                  onPressed: () async {
+                    await _uploadImage();
                   },
                   child: Text(
                     'Guardar',

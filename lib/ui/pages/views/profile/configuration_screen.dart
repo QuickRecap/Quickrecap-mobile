@@ -37,7 +37,7 @@ class ConfigurationScreen extends StatelessWidget {
               text: 'Información Personal',
               onTap: () {
                 //navigateToProfileInformation(context, user);
-                //Navigator.pushNamed(context, '/information');
+                Navigator.pushNamed(context, '/information');
                 // Acción al presionar
               },
             ),

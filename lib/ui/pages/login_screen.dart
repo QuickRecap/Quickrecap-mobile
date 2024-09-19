@@ -207,6 +207,8 @@ class _LoginScreenState extends State<LoginScreen> {
       await _storageService.clearCredentials();
     }
 
+    Navigator.pushNamed(context, '/entrypoint');
+
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
