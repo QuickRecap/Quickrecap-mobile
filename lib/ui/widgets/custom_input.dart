@@ -34,7 +34,7 @@ class CustomInput extends StatelessWidget {
           labelStyle: const TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w500,
-            color: Color(0xFF454545),
+            color: Color(0xFF9B9B9B),
           ),
           floatingLabelStyle: const TextStyle(
             fontFamily: 'Poppins',

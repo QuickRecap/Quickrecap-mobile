@@ -57,7 +57,7 @@ class CustomDateInput extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
           floatingLabelBehavior: FloatingLabelBehavior.never,
           alignLabelWithHint: true,
-          suffixIcon: Icon(Icons.calendar_today, color: Colors.purple),
+          suffixIcon: Icon(Icons.calendar_today, color: Color(0xff6D5BFF)),
         ),
       ),
     );
@@ -65,11 +65,48 @@ class CustomDateInput extends StatelessWidget {
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime now = DateTime.now();
-    final DateTime? picked = await showDatePicker(
+    DateTime initialDate;
+
+    // Verifica si el controlador tiene un valor válido
+    if (controller.text.isNotEmpty) {
+      try {
+        initialDate = DateFormat('dd/MM/yyyy').parse(controller.text);
+      } catch (e) {
+        initialDate = now;
+      }
+    } else {
+      initialDate = now;
+    }
+
+    final DateTime? picked = await showDialog<DateTime>(
       context: context,
-      initialDate: initialDate ?? now,
-      firstDate: firstDate ?? DateTime(1900),
-      lastDate: lastDate ?? now,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Theme(
+            data: ThemeData.light().copyWith(
+              colorScheme: ColorScheme.light(
+                primary: Color(0xff6D5BFF), // Color del calendario
+                onPrimary: Colors.white, // Color del texto en el calendario
+                onSurface: Colors.black, // Color del texto en los días
+              ),
+              dialogBackgroundColor: Colors.white,
+            ),
+            child: Builder(
+              builder: (context) => CalendarDatePicker(
+                initialDate: initialDate,
+                firstDate: firstDate ?? DateTime(1900),
+                lastDate: lastDate ?? now,
+                onDateChanged: (DateTime date) {
+                  Navigator.pop(context, date);
+                },
+              ),
+            ),
+          ),
+        );
+      },
     );
     if (picked != null && picked != now) {
       controller.text = DateFormat('dd/MM/yyyy').format(picked);

@@ -64,28 +64,76 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                 },
                 child: Text(
                   'Cambiar foto',
-                  style: TextStyle(color: Colors.blue),
+                  style: TextStyle(color: Color(0xff6D5BFF)),
                 ),
               ),
               SizedBox(height: 20),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Nombres',
+                  style: TextStyle(
+                    color: Color(0xff585858),
+                    fontSize: 15.sp,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
               CustomInput(
                 controller: nameController,
-                label: 'Nombres',
+                label: 'Ingrese su nombre',
               ),
               SizedBox(height: 16),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Apellidos',
+                  style: TextStyle(
+                    color: Color(0xff585858),
+                    fontSize: 15.sp,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
               CustomInput(
                 controller: lastNameController,
-                label: 'Apellidos',
+                label: 'Ingrese sus apellidos',
               ),
               SizedBox(height: 16),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Celular',
+                  style: TextStyle(
+                    color: Color(0xff585858),
+                    fontSize: 15.sp,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
               CustomInput(
                 controller: phoneController,
-                label: 'Celular',
+                label: 'Ingrese su numero celular',
                 keyboardType: TextInputType.phone,
               ),
               SizedBox(height: 16),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Genero',
+                  style: TextStyle(
+                    color: Color(0xff585858),
+                    fontSize: 15.sp,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
               CustomSelectInput(
-                label: 'Genero',
+                label: 'Seleccione un genero',
                 value: genderController.text,
                 options: const ['Masculino', 'Femenino', 'Otro'],
                 onChanged: (String? newValue) {
@@ -95,9 +143,21 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                 },
               ),
               SizedBox(height: 16),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  'Fecha de nacimiento',
+                  style: TextStyle(
+                    color: Color(0xff585858),
+                    fontSize: 15.sp,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
               CustomDateInput(
                 controller: birthDateController,
-                label: 'Fecha de nacimiento',
+                label: 'Ingrese una fecha de nacimiento',
                 initialDate: DateTime(2000),
                 firstDate: DateTime(1900),
                 lastDate: DateTime.now(),
