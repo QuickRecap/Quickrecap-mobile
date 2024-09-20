@@ -7,7 +7,8 @@ class CustomSelectInput extends StatelessWidget {
   final void Function(String?) onChanged;
   final String? Function(String?)? validator;
 
-  const CustomSelectInput({super.key, 
+  const CustomSelectInput({
+    super.key,
     required this.label,
     required this.value,
     required this.options,
@@ -42,6 +43,14 @@ class CustomSelectInput extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderSide: const BorderSide(color: Color(0xFFF1F1F1), width: 2),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.transparent),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderSide: const BorderSide(color: Colors.transparent),
           borderRadius: BorderRadius.circular(10),
         ),
       ),

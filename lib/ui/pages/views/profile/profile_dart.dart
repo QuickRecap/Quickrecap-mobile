@@ -161,7 +161,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Text(
                       userFirstName != null && userLastName != null
                           ? '$userFirstName $userLastName'
-                          : 'Nombre no disponible', // Mensaje alternativo en caso de que no se haya cargado
+                          : '', // Mensaje alternativo en caso de que no se haya cargado
                       style: TextStyle(
                         fontSize: 18.sp,
                         fontWeight: FontWeight.w500,

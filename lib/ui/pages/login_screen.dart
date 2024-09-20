@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../domain/entities/user.dart';
@@ -199,12 +201,11 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => _isLoading = true);
 
       try {
-        final loginProvider =
-        Provider.of<LoginProvider>(context, listen: false);
+        final loginProvider = Provider.of<LoginProvider>(context, listen: false);
         User? user = await loginProvider.login(
           emailController.text,
           passwordController.text,
-        );
+        ).timeout(Duration(seconds: 10)); // Añadimos un timeout de 10 segundos
 
         if (user != null) {
           // Guardar credenciales
@@ -222,11 +223,11 @@ class _LoginScreenState extends State<LoginScreen> {
           await _storageService.saveUser(user);
 
           Navigator.pushNamed(context, '/entrypoint');
-          //navigateToProfileInformation(context, user);
         } else {
-          _showErrorSnackBar(
-              "Login fallido. Por favor verifica tus credenciales.");
+          _showErrorSnackBar("Login fallido. Por favor verifica tus credenciales.");
         }
+      } on TimeoutException {
+        _showErrorSnackBar("La conexión tardó demasiado. Por favor, verifica tu conexión a internet e inténtalo de nuevo.");
       } catch (e) {
         _showErrorSnackBar("Ocurrió un error. Inténtalo de nuevo.");
       } finally {

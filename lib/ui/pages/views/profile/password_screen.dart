@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +16,7 @@ class PasswordScreen extends StatefulWidget {
 
 class _PasswordScreenState extends State<PasswordScreen> {
   String? userId;
+  bool _isLoading = false;
 
   final TextEditingController oldPasswordController = TextEditingController();
   final TextEditingController newPasswordController = TextEditingController();
@@ -33,11 +36,62 @@ class _PasswordScreenState extends State<PasswordScreen> {
 
     if (user != null) {
       setState(() {
-        userId= user.id;
+        userId = user.id;
       });
     } else {
       print('No se encontró el usuario.');
     }
+  }
+
+  Future<void> _handleChangePassword() async {
+    if (_formKey.currentState?.validate() == true) {
+      setState(() {
+        _isLoading = true;  // Iniciar carga
+      });
+
+      final passwordProvider = Provider.of<PasswordProvider>(context, listen: false);
+
+      try {
+        bool success = await passwordProvider.changePassword(
+          userId!, // Pasar el ID del usuario como String
+          oldPasswordController.text,
+          newPasswordController.text,
+        ).timeout(Duration(seconds: 10)); // Añadimos un timeout de 10 segundos
+
+        if (success) {
+          Navigator.of(context).pop();
+          _showSuccessSnackBar('Contraseña actualizada exitosamente.');
+        } else {
+          _showErrorSnackBar('No se pudo actualizar la contraseña, informacion incorrecta.');
+        }
+      } on TimeoutException {
+        _showErrorSnackBar('La operación está tardando demasiado. Por favor, verifica tu conexión e inténtalo de nuevo.');
+      } catch (e) {
+        _showErrorSnackBar('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');
+      } finally {
+        setState(() {
+          _isLoading = false;  // Finalizar carga
+        });
+      }
+    }
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   @override
@@ -72,6 +126,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Campo de la contraseña actual
               TextFormField(
                 controller: oldPasswordController,
                 decoration: InputDecoration(
@@ -98,6 +153,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
                 },
               ),
               const SizedBox(height: 16),
+              // Campo de la nueva contraseña
               TextFormField(
                 controller: newPasswordController,
                 decoration: InputDecoration(
@@ -127,6 +183,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
                 },
               ),
               const SizedBox(height: 16),
+              // Campo para repetir la nueva contraseña
               TextFormField(
                 controller: repeatPasswordController,
                 decoration: InputDecoration(
@@ -156,34 +213,9 @@ class _PasswordScreenState extends State<PasswordScreen> {
                 },
               ),
               const SizedBox(height: 24),
+              // Botón para actualizar la contraseña con indicador de carga
               ElevatedButton(
-                onPressed: () async {
-                  if (_formKey.currentState?.validate() == true) {
-                    final passwordProvider =
-                    Provider.of<PasswordProvider>(context, listen: false);
-
-                    bool success = await passwordProvider.changePassword(
-                      userId!, // Pasar el ID del usuario como String
-                      oldPasswordController.text,
-                      newPasswordController.text,
-                    );
-
-                    if (success) {
-                      Navigator.of(context).pop();
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Contraseña actualizada exitosamente.'),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('No se pudo actualizar la contraseña.'),
-                        ),
-                      );
-                    }
-                  }
-                },
+                onPressed: _isLoading ? null : _handleChangePassword,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xff6D5BFF),
                   padding: const EdgeInsets.symmetric(vertical: 15),
@@ -191,7 +223,16 @@ class _PasswordScreenState extends State<PasswordScreen> {
                     borderRadius: BorderRadius.circular(17),
                   ),
                 ),
-                child: const Text(
+                child: _isLoading
+                    ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                )
+                    : const Text(
                   'Actualizar contraseña',
                   style: TextStyle(
                     fontFamily: 'Poppins',

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:quickrecap/ui/constants/constants.dart';
@@ -96,11 +98,23 @@ class _RegisterScreen extends State<RegisterScreen> {
                           CustomInput(
                             controller: nameController,
                             label: 'Nombre',
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor ingrese su nombre';
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 16),
                           CustomInput(
                             controller: lastNameController,
                             label: 'Apellidos',
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor ingrese sus apellidos';
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 16),
                           Row(
@@ -109,11 +123,11 @@ class _RegisterScreen extends State<RegisterScreen> {
                                 flex: 1,
                                 child: CustomSelectInput(
                                   label: 'Género',
-                                  value: genderController.text.isEmpty ? null : genderController.text,  // Valor seleccionado
-                                  options: const ['Masculino', 'Femenino', 'Otro'],  // Opciones para el dropdown
+                                  value: genderController.text.isEmpty ? null : genderController.text,
+                                  options: const ['Masculino', 'Femenino', 'Otro'],
                                   onChanged: (String? newValue) {
                                     setState(() {
-                                      genderController.text = newValue ?? '';  // Actualiza el valor seleccionado
+                                      genderController.text = newValue ?? '';
                                     });
                                   },
                                   validator: (value) {
@@ -124,13 +138,22 @@ class _RegisterScreen extends State<RegisterScreen> {
                                   },
                                 ),
                               ),
-                              const SizedBox(width: 16),
-                              Expanded(
+                              const SizedBox(width: 16),Expanded(
                                 flex: 1,
                                 child: CustomInput(
                                   controller: phoneController,
                                   label: 'Celular',
                                   keyboardType: TextInputType.phone,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) {
+                                      return 'Por favor ingrese su número de celular';
+                                    } else if (!RegExp(r'^\d+$').hasMatch(value)) {
+                                      return 'El número de celular solo debe contener dígitos';
+                                    } else if (value.length < 9) {
+                                      return 'El número de celular debe tener al menos 9 dígitos';
+                                    }
+                                    return null;
+                                  },
                                 ),
                               ),
                             ],
@@ -139,18 +162,42 @@ class _RegisterScreen extends State<RegisterScreen> {
                           CustomInput(
                             controller: emailController,
                             label: 'Correo',
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor ingrese su correo electrónico';
+                              } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                                return 'Ingrese un correo electrónico válido';
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 16),
                           CustomInput(
                             controller: passwordController,
                             label: 'Contraseña',
                             obscureText: true,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor ingrese su contraseña';
+                              } else if (value.length < 6) {
+                                return 'La contraseña debe tener al menos 6 caracteres';
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 16),
                           CustomInput(
                             controller: repeatPasswordController,
                             label: 'Repetir Contraseña',
                             obscureText: true,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Por favor repita su contraseña';
+                              } else if (value != passwordController.text) {
+                                return 'Las contraseñas no coinciden';
+                              }
+                              return null;
+                            },
                           ),
                           const SizedBox(height: 20),
                           Row(
@@ -271,6 +318,11 @@ class _RegisterScreen extends State<RegisterScreen> {
 
   void _handleRegister() async {
     if (_formKey.currentState!.validate()) {
+      if (!_acceptTerms) {
+        _showErrorSnackBar("Debes aceptar los Términos y Condiciones.");
+        return;
+      }
+
       setState(() => _isLoading = true);
 
       try {
@@ -282,15 +334,17 @@ class _RegisterScreen extends State<RegisterScreen> {
           phoneController.text,
           emailController.text,
           passwordController.text,
-        );
+        ).timeout(Duration(seconds: 15)); // Añadimos un timeout de 15 segundos
 
         if (success) {
           Navigator.pushNamed(context, '/login');
         } else {
           _showErrorSnackBar("Registro fallido. Por favor verifica tus datos.");
         }
+      } on TimeoutException {
+        _showErrorSnackBar("El registro está tardando demasiado. Por favor, verifica tu conexión a internet e inténtalo de nuevo.");
       } catch (e) {
-        _showErrorSnackBar("Ocurrió un error. Inténtalo de nuevo.");
+        _showErrorSnackBar("Ocurrió un error durante el registro. Inténtalo de nuevo.");
       } finally {
         setState(() => _isLoading = false);
       }

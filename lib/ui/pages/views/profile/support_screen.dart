@@ -1,11 +1,23 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart'; // Asegúrate de tener este import
-import 'package:quickrecap/ui/constants/constants.dart';
-import 'package:quickrecap/ui/providers/support_provider.dart'; // Asegúrate de tener este import
+import 'package:provider/provider.dart';
+import '../../../../ui/constants/constants.dart';
+import '../../../../ui/providers/support_provider.dart';
 
-class SupportScreen extends StatelessWidget {
+class SupportScreen extends StatefulWidget {
   const SupportScreen({super.key});
+
+  @override
+  _SupportScreenState createState() => _SupportScreenState();
+}
+
+class _SupportScreenState extends State<SupportScreen> {
+  bool _isLoading = false;
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -47,20 +59,18 @@ class SupportScreen extends StatelessWidget {
             const SizedBox(height: 10),
             _buildExpansionTile(
               title: '¿Cómo puedo generar un quiz?',
-              content: 'Solo tienes que subir el PDF de tu resumen o clase, seleccionar el tipo de juego que quieres, el número de preguntas que quieres responder, el tiempo que quieres para cada pregunta, y ¡voilá! ¡Tu actividad está lista para poner a prueba tus habilidades!',
+              content: 'Solo tienes que subir el PDF de tu resumen o clase...',
             ),
             const SizedBox(height: 10),
             _buildExpansionTile(
               title: '¿Cómo juego el quiz?',
-              content: 'Puedes jugar el quiz accediendo a la sección de juegos, seleccionando el quiz que generaste, y respondiendo a las preguntas dentro del tiempo establecido.',
+              content: 'Puedes jugar el quiz accediendo a la sección de juegos...',
             ),
             const Spacer(),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  _showReportDialog(context);
-                },
+                onPressed: () => _showReportDialog(context),
                 icon: const Icon(Icons.report, color: Colors.white),
                 label: const Text(
                   'Reportar un error',
@@ -82,6 +92,57 @@ class SupportScreen extends StatelessWidget {
     );
   }
 
+  Future<void> _handleSendError() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;  // Activa el loading
+      });
+
+      final supportProvider = Provider.of<SupportProvider>(context, listen: false);
+
+      try {
+        bool success = await supportProvider.reportError(
+          nameController.text,
+          descriptionController.text,
+        ).timeout(Duration(seconds: 10));
+
+        if (success) {
+          Navigator.of(context).pop(); // Cierra el diálogo si la respuesta es exitosa
+          _showSuccessSnackBar('Error reportado exitosamente.');
+        } else {
+          _showErrorSnackBar('No se pudo reportar el error.');
+        }
+
+      } on TimeoutException {
+        _showErrorSnackBar('La operación está tardando demasiado. Por favor, verifica tu conexión e inténtalo de nuevo.');
+      } catch (e) {
+        _showErrorSnackBar('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');
+      } finally {
+        setState(() {
+          _isLoading = false;  // Desactiva el loading
+        });
+      }
+    }
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
   Widget _buildExpansionTile({required String title, required String content}) {
     return _CustomExpansionTile(
       title: title,
@@ -90,8 +151,7 @@ class SupportScreen extends StatelessWidget {
   }
 
   void _showReportDialog(BuildContext context) {
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController descriptionController = TextEditingController();
+    bool _isLoading = false; // Mueve el estado aquí
 
     showModalBottomSheet(
       context: context,
@@ -101,148 +161,181 @@ class SupportScreen extends StatelessWidget {
       ),
       backgroundColor: Colors.white,
       builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: 16.0,
-            right: 16.0,
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            top: 16.0,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.close),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  Text(
-                    'Reportar un error',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xff424242),
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 16.0,
+                right: 16.0,
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                top: 16.0,
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.close),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                        Text(
+                          'Reportar un error',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xff424242),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(
-                  labelText: 'Nombre',
-                  labelStyle: TextStyle(
-                    color: Color(0xFF676767),
-                  ),
-                  floatingLabelStyle: TextStyle(
-                    color: kPrimary,
-                  ),
-                  contentPadding: const EdgeInsets.all(10),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Color(0xFF676767), width: 1),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: kPrimary, width: 2),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Color(0xFF676767), width: 1),
-                  ),
-                ),
-                style: TextStyle(
-                  color: Color(0xFF585858),
-                ),
-                keyboardType: TextInputType.text,
-              ),
-              const SizedBox(height: 15),
-              TextField(
-                controller: descriptionController,
-                decoration: InputDecoration(
-                  labelText: 'Descripción',
-                  labelStyle: TextStyle(
-                    color: Color(0xFF676767),
-                  ),
-                  floatingLabelStyle: TextStyle(
-                    color: kPrimary,
-                  ),
-                  contentPadding: const EdgeInsets.all(10),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Color(0xFF676767), width: 1),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: kPrimary, width: 2),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: Color(0xFF676767), width: 1),
-                  ),
-                  alignLabelWithHint: true,
-                ),
-                style: TextStyle(
-                  color: Color(0xFF585858),
-                ),
-                keyboardType: TextInputType.multiline,
-                maxLines: null,
-                minLines: 5,
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final supportProvider = Provider.of<SupportProvider>(context, listen: false);
-                    bool success = await supportProvider.reportError(
-                      nameController.text,
-                      descriptionController.text,
-                    );
-                    print(success);
+                    const SizedBox(height: 10),
+                    _buildTextField(
+                      nameController,
+                      'Nombre',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, ingrese su nombre';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 15),
+                    _buildTextField(
+                      descriptionController,
+                      'Descripción',
+                      isMultiline: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, ingrese una descripción';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _isLoading
+                            ? null
+                            : () async {  // Cambia a async para poder usar await
+                          if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              _isLoading = true;  // Activa el loading
+                            });
 
-                    if (success) {
-                      Navigator.of(context).pop(); // Cierra el diálogo si la respuesta es exitosa
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Error reportado exitosamente.'),
+                            final supportProvider = Provider.of<SupportProvider>(context, listen: false);
+
+                            try {
+                              bool success = await supportProvider.reportError(
+                                nameController.text,
+                                descriptionController.text,
+                              ).timeout(Duration(seconds: 10));
+
+                              if (success) {
+                                Navigator.of(context).pop(); // Cierra el diálogo si la respuesta es exitosa
+                                _showSuccessSnackBar('Error reportado exitosamente.');
+                              } else {
+                                Navigator.of(context).pop();
+                                _showErrorSnackBar('No se pudo reportar el error.');
+                              }
+                            } on TimeoutException {
+                              Navigator.of(context).pop();
+                              _showErrorSnackBar('La operación está tardando demasiado. Por favor, verifica tu conexión e inténtalo de nuevo.');
+                            } catch (e) {
+                              Navigator.of(context).pop();
+                              _showErrorSnackBar('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');
+                            } finally {
+                              nameController.clear();
+                              descriptionController.clear();
+
+                              setState(() {
+                                _isLoading = false;  // Desactiva el loading
+                              });
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF6D5BFF),
+                          padding: const EdgeInsets.symmetric(vertical: 19),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
                         ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('No se pudo reportar el error.'),
+                        child: _isLoading
+                            ? const CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        )
+                            : const Text(
+                          'Enviar',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
                         ),
-                      );
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF6D5BFF),
-                    padding: const EdgeInsets.symmetric(vertical: 19),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
-                  ),
-                  child: const Text(
-                    'Enviar',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                    ),
-                  ),
+                    const SizedBox(height: 20),
+                  ],
                 ),
               ),
-              const SizedBox(height: 20),
-            ],
-          ),
+            );
+          },
         );
       },
     );
   }
+
+
+  Widget _buildTextField(
+      TextEditingController controller,
+      String labelText,
+      {bool isMultiline = false, String? Function(String?)? validator}
+      ) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: labelText,
+        labelStyle: TextStyle(color: Color(0xFF676767)),
+        floatingLabelStyle: TextStyle(color: kPrimary),
+        contentPadding: const EdgeInsets.all(10),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Color(0xFF676767), width: 1),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: kPrimary, width: 2),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Color(0xFF676767), width: 1),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.red, width: 1),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: Colors.red, width: 2),
+        ),
+        alignLabelWithHint: isMultiline, // Alinea el label con la parte superior en campos multilinea
+      ),
+      style: TextStyle(color: Color(0xFF585858)),
+      keyboardType: isMultiline ? TextInputType.multiline : TextInputType.text,
+      maxLines: isMultiline ? null : 1,
+      minLines: isMultiline ? 5 : 1,
+      validator: validator, // Validador añadido
+    );
+  }
+
+
 }
 
 class _CustomExpansionTile extends StatefulWidget {
@@ -275,30 +368,29 @@ class _CustomExpansionTileState extends State<_CustomExpansionTile> {
         child: ExpansionTile(
           title: Text(
             widget.title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: Colors.black,
+              fontWeight: FontWeight.w600,
+              color: Color(0xff212121),
             ),
           ),
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+              padding: const EdgeInsets.only(left: 16, bottom: 16, right: 16),
               child: Text(
                 widget.content,
                 style: const TextStyle(
                   fontSize: 14,
-                  color: Colors.black54,
+                  color: Colors.black,
                 ),
               ),
             ),
           ],
-          onExpansionChanged: (bool expanded) {
+          onExpansionChanged: (isExpanded) {
             setState(() {
-              _isExpanded = expanded;
+              _isExpanded = isExpanded;
             });
           },
-          initiallyExpanded: _isExpanded,
         ),
       ),
     );
