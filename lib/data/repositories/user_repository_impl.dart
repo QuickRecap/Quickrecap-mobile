@@ -18,7 +18,12 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<bool> changePassword(String userId, String oldPassword, String newPassword) async {
+  Future<bool> editProfile(String userId, String firstName, String lastName, String phone, String gender, String birthdate, String imageUrl) async {
+    return await userApi.editProfile(userId, firstName, lastName, phone, gender, birthdate, imageUrl );
+  }
+
+  @override
+  Future<bool> changePassword(String userId, String oldPassword, String newPassword) async{
     return await userApi.changePassword(userId, oldPassword, newPassword);
   }
 }

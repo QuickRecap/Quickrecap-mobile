@@ -56,4 +56,28 @@ class UserApi {
     return response.statusCode == 200 || response.statusCode == 201;
   }
 
+  Future<bool> editProfile(
+      String userId,
+      String firstName,
+      String lastName,
+      String phone,
+      String gender,
+      String birthdate,
+      String imageUrl,
+      ) async {
+    final response = await http.put(
+      Uri.parse('http://10.0.2.2:8000/quickrecap/edit-profile/$userId'),
+      body: {
+        'nombres': firstName,
+        'apellidos': lastName,
+        'celular': phone,
+        'genero': gender,
+        'fecha_nacimiento': birthdate,
+        'image_url': imageUrl,
+      },
+    );
+
+    return response.statusCode == 200 || response.statusCode == 201;
+  }
+
 }

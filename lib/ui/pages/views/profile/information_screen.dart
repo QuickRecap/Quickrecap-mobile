@@ -6,9 +6,9 @@ import 'package:quickrecap/ui/widgets/custom_select_input.dart';
 import 'package:quickrecap/ui/widgets/custom_date_input.dart';
 import 'package:quickrecap/ui/constants/constants.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart'; // Firebase Storage
 import 'dart:io';
-import 'package:path/path.dart' as path; // Manejo de nombres de archivos
+import 'package:provider/provider.dart'; // Asegúrate de importar Provider
+import '../../../providers/edit_profile_provider.dart'; // Asegúrate de importar tu EditProfileProvider
 
 class ProfileInformationScreen extends StatefulWidget {
   ProfileInformationScreen({Key? key}) : super(key: key);
@@ -25,10 +25,9 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
   late TextEditingController genderController;
   late TextEditingController birthDateController;
 
+  final _formKey = GlobalKey<FormState>(); // Clave para el formulario
   XFile? _image;
   final ImagePicker _picker = ImagePicker();
-  bool _isUploading = false;
-  String? _downloadURL;
 
   @override
   void initState() {
@@ -49,40 +48,6 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
     }
   }
 
-  Future<void> _uploadImage() async {
-    if (_image == null) return;
-
-    setState(() {
-      _isUploading = true;
-    });
-
-    FirebaseStorage storage = FirebaseStorage.instance;
-    String fileName = path.basename(_image!.path);
-    Reference storageRef = storage.ref().child('profile_pics/$fileName');
-
-    try {
-      await storageRef.putFile(File(_image!.path));
-      String downloadURL = await storageRef.getDownloadURL();
-
-      setState(() {
-        _downloadURL = downloadURL;
-        _isUploading = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Imagen subida exitosamente'),
-      ));
-    } catch (e) {
-      setState(() {
-        _isUploading = false;
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Error al subir la imagen'),
-      ));
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,7 +55,7 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
         title: Row(
           children: [
             Text(
-              'Informacion Personal',
+              'Información Personal',
               style: TextStyle(
                 color: Color(0xff212121),
                 fontSize: 20.sp,
@@ -115,144 +80,178 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              CircleAvatar(
-                radius: 50,
-                backgroundImage: _image != null
-                    ? FileImage(File(_image!.path)) as ImageProvider
-                    : AssetImage('assets/images/profile_pic.png'),
-              ),
-              TextButton(
-                onPressed: _pickImage,
-                child: Text(
-                  'Cambiar foto',
-                  style: TextStyle(color: Color(0xff6D5BFF)),
+          child: Form( // Añadir el formulario aquí
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 50,
+                  backgroundImage: _image != null
+                      ? FileImage(File(_image!.path)) as ImageProvider
+                      : AssetImage('assets/images/profile_pic.png'),
                 ),
-              ),
-              if (_isUploading) CircularProgressIndicator(),
-              SizedBox(height: 20),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Nombres',
-                  style: TextStyle(
-                    color: Color(0xff585858),
-                    fontSize: 15.sp,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              CustomInput(
-                controller: nameController,
-                label: 'Ingrese su nombre',
-              ),
-              SizedBox(height: 16),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Apellidos',
-                  style: TextStyle(
-                    color: Color(0xff585858),
-                    fontSize: 15.sp,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              CustomInput(
-                controller: lastNameController,
-                label: 'Ingrese sus apellidos',
-              ),
-              SizedBox(height: 16),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Celular',
-                  style: TextStyle(
-                    color: Color(0xff585858),
-                    fontSize: 15.sp,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              CustomInput(
-                controller: phoneController,
-                label: 'Ingrese su numero celular',
-                keyboardType: TextInputType.phone,
-              ),
-              SizedBox(height: 16),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Genero',
-                  style: TextStyle(
-                    color: Color(0xff585858),
-                    fontSize: 15.sp,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              CustomSelectInput(
-                label: 'Seleccione un genero',
-                value: genderController.text,
-                options: const ['Masculino', 'Femenino', 'Otro'],
-                onChanged: (String? newValue) {
-                  setState(() {
-                    genderController.text = newValue ?? '';
-                  });
-                },
-              ),
-              SizedBox(height: 16),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Fecha de nacimiento',
-                  style: TextStyle(
-                    color: Color(0xff585858),
-                    fontSize: 15.sp,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              CustomDateInput(
-                controller: birthDateController,
-                label: 'Ingrese una fecha de nacimiento',
-                initialDate: DateTime(2000),
-                firstDate: DateTime(1900),
-                lastDate: DateTime.now(),
-              ),
-              SizedBox(height: 30),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    await _uploadImage();
-                  },
+                TextButton(
+                  onPressed: _pickImage,
                   child: Text(
-                    'Guardar',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 19,
-                      color: Colors.white,
-                    ),
+                    'Cambiar foto',
+                    style: TextStyle(color: Color(0xff6D5BFF)),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: kPrimary,
-                    padding: EdgeInsets.symmetric(vertical: 15),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(17),
+                ),
+                SizedBox(height: 20),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Nombres',
+                    style: TextStyle(
+                      color: Color(0xff585858),
+                      fontSize: 15.sp,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
-              ),
-            ],
+                CustomInput(
+                  controller: nameController,
+                  label: 'Ingrese su nombre',
+                  validator: (value) => value!.isEmpty ? 'Campo obligatorio' : null,
+                ),
+                SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Apellidos',
+                    style: TextStyle(
+                      color: Color(0xff585858),
+                      fontSize: 15.sp,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                CustomInput(
+                  controller: lastNameController,
+                  label: 'Ingrese sus apellidos',
+                  validator: (value) => value!.isEmpty ? 'Campo obligatorio' : null,
+                ),
+                SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Celular',
+                    style: TextStyle(
+                      color: Color(0xff585858),
+                      fontSize: 15.sp,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                CustomInput(
+                  controller: phoneController,
+                  label: 'Ingrese su número celular',
+                  keyboardType: TextInputType.phone,
+                  validator: (value) => value!.isEmpty ? 'Campo obligatorio' : null,
+                ),
+                SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Género',
+                    style: TextStyle(
+                      color: Color(0xff585858),
+                      fontSize: 15.sp,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                CustomSelectInput(
+                  label: 'Seleccione un género',
+                  value: genderController.text,
+                  options: const ['Masculino', 'Femenino', 'Otro'],
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      genderController.text = newValue ?? '';
+                    });
+                  },
+                  validator: (value) => value!.isEmpty ? 'Campo obligatorio' : null,
+                ),
+                SizedBox(height: 16),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Fecha de nacimiento',
+                    style: TextStyle(
+                      color: Color(0xff585858),
+                      fontSize: 15.sp,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                CustomDateInput(
+                  controller: birthDateController,
+                  label: 'Ingrese una fecha de nacimiento',
+                  initialDate: DateTime(2000),
+                  firstDate: DateTime(1900),
+                  lastDate: DateTime.now(),
+                ),
+                SizedBox(height: 30),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      if (_formKey.currentState?.validate() == true) {
+                        final editProfileProvider =
+                        Provider.of<EditProfileProvider>(context, listen: false);
+
+                        bool success = await editProfileProvider.editProfile(
+                          "7",
+                          nameController.text,
+                          lastNameController.text,
+                          phoneController.text,
+                          genderController.text,
+                          birthDateController.text.isEmpty ? "" : birthDateController.text,
+                          _image != null ? _image!.path : "",
+                        );
+
+                        if (success) {
+                          Navigator.of(context).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Perfil actualizado exitosamente.'),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('No se pudo actualizar el perfil.'),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    child: Text(
+                      'Guardar',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w600,
+                        fontSize: 19,
+                        color: Colors.white,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kPrimary,
+                      padding: EdgeInsets.symmetric(vertical: 15),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(17),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
