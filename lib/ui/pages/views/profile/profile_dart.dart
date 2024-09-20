@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickrecap/ui/constants/constants.dart';
+import '../../../../data/repositories/local_storage_service.dart';
+import '../../../../domain/entities/user.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -10,6 +12,34 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  String? userId;
+  String? userFirstName;
+  String? userLastName;
+  String? userProfileImg;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserId();
+  }
+
+  Future<void> _fetchUserId() async {
+    LocalStorageService localStorageService = LocalStorageService();
+    User? user = await localStorageService.getCurrentUser();
+
+    if (user != null) {
+      setState(() {
+        userId= user.id;
+        userFirstName= user.firstName;
+        userLastName= user.lastName;
+        userProfileImg= user.profileImg;
+      });
+    } else {
+      print('No se encontró el usuario.');
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,6 +81,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 size: 30.sp,
                               ),
                               onPressed: () {
+                                Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                               },
                             ),
                           ],
@@ -116,20 +147,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Row(
             children: [
               CircleAvatar(
-                radius: 30.r,
-                backgroundImage: AssetImage('assets/images/profile_pic.png'),
+                radius: 35,
+                backgroundImage: (userProfileImg != null && userProfileImg!.isNotEmpty)
+                    ? NetworkImage(userProfileImg!) // Cargar la imagen de red
+                    : AssetImage('assets/images/profile_pic.png') as ImageProvider, // Imagen por defecto
               ),
               SizedBox(width: 16.w),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Mostrar nombre dinámico basado en las variables userFirstName y userLastName
                     Text(
-                      'Diego Talledo Sanchez',
+                      userFirstName != null && userLastName != null
+                          ? '$userFirstName $userLastName'
+                          : 'Nombre no disponible', // Mensaje alternativo en caso de que no se haya cargado
                       style: TextStyle(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w500,
-                          color: Color(0xff212121)
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xff212121),
                       ),
                     ),
                   ],
