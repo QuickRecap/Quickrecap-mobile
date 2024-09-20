@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:quickrecap/domain/entities/user.dart';
-import 'package:quickrecap/main.dart';
-import 'package:quickrecap/ui/pages/views/profile/information_screen.dart';
-import 'package:quickrecap/ui/providers/login_provider.dart';
+import '../../domain/entities/user.dart';
+import '../../ui/providers/login_provider.dart';
 import '../widgets/custom_input.dart';
 import '../../data/repositories/local_storage_service.dart';
 
@@ -197,30 +195,19 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleLogin() async {
-    if (_rememberMe) {
-      await _storageService.saveCredentials(
-        emailController.text,
-        passwordController.text,
-        true,
-      );
-    } else {
-      await _storageService.clearCredentials();
-    }
-
-    Navigator.pushNamed(context, '/entrypoint');
-
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
       try {
         final loginProvider =
-            Provider.of<LoginProvider>(context, listen: false);
+        Provider.of<LoginProvider>(context, listen: false);
         User? user = await loginProvider.login(
           emailController.text,
           passwordController.text,
         );
 
         if (user != null) {
+          // Guardar credenciales
           if (_rememberMe) {
             await _storageService.saveCredentials(
               emailController.text,
@@ -230,6 +217,10 @@ class _LoginScreenState extends State<LoginScreen> {
           } else {
             await _storageService.clearCredentials();
           }
+
+          // Guardar usuario actual
+          await _storageService.saveUser(user);
+
           Navigator.pushNamed(context, '/entrypoint');
           //navigateToProfileInformation(context, user);
         } else {
@@ -243,6 +234,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     }
   }
+
 
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(

@@ -275,7 +275,6 @@ class _RegisterScreen extends State<RegisterScreen> {
 
       try {
         final registerProvider = Provider.of<RegisterProvider>(context, listen: false);
-        print("Register Screen");
         bool success = await registerProvider.register(
           nameController.text,
           lastNameController.text,
@@ -286,7 +285,7 @@ class _RegisterScreen extends State<RegisterScreen> {
         );
 
         if (success) {
-          Navigator.pushReplacementNamed(context, '/home');
+          Navigator.pushNamed(context, '/login');
         } else {
           _showErrorSnackBar("Registro fallido. Por favor verifica tus datos.");
         }

@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'application/password_use_case.dart';
 import 'ui/providers/password_provider.dart';
 import 'application/support_use_case.dart';
+import 'application/edit_profile_use_case.dart';
 import 'data/api/support_api.dart';
 import 'data/repositories/support_repository_impl.dart';
 import 'package:quickrecap/ui/pages/entrypoint.dart';
@@ -20,6 +21,7 @@ import 'ui/pages/views/profile/information_screen.dart';
 import 'ui/providers/login_provider.dart';
 import 'ui/providers/register_provider.dart';
 import 'ui/providers/support_provider.dart';
+import 'ui/providers/edit_profile_provider.dart';
 import 'data/api/user_api.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart'; // Importar flutter_screenutil
 
@@ -44,6 +46,10 @@ void main() async{
         ChangeNotifierProvider(
             create: (_) => PasswordProvider(
               PasswordUseCase(UserRepositoryImpl(userApi)),
+            )),
+        ChangeNotifierProvider(
+            create: (_) => EditProfileProvider(
+              EditProfileUseCase(UserRepositoryImpl(userApi)),
             )),
         ChangeNotifierProvider(
             create: (_) => SupportProvider(

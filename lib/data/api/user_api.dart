@@ -20,7 +20,7 @@ class UserApi {
     }
   }
 
-  Future<User?> register(String nombre, String apellidos, String gender,
+  Future<bool> register(String nombre, String apellidos, String gender,
       String phone, String email, String password) async {
     print(gender);
     final response = await http.post(
@@ -35,12 +35,7 @@ class UserApi {
       },
     );
 
-    if (response.statusCode == 201) {
-      final data = json.decode(response.body);
-      return User.fromJson(data['user']);
-    } else {
-      return null;
-    }
+    return response.statusCode == 200 || response.statusCode == 201;
   }
 
   Future<bool> changePassword(String userId, String oldPassword, String newPassword) async {
@@ -66,14 +61,14 @@ class UserApi {
       String imageUrl,
       ) async {
     final response = await http.put(
-      Uri.parse('http://10.0.2.2:8000/quickrecap/edit-profile/$userId'),
+      Uri.parse('http://10.0.2.2:8000/quickrecap/user/update/$userId'),
       body: {
         'nombres': firstName,
         'apellidos': lastName,
         'celular': phone,
         'genero': gender,
         'fecha_nacimiento': birthdate,
-        'image_url': imageUrl,
+        'profile_image': imageUrl,
       },
     );
 

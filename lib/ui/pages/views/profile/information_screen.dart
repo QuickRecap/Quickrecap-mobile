@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'dart:io';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:quickrecap/domain/entities/user.dart';
 import 'package:quickrecap/ui/widgets/custom_input.dart';
 import 'package:quickrecap/ui/widgets/custom_select_input.dart';
 import 'package:quickrecap/ui/widgets/custom_date_input.dart';
 import 'package:quickrecap/ui/constants/constants.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'package:provider/provider.dart'; // Asegúrate de importar Provider
-import '../../../providers/edit_profile_provider.dart'; // Asegúrate de importar tu EditProfileProvider
+import 'package:provider/provider.dart';
+import '../../../providers/edit_profile_provider.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import '../../../../data/repositories/local_storage_service.dart';
+import '../../../../domain/entities/user.dart';
+import 'package:path/path.dart' as path;
 
 class ProfileInformationScreen extends StatefulWidget {
   ProfileInformationScreen({Key? key}) : super(key: key);
@@ -19,6 +23,7 @@ class ProfileInformationScreen extends StatefulWidget {
 }
 
 class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
+  late TextEditingController idController;
   late TextEditingController nameController;
   late TextEditingController lastNameController;
   late TextEditingController phoneController;
@@ -28,15 +33,61 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
   final _formKey = GlobalKey<FormState>(); // Clave para el formulario
   XFile? _image;
   final ImagePicker _picker = ImagePicker();
+  bool _isUploading = false;
+  String? _downloadURL;
 
   @override
   void initState() {
     super.initState();
-    nameController = TextEditingController(text: "Diego");
-    lastNameController = TextEditingController(text: "Talledo Sanchez");
-    phoneController = TextEditingController(text: "924052944");
-    genderController = TextEditingController(text: "Masculino");
-    birthDateController = TextEditingController(text: "19/09/2024");
+    idController = TextEditingController();
+    nameController = TextEditingController();
+    lastNameController = TextEditingController();
+    phoneController = TextEditingController();
+    genderController = TextEditingController();
+    birthDateController = TextEditingController();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      loadUserProfile();
+    });
+  }
+
+  Future<void> loadUserProfile() async {
+    try {
+      LocalStorageService localStorageService = LocalStorageService();
+      User? user = await localStorageService.getCurrentUser();
+
+      if (user != null) {
+        setState(() {
+          idController.text = user.id;
+          nameController.text = user.firstName;
+          lastNameController.text = user.lastName;
+          phoneController.text = user.phone;
+          genderController.text = user.gender;
+
+          // Convertir la fecha de cumpleaños al formato dd/MM/yyyy
+          if (user.birthday.isNotEmpty) {
+            try {
+              final DateTime birthDate = DateTime.parse(user.birthday);
+              birthDateController.text = DateFormat('dd/MM/yyyy').format(birthDate);
+            } catch (e) {
+              print("Error al parsear la fecha de nacimiento: $e");
+              birthDateController.text = "";
+            }
+          } else {
+            birthDateController.text = "";
+          }
+
+          // Actualizar la imagen de perfil si está disponible
+          if (user.profileImg.isNotEmpty) {
+            _downloadURL = user.profileImg;
+          }
+        });
+      } else {
+        print("No se encontró información del usuario.");
+      }
+    } catch (e) {
+      print("Error al cargar el perfil: $e");
+    }
   }
 
   Future<void> _pickImage() async {
@@ -45,6 +96,40 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
       setState(() {
         _image = image;
       });
+    }
+  }
+
+  Future<void> _uploadImage() async {
+    if (_image == null) return;
+
+    setState(() {
+      _isUploading = true;
+    });
+
+    FirebaseStorage storage = FirebaseStorage.instance;
+    String fileName = path.basename(_image!.path);
+    Reference storageRef = storage.ref().child('profile_pics/$fileName');
+
+    try {
+      await storageRef.putFile(File(_image!.path));
+      String downloadURL = await storageRef.getDownloadURL();
+
+      setState(() {
+        _downloadURL = downloadURL;
+        _isUploading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Imagen subida exitosamente'),
+      ));
+    } catch (e) {
+      setState(() {
+        _isUploading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Error al subir la imagen'),
+      ));
     }
   }
 
@@ -89,7 +174,9 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                   radius: 50,
                   backgroundImage: _image != null
                       ? FileImage(File(_image!.path)) as ImageProvider
-                      : AssetImage('assets/images/profile_pic.png'),
+                      : (_downloadURL != null && _downloadURL!.isNotEmpty
+                      ? NetworkImage(_downloadURL!)
+                      : AssetImage('assets/images/profile_pic.png')) as ImageProvider,
                 ),
                 TextButton(
                   onPressed: _pickImage,
@@ -192,7 +279,7 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                 ),
                 CustomDateInput(
                   controller: birthDateController,
-                  label: 'Ingrese una fecha de nacimiento',
+                  label: 'Selecciona una fecha',
                   initialDate: DateTime(2000),
                   firstDate: DateTime(1900),
                   lastDate: DateTime.now(),
@@ -202,27 +289,61 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () async {
-                      if (_formKey.currentState?.validate() == true) {
-                        final editProfileProvider =
-                        Provider.of<EditProfileProvider>(context, listen: false);
+                      // Si hay una imagen seleccionada, intenta subirla primero
+                      if (_image != null) {
+                        await _uploadImage(); // Espera a que se suba la imagen
+                      }
 
+                      // Verifica si el formulario es válido antes de proceder
+                      if (_formKey.currentState?.validate() == true) {
+                        final editProfileProvider = Provider.of<EditProfileProvider>(context, listen: false);
+
+                        // Formato de la fecha
+                        String formattedBirthDate = "";
+                        if (birthDateController.text.isNotEmpty) {
+                          try {
+                            final inputFormat = DateFormat('dd/MM/yyyy'); // Formato de entrada
+                            final outputFormat = DateFormat('yyyy-MM-dd'); // Formato de salida
+                            final dateTime = inputFormat.parse(birthDateController.text);
+                            formattedBirthDate = outputFormat.format(dateTime);
+                          } catch (e) {
+                            print("Error al formatear la fecha: $e");
+                          }
+                        }
+
+                        // Utiliza el enlace de la imagen subido, si está disponible
+                        String imageUrl = _downloadURL ?? "";
+
+                        // Llama a la función para editar el perfil
                         bool success = await editProfileProvider.editProfile(
-                          "7",
+                          idController.text,
                           nameController.text,
                           lastNameController.text,
                           phoneController.text,
                           genderController.text,
-                          birthDateController.text.isEmpty ? "" : birthDateController.text,
-                          _image != null ? _image!.path : "",
+                          formattedBirthDate,
+                          imageUrl,
                         );
 
+                        // Muestra un mensaje según el resultado
                         if (success) {
-                          Navigator.of(context).pop();
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text('Perfil actualizado exitosamente.'),
                             ),
                           );
+                          // También actualiza los datos en la base de datos local
+                          LocalStorageService localStorageService = LocalStorageService();
+                          await localStorageService.updateUser(User(
+                            id: idController.text,
+                            firstName: nameController.text,
+                            lastName: lastNameController.text,
+                            phone: phoneController.text,
+                            gender: genderController.text,
+                            birthday: formattedBirthDate,
+                            profileImg: imageUrl,
+                            email: "", // Asigna el email del usuario si es necesario
+                          ));
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(

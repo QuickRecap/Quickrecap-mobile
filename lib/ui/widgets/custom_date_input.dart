@@ -31,13 +31,13 @@ class CustomDateInput extends StatelessWidget {
         validator: validator,
         onTap: () => _selectDate(context),
         cursorColor: const Color(0xFF585858),
-        style: const TextStyle(color: Colors.black87),
+        style: const TextStyle(color: Color(0xFF575757)),
         decoration: InputDecoration(
-          labelText: label,
+          labelText: label, // Aquí usas el label que pasas como argumento
           labelStyle: const TextStyle(
             fontFamily: 'Poppins',
-            fontWeight: FontWeight.w500,
-            color: Color(0xFF454545),
+            fontWeight: FontWeight.w400,
+            color: Color(0xFF737373), // Color de la etiqueta
           ),
           floatingLabelStyle: const TextStyle(
             fontFamily: 'Poppins',
@@ -57,7 +57,7 @@ class CustomDateInput extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
           floatingLabelBehavior: FloatingLabelBehavior.never,
           alignLabelWithHint: true,
-          suffixIcon: Icon(Icons.calendar_today, color: Color(0xff6D5BFF)),
+          suffixIcon: const Icon(Icons.calendar_today, color: Color(0xff6D5BFF)),
         ),
       ),
     );
@@ -87,10 +87,10 @@ class CustomDateInput extends StatelessWidget {
           ),
           child: Theme(
             data: ThemeData.light().copyWith(
-              colorScheme: ColorScheme.light(
+              colorScheme: const ColorScheme.light(
                 primary: Color(0xff6D5BFF), // Color del calendario
                 onPrimary: Colors.white, // Color del texto en el calendario
-                onSurface: Colors.black, // Color del texto en los días
+                onSurface: Color(0xFF585858), // Color del texto en los días
               ),
               dialogBackgroundColor: Colors.white,
             ),

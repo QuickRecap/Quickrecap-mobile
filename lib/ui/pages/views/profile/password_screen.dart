@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/password_provider.dart';
+import '../../../../data/repositories/local_storage_service.dart';
+import '../../../../domain/entities/user.dart';
 
 class PasswordScreen extends StatefulWidget {
   const PasswordScreen({Key? key}) : super(key: key);
@@ -11,11 +13,32 @@ class PasswordScreen extends StatefulWidget {
 }
 
 class _PasswordScreenState extends State<PasswordScreen> {
+  String? userId;
+
   final TextEditingController oldPasswordController = TextEditingController();
   final TextEditingController newPasswordController = TextEditingController();
   final TextEditingController repeatPasswordController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserId();
+  }
+
+  Future<void> _fetchUserId() async {
+    LocalStorageService localStorageService = LocalStorageService();
+    User? user = await localStorageService.getCurrentUser();
+
+    if (user != null) {
+      setState(() {
+        userId= user.id;
+      });
+    } else {
+      print('No se encontró el usuario.');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,7 +163,9 @@ class _PasswordScreenState extends State<PasswordScreen> {
                     Provider.of<PasswordProvider>(context, listen: false);
 
                     bool success = await passwordProvider.changePassword(
-                      "1", oldPasswordController.text, newPasswordController.text
+                      userId!, // Pasar el ID del usuario como String
+                      oldPasswordController.text,
+                      newPasswordController.text,
                     );
 
                     if (success) {

@@ -24,7 +24,7 @@ class CustomSelectInput extends StatelessWidget {
         style: const TextStyle(
           fontFamily: 'Poppins',
           fontWeight: FontWeight.w500,
-          color: Color(0xFF454545),  // Color del label
+          color: Color(0xFF737373),  // Color del label
           fontSize: 16,  // Tamaño del label
         ),
       ),
@@ -52,7 +52,7 @@ class CustomSelectInput extends StatelessWidget {
       style: const TextStyle(
         fontFamily: 'Poppins',
         fontWeight: FontWeight.w500,
-        color: Color(0xFF454545),  // Color del texto seleccionado
+        color: Color(0xFF343434),  // Color del texto seleccionado
         fontSize: 16,  // Tamaño del texto seleccionado
       ),
       items: options.map<DropdownMenuItem<String>>((String option) {
@@ -63,7 +63,7 @@ class CustomSelectInput extends StatelessWidget {
             style: const TextStyle(
               fontFamily: 'Poppins',
               fontWeight: FontWeight.w500,
-              color: Color(0xFF454545),  // Color del texto en las opciones
+              color: Color(0xFF484848),  // Color del texto en las opciones
               fontSize: 16,  // Tamaño del texto en las opciones
             ),
           ),

@@ -59,12 +59,7 @@ class MainScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.home),
-                            Text('Home',
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w500,
-                                    fontSize:
-                                        15)), 
+                            Text('Home', style: TextStyle(fontFamily: 'Poppins', fontSize: 15, color: Color(0xff565656))),
                           ],
                         ),
                       ),
@@ -90,7 +85,7 @@ class MainScreen extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.add_circle_outline),
-                            Text('Crear', style: TextStyle(fontFamily: 'Poppins', fontSize: 15)),
+                            Text('Crear', style: TextStyle(fontFamily: 'Poppins', fontSize: 15, color: Color(0xff565656))),
                           ],
                         ),
                       ),
@@ -105,8 +100,7 @@ class MainScreen extends StatelessWidget {
                             controller.tabIndex == 3
                                 ? const Icon(Icons.person)
                                 : const Icon(Icons.person_2_outlined),
-                            const Text('Perfil',
-                                style: TextStyle(fontFamily: 'Poppins', fontSize: 15)),
+                            const Text('Perfil', style: TextStyle(fontFamily: 'Poppins', fontSize: 15, color: Color(0xff565656))),
                           ],
                         ),
                       ),
