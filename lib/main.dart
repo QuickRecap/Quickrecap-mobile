@@ -23,11 +23,13 @@ import 'ui/providers/register_provider.dart';
 import 'ui/providers/support_provider.dart';
 import 'ui/providers/edit_profile_provider.dart';
 import 'data/api/user_api.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart'; // Importar flutter_screenutil
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
   // Crear una instancia de UserApi
   final userApi = UserApi();
   final supportApi = SupportApi();
@@ -36,25 +38,20 @@ void main() async{
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-            create: (_) => LoginProvider(
-                  LoginUseCase(UserRepositoryImpl(userApi)),
-                )),
+          create: (_) => LoginProvider(LoginUseCase(UserRepositoryImpl(userApi))),
+        ),
         ChangeNotifierProvider(
-            create: (_) => RegisterProvider(
-                  RegisterUseCase(UserRepositoryImpl(userApi)),
-                )),
+          create: (_) => RegisterProvider(RegisterUseCase(UserRepositoryImpl(userApi))),
+        ),
         ChangeNotifierProvider(
-            create: (_) => PasswordProvider(
-              PasswordUseCase(UserRepositoryImpl(userApi)),
-            )),
+          create: (_) => PasswordProvider(PasswordUseCase(UserRepositoryImpl(userApi))),
+        ),
         ChangeNotifierProvider(
-            create: (_) => EditProfileProvider(
-              EditProfileUseCase(UserRepositoryImpl(userApi)),
-            )),
+          create: (_) => EditProfileProvider(EditProfileUseCase(UserRepositoryImpl(userApi))),
+        ),
         ChangeNotifierProvider(
-            create: (_) => SupportProvider(
-              SupportUseCase(SupportRepositoryImpl(supportApi)),
-            )),
+          create: (_) => SupportProvider(SupportUseCase(SupportRepositoryImpl(supportApi))),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -66,28 +63,33 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Inicializar ScreenUtil con un tamaño de diseño
     return ScreenUtilInit(
-      designSize: const Size(360, 690), // Ajusta según el diseño de tu app
+      designSize: const Size(360, 690),
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
         return MaterialApp(
-          title: 'Flutter Login Demo',
+          title: 'Flutter App',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             fontFamily: 'Poppins',
             primarySwatch: Colors.blue,
             textTheme: Typography.englishLike2018.apply(
-              fontSizeFactor: 1.sp, // Ajustar el tamaño del texto
+              fontSizeFactor: 1.sp,
             ),
           ),
-          initialRoute: '/login', // Establecer la ruta inicial
+          localizationsDelegates: [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: [
+            const Locale('es', ''), // Español
+          ],
+          initialRoute: '/login',
           routes: {
-            '/login': (context) =>
-                LoginScreen(), // Ruta para la pantalla de Login
-            '/register': (context) =>
-                const RegisterScreen(), // Ruta para la pantalla de Registro
+            '/login': (context) => LoginScreen(),
+            '/register': (context) => const RegisterScreen(),
             '/terms_conditions': (context) => TermsConditionsScreen(),
             '/entrypoint': (context) => MainScreen(),
             '/configuration': (context) => ConfigurationScreen(),
@@ -97,29 +99,6 @@ class MyApp extends StatelessWidget {
           },
         );
       },
-      child:
-          const HomePage(title: 'First Method'), // Widget principal de la app
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  final String title;
-
-  const HomePage({Key? key, required this.title}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-      ),
-      body: Center(
-        child: Text(
-          'Bienvenido a la App',
-          style: TextStyle(fontSize: 24.sp), // Ejemplo de uso de ScreenUtil
-        ),
-      ),
     );
   }
 }

@@ -17,22 +17,7 @@ class HomeScreen extends StatelessWidget {
         child: CustomContainer(
           containerContent: Center(
             // Centra el botón
-            child: GestureDetector(
-              onTap: () {
-                Navigator.pushNamed(context, '/login');
-              },
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-                decoration: BoxDecoration(
-                  color: Colors.blue, // Color del botón
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  'Go to Login',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
-              ),
-            ),
+
           ),
         ),
       ),

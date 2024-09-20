@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'dart:io';
@@ -30,6 +32,8 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
   late TextEditingController genderController;
   late TextEditingController birthDateController;
 
+  bool _isLoading = false;
+
   final _formKey = GlobalKey<FormState>(); // Clave para el formulario
   XFile? _image;
   final ImagePicker _picker = ImagePicker();
@@ -49,6 +53,24 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       loadUserProfile();
     });
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   Future<void> loadUserProfile() async {
@@ -91,13 +113,36 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
   }
 
   Future<void> _pickImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+    final XFile? image = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 85, // Puedes ajustar la calidad de la imagen
+    );
+
     if (image != null) {
-      setState(() {
-        _image = image;
-      });
+      // Filtrar por formato válido
+      final validFormats = ['jpg', 'jpeg', 'png'];
+      final String fileExtension = path.extension(image.path).toLowerCase().replaceAll('.', '');
+
+      if (!validFormats.contains(fileExtension)) {
+        // Mostrar SnackBar si el formato no es válido
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Formato de imagen no válido. Seleccione una imagen JPG o PNG.',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Colors.red, // Snack rojo para error
+          ),
+        );
+      } else {
+        // Si la imagen tiene un formato válido
+        setState(() {
+          _image = image;
+        });
+      }
     }
   }
+
 
   Future<void> _uploadImage() async {
     if (_image == null) return;
@@ -107,7 +152,13 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
     });
 
     FirebaseStorage storage = FirebaseStorage.instance;
-    String fileName = path.basename(_image!.path);
+    // Obtener el nombre base del archivo primero
+    String baseFileName = path.basename(_image!.path);
+
+    // Componer el nombre del archivo usando idController.text + '_' + baseFileName
+    String fileName = '${idController.text}_$baseFileName';
+
+    // Usar el nombre compuesto en la referencia de almacenamiento
     Reference storageRef = storage.ref().child('profile_pics/$fileName');
 
     try {
@@ -119,9 +170,16 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
         _isUploading = false;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Imagen subida exitosamente'),
-      ));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Imagen subida exitosamente',
+            style: TextStyle(color: Colors.white), // Texto blanco
+          ),
+          backgroundColor: const Color(0xff6d5bff), // Color de fondo #6D5BFF
+          duration: const Duration(seconds: 1),
+        ),
+      );
     } catch (e) {
       setState(() {
         _isUploading = false;
@@ -238,7 +296,16 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                   controller: phoneController,
                   label: 'Ingrese su número celular',
                   keyboardType: TextInputType.phone,
-                  validator: (value) => value!.isEmpty ? 'Campo obligatorio' : null,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Campo obligatorio';
+                    } else if (!RegExp(r'^\d+$').hasMatch(value)) {
+                      return 'El número de celular solo debe contener dígitos';
+                    } else if (value.length < 9) {
+                      return 'El número de celular debe tener al menos 9 dígitos';
+                    }
+                    return null;
+                  },
                 ),
                 SizedBox(height: 16),
                 Align(
@@ -288,78 +355,103 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () async {
-                      // Si hay una imagen seleccionada, intenta subirla primero
-                      if (_image != null) {
-                        await _uploadImage(); // Espera a que se suba la imagen
-                      }
+                    onPressed: _isLoading
+                        ? null
+                        : () async {
+                      try {
+                        // Si hay una imagen seleccionada, intenta subirla primero
+                        if (_image != null) {
+                          setState(() => _isLoading = true);
+                          await _uploadImage(); // Espera a que se suba la imagen
+                        }
 
-                      // Verifica si el formulario es válido antes de proceder
-                      if (_formKey.currentState?.validate() == true) {
-                        final editProfileProvider = Provider.of<EditProfileProvider>(context, listen: false);
+                        // Verifica si el formulario es válido antes de proceder
+                        if (_formKey.currentState?.validate() == true) {
+                          setState(() => _isLoading = true);
 
-                        // Formato de la fecha
-                        String formattedBirthDate = "";
-                        if (birthDateController.text.isNotEmpty) {
-                          try {
-                            final inputFormat = DateFormat('dd/MM/yyyy'); // Formato de entrada
-                            final outputFormat = DateFormat('yyyy-MM-dd'); // Formato de salida
-                            final dateTime = inputFormat.parse(birthDateController.text);
-                            formattedBirthDate = outputFormat.format(dateTime);
-                          } catch (e) {
-                            print("Error al formatear la fecha: $e");
+                          final editProfileProvider = Provider.of<EditProfileProvider>(context, listen: false);
+                          // Formato de la fecha
+                          String formattedBirthDate = "";
+                          if (birthDateController.text.isNotEmpty) {
+                            try {
+                              final inputFormat = DateFormat('dd/MM/yyyy'); // Formato de entrada
+                              final outputFormat = DateFormat('yyyy-MM-dd'); // Formato de salida
+                              final dateTime = inputFormat.parse(birthDateController.text);
+                              formattedBirthDate = outputFormat.format(dateTime);
+                            } catch (e) {
+                              print("Error al formatear la fecha: $e");
+                            }
+                          }
+
+                          // Utiliza el enlace de la imagen subido, si está disponible
+                          String imageUrl = _downloadURL ?? "";
+
+                          // Llama a la función para editar el perfil
+                          bool success = await editProfileProvider.editProfile(
+                            idController.text,
+                            nameController.text,
+                            lastNameController.text,
+                            phoneController.text,
+                            genderController.text,
+                            formattedBirthDate,
+                            imageUrl,
+                          ).timeout(Duration(seconds: 10));
+
+                          // Muestra un mensaje según el resultado
+                          if (success) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                  'Perfil actualizado exitosamente.',
+                                  style: TextStyle(color: Colors.white), // Texto blanco
+                                ),
+                                backgroundColor: Colors.green, // Color verde para éxito
+                              ),
+                            );
+
+                            // Actualiza los datos en la base de datos local
+                            LocalStorageService localStorageService = LocalStorageService();
+                            await localStorageService.updateUser(User(
+                              id: idController.text,
+                              firstName: nameController.text,
+                              lastName: lastNameController.text,
+                              phone: phoneController.text,
+                              gender: genderController.text,
+                              birthday: formattedBirthDate,
+                              profileImg: imageUrl,
+                              email: "", // Asigna el email del usuario si es necesario
+                            ));
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                  'No se pudo actualizar el perfil.',
+                                  style: TextStyle(color: Colors.white), // Texto blanco
+                                ),
+                                backgroundColor: Colors.red, // Color rojo para error
+                              ),
+                            );
                           }
                         }
 
-                        // Utiliza el enlace de la imagen subido, si está disponible
-                        String imageUrl = _downloadURL ?? "";
-
-                        // Llama a la función para editar el perfil
-                        bool success = await editProfileProvider.editProfile(
-                          idController.text,
-                          nameController.text,
-                          lastNameController.text,
-                          phoneController.text,
-                          genderController.text,
-                          formattedBirthDate,
-                          imageUrl,
-                        );
-
-                        // Muestra un mensaje según el resultado
-                        if (success) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Perfil actualizado exitosamente.'),
-                            ),
-                          );
-                          // También actualiza los datos en la base de datos local
-                          LocalStorageService localStorageService = LocalStorageService();
-                          await localStorageService.updateUser(User(
-                            id: idController.text,
-                            firstName: nameController.text,
-                            lastName: lastNameController.text,
-                            phone: phoneController.text,
-                            gender: genderController.text,
-                            birthday: formattedBirthDate,
-                            profileImg: imageUrl,
-                            email: "", // Asigna el email del usuario si es necesario
-                          ));
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('No se pudo actualizar el perfil.'),
-                            ),
-                          );
-                        }
+                      } on TimeoutException {
+                        _showErrorSnackBar("El registro está tardando demasiado. Por favor, verifica tu conexión a internet e inténtalo de nuevo.");
+                      } catch (e) {
+                        _showErrorSnackBar("Ocurrió un error durante el registro. Inténtalo de nuevo.");
+                      } finally {
+                        setState(() => _isLoading = false);
                       }
                     },
-                    child: Text(
-                      'Guardar',
+                    child: _isLoading
+                        ? const CircularProgressIndicator(
+                      color: Colors.white,
+                      strokeWidth: 2,
+                    )
+                        : const Text(
+                      'Enviar',
                       style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w600,
-                        fontSize: 19,
                         color: Colors.white,
+                        fontSize: 16,
                       ),
                     ),
                     style: ElevatedButton.styleFrom(

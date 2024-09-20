@@ -33,16 +33,11 @@ class CustomDateInput extends StatelessWidget {
         cursorColor: const Color(0xFF585858),
         style: const TextStyle(color: Color(0xFF575757)),
         decoration: InputDecoration(
-          labelText: label, // Aquí usas el label que pasas como argumento
+          labelText: label,
           labelStyle: const TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w400,
-            color: Color(0xFF737373), // Color de la etiqueta
-          ),
-          floatingLabelStyle: const TextStyle(
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w500,
-            color: Colors.white,
+            color: Color(0xFF737373),
           ),
           filled: true,
           fillColor: const Color(0xFFF1F1F1),
@@ -67,7 +62,6 @@ class CustomDateInput extends StatelessWidget {
     final DateTime now = DateTime.now();
     DateTime initialDate;
 
-    // Verifica si el controlador tiene un valor válido
     if (controller.text.isNotEmpty) {
       try {
         initialDate = DateFormat('dd/MM/yyyy').parse(controller.text);
@@ -88,9 +82,9 @@ class CustomDateInput extends StatelessWidget {
           child: Theme(
             data: ThemeData.light().copyWith(
               colorScheme: const ColorScheme.light(
-                primary: Color(0xff6D5BFF), // Color del calendario
-                onPrimary: Colors.white, // Color del texto en el calendario
-                onSurface: Color(0xFF585858), // Color del texto en los días
+                primary: Color(0xff6D5BFF),
+                onPrimary: Colors.white,
+                onSurface: Color(0xFF585858),
               ),
               dialogBackgroundColor: Colors.white,
             ),
@@ -108,6 +102,7 @@ class CustomDateInput extends StatelessWidget {
         );
       },
     );
+
     if (picked != null && picked != now) {
       controller.text = DateFormat('dd/MM/yyyy').format(picked);
     }
