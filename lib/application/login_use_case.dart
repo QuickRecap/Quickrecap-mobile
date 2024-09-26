@@ -6,12 +6,12 @@ class LoginUseCase {
 
   LoginUseCase(this.userRepository);
 
-  Future<bool> login(String email, String password) async {
+  Future<User?> login(String email, String password) async {
     try {
       final User? user = await userRepository.login(email, password);
-      return user != null;
+      return user; // Devuelve el objeto User
     } catch (e) {
-      return false;
+      return null; // Devuelve null en caso de error
     }
   }
 }

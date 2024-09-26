@@ -1,6 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../domain/entities/user.dart';
 import '../../ui/providers/login_provider.dart';
+import '../widgets/custom_input.dart';
+import '../../data/repositories/local_storage_service.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -12,67 +17,181 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+  bool _rememberMe = false;
+  final LocalStorageService _storageService = LocalStorageService();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials();
+  }
+
+  void _loadSavedCredentials() async {
+    final credentials = await _storageService.getCredentials();
+    if (credentials != null) {
+      setState(() {
+        emailController.text = credentials['email'];
+        passwordController.text = credentials['password'];
+        _rememberMe = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Login")),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  labelText: "Email",
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 16),
-              TextFormField(
-                controller: passwordController,
-                decoration: InputDecoration(
-                  labelText: "Password",
-                  border: OutlineInputBorder(),
-                ),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  if (value.length < 6) {
-                    return 'Password must be at least 6 characters long';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _isLoading ? null : _handleLogin,
-                child: _isLoading
-                    ? CircularProgressIndicator(color: Colors.white)
-                    : Text("Login"),
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                ),
-              ),
-            ],
+      body: Stack(
+        children: [
+          SizedBox.expand(
+            child: Image.asset(
+              'assets/images/background-authentication.png',
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
+          Center(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 62.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Center(
+                        child: Text(
+                          "QUICK\nRECAP",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.bold,
+                            fontSize: 57,
+                            height: 0.98,
+                            color: Colors.white,
+                            shadows: [
+                              Shadow(
+                                offset: Offset(0, 4),
+                                blurRadius: 30.0,
+                                color: Color.fromARGB(70, 0, 0, 0),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 40),
+                      CustomInput(
+                        controller: emailController,
+                        label: 'Correo',
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor ingresa tu correo';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      CustomInput(
+                        controller: passwordController,
+                        label: 'Contraseña',
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor ingresa tu contraseña';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _rememberMe,
+                            onChanged: (bool? value) {
+                              setState(() {
+                                _rememberMe = value ?? false;
+                                if (_rememberMe == false) {
+                                  _storageService.clearCredentials();
+                                }
+                              });
+                            },
+                            activeColor: Colors
+                                .white, // El color del fondo cuando está activo
+                            checkColor: const Color(
+                                0xFF7566FC), // Color del check dentro del checkbox
+                            side: const BorderSide(
+                                color: Colors.white, width: 2), // Borde blanco
+                          ),
+                          const Text(
+                            'Recordar credenciales',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Divider(
+                        color: Colors.white
+                            .withOpacity(0.5), // Blanco al 50% de opacidad
+                        thickness: 2, // 2 píxeles de alto
+                      ),
+                      const SizedBox(height: 24),
+                      Center(
+                        child: SizedBox(
+                          width:
+                              200, // Ajusta este valor para cambiar el ancho del botón
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _handleLogin,
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              backgroundColor: const Color(0xFFFF6803),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                    20), // Aumentado el radio del borde
+                              ),
+                              textStyle: const TextStyle(
+                                fontFamily: 'Poppins',
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              foregroundColor: Colors.white,
+                            ),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Text("Iniciar Sesion"),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/register');
+                        },
+                        child: const Text(
+                          'Registrarme',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -83,23 +202,40 @@ class _LoginScreenState extends State<LoginScreen> {
 
       try {
         final loginProvider = Provider.of<LoginProvider>(context, listen: false);
-        bool success = await loginProvider.login(
+        User? user = await loginProvider.login(
           emailController.text,
           passwordController.text,
-        );
+        ).timeout(Duration(seconds: 10)); // Añadimos un timeout de 10 segundos
 
-        if (success) {
-          Navigator.pushReplacementNamed(context, '/home');
+        if (user != null) {
+          // Guardar credenciales
+          if (_rememberMe) {
+            await _storageService.saveCredentials(
+              emailController.text,
+              passwordController.text,
+              true,
+            );
+          } else {
+            await _storageService.clearCredentials();
+          }
+
+          // Guardar usuario actual
+          await _storageService.saveUser(user);
+
+          Navigator.pushNamed(context, '/entrypoint');
         } else {
-          _showErrorSnackBar("Login failed. Please check your credentials.");
+          _showErrorSnackBar("Login fallido. Por favor verifica tus credenciales.");
         }
+      } on TimeoutException {
+        _showErrorSnackBar("La conexión tardó demasiado. Por favor, verifica tu conexión a internet e inténtalo de nuevo.");
       } catch (e) {
-        _showErrorSnackBar("An error occurred. Please try again later.");
+        _showErrorSnackBar("Ocurrió un error. Inténtalo de nuevo.");
       } finally {
         setState(() => _isLoading = false);
       }
     }
   }
+
 
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
