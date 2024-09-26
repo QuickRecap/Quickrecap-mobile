@@ -18,6 +18,7 @@ import 'ui/pages/views/profile/configuration_screen.dart';
 import 'ui/pages/views/profile/support_screen.dart';
 import 'ui/pages/views/profile/password_screen.dart';
 import 'ui/pages/views/profile/information_screen.dart';
+import 'ui/pages/views/create/select_pdf_screen.dart';
 import 'ui/providers/login_provider.dart';
 import 'ui/providers/register_provider.dart';
 import 'ui/providers/support_provider.dart';
@@ -96,6 +97,7 @@ class MyApp extends StatelessWidget {
             '/support': (context) => SupportScreen(),
             '/password': (context) => PasswordScreen(),
             '/information': (context) => ProfileInformationScreen(),
+            '/select_pdf': (context) => SelectPdfScreen(),
           },
         );
       },
