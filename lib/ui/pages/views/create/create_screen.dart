@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../domain/entities/pdf.dart';
+import '../../../../ui/constants/constants.dart';
 
 class CreateScreen extends StatefulWidget {
   final Pdf? selectedPdf; // Cambiado a selectedPdf
@@ -12,6 +13,28 @@ class CreateScreen extends StatefulWidget {
 }
 
 class _CreateScreenState extends State<CreateScreen> {
+
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,6 +158,279 @@ class _CreateScreenState extends State<CreateScreen> {
     );
   }
 
+  void _showQuizConfigDialog (BuildContext context) {
+    bool _isLoading = false; // Mueve el estado aquí
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+      ),
+      backgroundColor: Colors.white,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 26.0,
+                right: 26.0,
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                top: 16.0,
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.close),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                        Center(
+                          child: Text(
+                            'Configuracion de la actividad',
+                            style: TextStyle(
+                              fontSize: 21,
+                              fontFamily: "Poppins",
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xff424242),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Nombre: ',
+                        style: TextStyle(
+                          color: Color(0xff585858),
+                          fontSize: 14.sp,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    _buildTextField(
+                      nameController,
+                      'Nombre de la actividad',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, ingrese su nombre';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Tipo: ',
+                        style: TextStyle(
+                          color: Color(0xff585858),
+                          fontSize: 14.sp,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    _buildTextField(
+                      nameController,
+                      'Actividad',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, ingrese su nombre';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Tiempo por pregunta: ',
+                        style: TextStyle(
+                          color: Color(0xff585858),
+                          fontSize: 14.sp,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    _buildTextField(
+                      nameController,
+                      '10 minutos',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, ingrese su nombre';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Numero de preguntas: ',
+                        style: TextStyle(
+                          color: Color(0xff585858),
+                          fontSize: 14.sp,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    _buildTextField(
+                      nameController,
+                      '15 preguntas',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Por favor, ingrese su nombre';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: _isLoading
+                            ? null
+                            : () async {  // Cambia a async para poder usar await
+                          if (_formKey.currentState!.validate()) {
+                            setState(() {
+                              _isLoading = true;  // Activa el loading
+                            });
+
+                            /*final supportProvider = Provider.of<SupportProvider>(context, listen: false);
+
+                            try {
+                              bool success = await supportProvider.reportError(
+                                nameController.text,
+                                descriptionController.text,
+                              ).timeout(Duration(seconds: 10));
+
+                              if (success) {
+                                Navigator.of(context).pop(); // Cierra el diálogo si la respuesta es exitosa
+                                _showSuccessSnackBar('Error reportado exitosamente.');
+                              } else {
+                                Navigator.of(context).pop();
+                                _showErrorSnackBar('No se pudo reportar el error.');
+                              }
+                            } on TimeoutException {
+                              Navigator.of(context).pop();
+                              _showErrorSnackBar('La operación está tardando demasiado. Por favor, verifica tu conexión e inténtalo de nuevo.');
+                            } catch (e) {
+                              Navigator.of(context).pop();
+                              _showErrorSnackBar('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');
+                            } finally {
+                              nameController.clear();
+                              descriptionController.clear();
+
+                              setState(() {
+                                _isLoading = false;  // Desactiva el loading
+                              });
+                            }*/
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color(0xFF6D5BFF),
+                          padding: const EdgeInsets.symmetric(vertical: 19),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: _isLoading
+                            ? const CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        )
+                            : const Text(
+                          'Crear',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w600,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildTextField(
+      TextEditingController controller,
+      String labelText,
+      {bool isMultiline = false, String? Function(String?)? validator}
+      ) {
+    return Focus(
+      child: Builder(
+        builder: (BuildContext context) {
+          final bool hasFocus = Focus.of(context).hasFocus;
+
+          return TextFormField(
+            controller: controller,
+            decoration: InputDecoration(
+              // El hintText solo se mostrará cuando no haya foco
+              hintText: hasFocus ? null : labelText,
+              hintStyle: TextStyle(
+                color: Color(0xFF6D5BFF),
+                fontSize: 18.0,
+                fontFamily: 'Poppins',
+              ),
+              contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: Color(0xFF6D5BFF), width: 1),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: kPrimary, width: 2),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: Color(0xFF6D5BFF), width: 1),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: Colors.red, width: 1),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
+                borderSide: BorderSide(color: Colors.red, width: 2),
+              ),
+            ),
+            style: TextStyle(color: Color(0xFF585858)),
+            keyboardType: isMultiline ? TextInputType.multiline : TextInputType.text,
+            maxLines: isMultiline ? null : 1,
+            minLines: isMultiline ? 5 : 1,
+            validator: validator,
+          );
+        },
+      ),
+    );
+  }
+
   // Método para construir las opciones de modo
   Widget _buildModeOption({
     required IconData icon,
@@ -146,7 +442,7 @@ class _CreateScreenState extends State<CreateScreen> {
       onTap: isEnabled
           ? () {
         // Acción solo si el botón está habilitado
-        print('Acción del modo $title');
+        _showQuizConfigDialog(context);
       }
           : null, // No acción si está deshabilitado
       child: Container(

@@ -104,24 +104,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             right: 10.w,
             child: _buildProfileSection(),
           ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 60.h,
-              color: Colors.white,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Icon(Icons.home, size: 30.sp),
-                  Icon(Icons.grid_view, size: 30.sp),
-                  Icon(Icons.add_circle_outline, size: 30.sp),
-                  Icon(Icons.person, size: 30.sp),
-                ],
-              ),
-            ),
-          ),
+
         ],
       ),
     );
