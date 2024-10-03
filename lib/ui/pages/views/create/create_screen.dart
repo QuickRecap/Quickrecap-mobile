@@ -53,35 +53,37 @@ class _CreateScreenState extends State<CreateScreen> {
                     // Navega a la pantalla de selección de PDF y espera a recibir el pdfUrl
                     final pdf = await Navigator.pushNamed(context, '/select_pdf');
                   },
-                  child: Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(16.w),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFEDEBFF),
-                      borderRadius: BorderRadius.circular(16.r),
-                      border: Border.all(
-                        color: const Color(0xFF6D5BFF),
-                        width: 2.w,
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(16.w),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEDEBFF),
+                        borderRadius: BorderRadius.circular(16.r),
+                        border: Border.all(
+                          color: const Color(0xFF6D5BFF),
+                          width: 2.w,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Image.asset(
+                            'assets/images/pdf-create-icon.png',
+                            height: 60.h,
+                          ),
+                          SizedBox(height: 16.h),
+                          Center( // Add the Center widget here
+                            child: Text(
+                              selectedPdf != null ? selectedPdf!.name : 'Selecciona un PDF',
+                              style: TextStyle(
+                                color: const Color(0xFF6D5BFF),
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    child: Column(
-                      children: [
-                        Image.asset(
-                          'assets/images/pdf-create-icon.png',
-                          height: 60.h,
-                        ),
-                        SizedBox(height: 16.h),
-                        Text(
-                          selectedPdf != null ? selectedPdf!.name : 'Selecciona un PDF',
-                          style: TextStyle(
-                            color: const Color(0xFF6D5BFF),
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
                 ),
                 SizedBox(height: 32.h),
                 Text(

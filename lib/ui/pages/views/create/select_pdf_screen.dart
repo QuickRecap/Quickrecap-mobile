@@ -3,17 +3,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:http/http.dart' as http;
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'dart:async';
 import 'package:uuid/uuid.dart';
 import 'dart:convert';
-import 'create_screen.dart';
 import '../../../../domain/entities/pdf.dart';
 import '../../../providers/upload_pdf_provider.dart';
+import '../../../providers/get_pdfs_provider.dart';
 import 'package:provider/provider.dart';
 import '../../../../data/repositories/local_storage_service.dart';
-import '../../../../domain/entities/user.dart';
 
 class SelectPdfScreen extends StatefulWidget {
   const SelectPdfScreen({Key? key}) : super(key: key);
@@ -23,18 +21,10 @@ class SelectPdfScreen extends StatefulWidget {
 }
 
 class _SelectPdfScreenState extends State<SelectPdfScreen> {
-  int userId=0;
 
-  final List<Map<String, String>> pdfList = [
-    {"name": "SEMANA 15 DERECHO PROCESAL..."},
-    {"name": "DERECHO PROCESAL CIVIL I"},
-    {"name": "SEMANA 13 DERECHO"},
-    {"name": "DERECHO PROCESAL CIVIL II"},
-    {"name": "SEMANA 15 DERECHO PROCESAL..."},
-    {"name": "DERECHO PROCESAL CIVIL I"},
-    {"name": "SEMANA 13 DERECHO"},
-    {"name": "DERECHO PROCESAL CIVIL II"},
-  ];
+  int userId=0;
+  List<Map<String, String>> pdfList = [];
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -45,6 +35,33 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
   Future<void> _fetchUserId() async {
     LocalStorageService localStorageService = LocalStorageService();
     userId = await localStorageService.getCurrentUserId();
+    getPdfsByUserId(userId);
+  }
+
+  Future<void> getPdfsByUserId(userId) async {
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      final getPdfsProvider = Provider.of<GetPdfsProvider>(context, listen: false);
+      List<Pdf>? pdfs = await getPdfsProvider.getPdfsByUserId(userId);
+
+      setState(() {
+        if (pdfs != null) {
+          pdfList = pdfs.map((pdf) => {
+            "name": pdf.name,
+            "url": pdf.url,
+          }).toList();
+        }
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> _showLoadingDialog(BuildContext context, String message) async {
@@ -98,6 +115,7 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
   Future<void> _processUploadedPDF(BuildContext context, String pdfName, String downloadUrl) async {
     try {
       Pdf selectedPdf = Pdf(
+        id: 0,
         name: pdfName,
         url: downloadUrl,
       );
@@ -267,32 +285,52 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
     }
   }
 
-  Widget _buildPdfItem({required String pdfName}) {
-    return Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 125.w,
-            height: 125.w,
-            decoration: BoxDecoration(
-              color: Color(0xffF3F3F3),
-              borderRadius: BorderRadius.circular(10.r),
+  Widget _buildPdfItem({required Map<String, String> pdfData}) {
+    return InkWell(
+      onTap: () {
+        // Crear un objeto Pdf con los datos del item seleccionado
+        final selectedPdf = Pdf(
+          id: int.tryParse(pdfData['id'] ?? '0') ?? 0,
+          name: pdfData['name'] ?? '',
+          url: pdfData['url'] ?? '',
+        );
+
+        // Navegar al entrypoint con el PDF seleccionado
+        Navigator.pushNamed(
+          context,
+          '/entrypoint',
+          arguments: {
+            'selectedPdf': selectedPdf,
+            'initialIndex': 2
+          },
+        );
+      },
+      child: Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 125.w,
+              height: 125.w,
+              decoration: BoxDecoration(
+                color: Color(0xffF3F3F3),
+                borderRadius: BorderRadius.circular(10.r),
+              ),
+              child: Icon(Icons.insert_drive_file_outlined, size: 100.sp, color: Colors.grey[700]),
             ),
-            child: Icon(Icons.insert_drive_file_outlined, size: 100.sp, color: Colors.grey[700]),
-          ),
-          SizedBox(height: 10.h),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.w),
-            child: Text(
-              pdfName,
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12.sp, color: Colors.black87),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+            SizedBox(height: 10.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.w),
+              child: Text(
+                pdfData['name'] ?? '',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12.sp, color: Colors.black87),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -412,7 +450,7 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
               ),
               delegate: SliverChildBuilderDelegate(
                     (context, index) {
-                  return _buildPdfItem(pdfName: pdfList[index]["name"]!);
+                  return _buildPdfItem(pdfData: pdfList[index]);
                 },
                 childCount: pdfList.length,
               ),
@@ -422,10 +460,41 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
             child: Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 10.h),
-              child: Text(
+              child: isLoading
+                  ? Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF8375FD)),
+                ),
+              )
+                  : pdfList.isEmpty
+                  ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.description_outlined,
+                    size: 48.sp,
+                    color: Color(0xff9A9A9A),
+                  ),
+                  SizedBox(height: 10.h),
+                  Text(
+                    'No tienes ningún PDF guardado',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Color(0xff9A9A9A),
+                      fontSize: 14.sp,
+                      fontFamily: "poppins",
+                    ),
+                  ),
+                ],
+              )
+                  : Text(
                 'Has llegado al final de los resultados',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Color(0xff9A9A9A), fontSize: 14.sp),
+                style: TextStyle(
+                  color: Color(0xff9A9A9A),
+                  fontSize: 14.sp,
+                  fontFamily: "poppins",
+                ),
               ),
             ),
           ),

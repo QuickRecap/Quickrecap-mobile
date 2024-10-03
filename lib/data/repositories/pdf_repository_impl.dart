@@ -1,5 +1,6 @@
 import 'package:quickrecap/domain/repositories/pdf_repository.dart';
 import '../api/pdf_api.dart';
+import '../../domain/entities/pdf.dart';
 
 class PdfRepositoryImpl implements PdfRepository{
   final PdfApi pdfApi;
@@ -12,7 +13,7 @@ class PdfRepositoryImpl implements PdfRepository{
   }
 
   @override
-  Future<bool> getPdfsByUserId(int userId) async {
+  Future<List<Pdf>?> getPdfsByUserId(int userId) async {
     return await pdfApi.getPdfsByUserId(userId);
   }
   
