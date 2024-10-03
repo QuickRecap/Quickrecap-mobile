@@ -10,6 +10,10 @@ import 'package:uuid/uuid.dart';
 import 'dart:convert';
 import 'create_screen.dart';
 import '../../../../domain/entities/pdf.dart';
+import '../../../providers/upload_pdf_provider.dart';
+import 'package:provider/provider.dart';
+import '../../../../data/repositories/local_storage_service.dart';
+import '../../../../domain/entities/user.dart';
 
 class SelectPdfScreen extends StatefulWidget {
   const SelectPdfScreen({Key? key}) : super(key: key);
@@ -19,6 +23,8 @@ class SelectPdfScreen extends StatefulWidget {
 }
 
 class _SelectPdfScreenState extends State<SelectPdfScreen> {
+  int userId=0;
+
   final List<Map<String, String>> pdfList = [
     {"name": "SEMANA 15 DERECHO PROCESAL..."},
     {"name": "DERECHO PROCESAL CIVIL I"},
@@ -30,6 +36,17 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
     {"name": "DERECHO PROCESAL CIVIL II"},
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserId();
+  }
+
+  Future<void> _fetchUserId() async {
+    LocalStorageService localStorageService = LocalStorageService();
+    userId = await localStorageService.getCurrentUserId();
+  }
+
   Future<void> _showLoadingDialog(BuildContext context, String message) async {
     showDialog(
       context: context,
@@ -39,22 +56,30 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
           borderRadius: BorderRadius.circular(20.r),
         ),
         child: Container(
-          padding: EdgeInsets.all(20.w),
+          width: 250.w, // Ajusta el ancho para que se asemeje al diseño
+          padding: EdgeInsets.symmetric(vertical: 40.h, horizontal: 20.w),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF8375FD)),
+              SizedBox(
+                width: 60.w,
+                height: 60.h,
+                child: CircularProgressIndicator(
+                  strokeWidth: 6.w, // Ajusta el grosor para que el icono se vea más acorde
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF8375FD)),
+                ),
               ),
-              SizedBox(height: 20.h),
+              SizedBox(height: 30.h),
               Text(
                 'Subiendo PDF',
                 style: TextStyle(
                   fontSize: 18.sp,
-                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  fontFamily: "Poppins",
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-              SizedBox(height: 10.h),
+              SizedBox(height: 15.h),
               Text(
                 'Puede tomar unos segundos\ndependiendo del peso del archivo',
                 textAlign: TextAlign.center,
@@ -70,13 +95,34 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
     );
   }
 
-
   Future<void> _processUploadedPDF(BuildContext context, String pdfName, String downloadUrl) async {
     try {
       Pdf selectedPdf = Pdf(
         name: pdfName,
         url: downloadUrl,
       );
+
+      try {
+        final uploadPdfProvider = Provider.of<UploadPdfProvider>(context, listen: false);
+        bool success = await uploadPdfProvider.uploadPdf(
+            selectedPdf.name,
+            selectedPdf.url,
+            userId
+        ).timeout(Duration(seconds: 30)); // Añadimos un timeout de 15 segundos
+
+        if (success) {
+          //Navigator.pushNamed(context, '/login');
+        } else {
+          _showErrorSnackBar("No se pudo guardar este pdf en tu lista");
+        }
+      } on TimeoutException {
+        _showErrorSnackBar("El guardado esta tardandose demasiado. Por favor, verifica tu conexión a internet e inténtalo de nuevo.");
+      } catch (e) {
+        _showErrorSnackBar("Ocurrió un error durante el guardado.");
+      } finally {
+        //setState(() => _isLoading = false);
+      }
+
 
       // Navegar al entrypoint (MainScreen) y pasar el PDF seleccionado
       Navigator.pushNamed(
@@ -93,7 +139,14 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
     }
   }
 
-
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
 
   void _showErrorDialog(BuildContext context, String message) {
     showDialog(
@@ -103,24 +156,26 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
           borderRadius: BorderRadius.circular(20.r),
         ),
         child: Container(
-          padding: EdgeInsets.all(20.w),
+          width: 250.w, // Ajusta el ancho para que se asemeje al diseño
+          padding: EdgeInsets.symmetric(vertical: 40.h, horizontal: 20.w),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 Icons.error_outline,
                 color: Colors.red,
-                size: 50.sp,
+                size: 60.w, // Ajusta el tamaño del ícono
               ),
-              SizedBox(height: 20.h),
+              SizedBox(height: 30.h),
               Text(
                 'Oops!',
                 style: TextStyle(
                   fontSize: 18.sp,
+                  color: Colors.black, // Texto negro como lo solicitaste
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: 10.h),
+              SizedBox(height: 15.h),
               Text(
                 message,
                 textAlign: TextAlign.center,
@@ -129,16 +184,23 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
                   color: Colors.grey[600],
                 ),
               ),
-              SizedBox(height: 20.h),
-              ElevatedButton(
-                child: Text('Salir'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20.r),
+              SizedBox(height: 30.h),
+              SizedBox(
+                width: double.infinity, // Para que el botón ocupe todo el ancho posible
+                child: ElevatedButton(
+                  child: Text(
+                    'Salir',
+                    style: TextStyle(color: Colors.white), // Texto blanco
                   ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red, // Botón rojo
+                    padding: EdgeInsets.symmetric(vertical: 15.h),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20.r),
+                    ),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(),
                 ),
-                onPressed: () => Navigator.of(context).pop(),
               ),
             ],
           ),
@@ -175,6 +237,8 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
           _showErrorDialog(context, 'El archivo PDF seleccionado es inválido o está corrupto.');
           return;
         }
+
+        //_showErrorDialog(context, 'Subiendo PDF...');
         await _showLoadingDialog(context, 'Subiendo PDF...');
 
         FirebaseStorage storage = FirebaseStorage.instance;

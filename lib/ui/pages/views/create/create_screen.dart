@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../domain/entities/pdf.dart';
 
-
 class CreateScreen extends StatefulWidget {
   final Pdf? selectedPdf; // Cambiado a selectedPdf
 

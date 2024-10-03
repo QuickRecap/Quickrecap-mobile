@@ -27,7 +27,6 @@ class _MainScreenState extends State<MainScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
       if (args != null && args.containsKey('selectedPdf')) {
-        print("PDF seleccionado en entrypoint: ${args['selectedPdf']}");
         setState(() {
           selectedPdf = args['selectedPdf'] as Pdf?;
         });
@@ -40,7 +39,6 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      print('Navegando a CreateScreen con PDF: ${selectedPdf?.name}');
       final List<Widget> pageList = [
         const HomeScreen(),
         const GamesScreen(),

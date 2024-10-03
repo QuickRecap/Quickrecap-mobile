@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'application/password_use_case.dart';
-import 'ui/providers/password_provider.dart';
-import 'application/support_use_case.dart';
-import 'application/edit_profile_use_case.dart';
 import 'data/api/support_api.dart';
+import 'data/api/pdf_api.dart';
+import 'data/api/user_api.dart';
 import 'data/repositories/support_repository_impl.dart';
-import 'package:quickrecap/ui/pages/entrypoint.dart';
-import 'application/login_use_case.dart';
-import 'application/register_use_case.dart';
+import 'data/repositories/pdf_repository_impl.dart';
 import 'data/repositories/user_repository_impl.dart';
+import 'application/login_use_case.dart';
+import 'application/save_pdf_use_case.dart';
+import 'application/register_use_case.dart';
+import 'application/password_use_case.dart';
+import 'application/support_use_case.dart';
+import 'application/get_pdfs_use_case.dart.dart';
+import 'application/edit_profile_use_case.dart';
+import 'ui/pages/entrypoint.dart';
 import 'ui/pages/login_screen.dart';
 import 'ui/pages/register_screen.dart';
 import 'ui/pages/terms_conditions_screen.dart';
@@ -20,10 +24,12 @@ import 'ui/pages/views/profile/password_screen.dart';
 import 'ui/pages/views/profile/information_screen.dart';
 import 'ui/pages/views/create/select_pdf_screen.dart';
 import 'ui/providers/login_provider.dart';
+import 'ui/providers/upload_pdf_provider.dart';
 import 'ui/providers/register_provider.dart';
 import 'ui/providers/support_provider.dart';
 import 'ui/providers/edit_profile_provider.dart';
-import 'data/api/user_api.dart';
+import 'ui/providers/password_provider.dart';
+import 'ui/providers/get_pdfs_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -34,6 +40,7 @@ void main() async {
   // Crear una instancia de UserApi
   final userApi = UserApi();
   final supportApi = SupportApi();
+  final pdfApi = PdfApi();
 
   runApp(
     MultiProvider(
@@ -52,6 +59,15 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => SupportProvider(SupportUseCase(SupportRepositoryImpl(supportApi))),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => UploadPdfProvider(SavePdfUseCase(PdfRepositoryImpl(pdfApi))),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => UploadPdfProvider(SavePdfUseCase(PdfRepositoryImpl(pdfApi))),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => GetPdfsProvider(GetPdfsUseCase(PdfRepositoryImpl(pdfApi))),
         ),
       ],
       child: const MyApp(),

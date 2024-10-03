@@ -140,6 +140,27 @@ class LocalStorageService {
     return null;
   }
 
+  Future<int> getCurrentUserId() async {
+    final db = await database;
+    var results = await db.query('User', limit: 1);
+
+    if (results.isNotEmpty) {
+      var userId = results.first['id'];
+      if (userId is int) {
+        return userId;
+      } else if (userId is String) {
+        int parsedUserId = int.tryParse(userId) ?? 0;
+        return parsedUserId;
+      } else {
+        return 0;
+      }
+    } else {
+      return 0;
+    }
+  }
+
+
+
 
   Future<Map<String, dynamic>?> getCredentials() async {
     final db = await database;
