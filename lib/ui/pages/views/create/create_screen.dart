@@ -1,15 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../domain/entities/pdf.dart';
-import '../../../../domain/entities/quiz_activity.dart';
-import '../../../../ui/constants/constants.dart';
-import 'dart:io';
-import 'dart:async';
-import 'package:uuid/uuid.dart';
-import 'widgets/custom_input.dart';
-import 'widgets/custom_select_input.dart';
-import 'package:provider/provider.dart';
-import '../../../providers/quiz_provider.dart';
+import 'widgets/create_quiz_dialog.dart';
 
 class CreateScreen extends StatefulWidget {
   final Pdf? selectedPdf; // Cambiado a selectedPdf
@@ -27,25 +19,6 @@ class _CreateScreenState extends State<CreateScreen> {
   final TextEditingController activityTypeController = TextEditingController();
   final TextEditingController activityTimeController = TextEditingController();
   final TextEditingController activityQuantityController = TextEditingController();
-
-
-  void _showSuccessSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.green,
-      ),
-    );
-  }
-
-  void _showErrorSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message, style: TextStyle(color: Colors.white)),
-        backgroundColor: Colors.red,
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -170,234 +143,14 @@ class _CreateScreenState extends State<CreateScreen> {
   }
 
   bool _isLoading = false; // Mueve el estado aquí
-  void _showQuizConfigDialog (BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
-      ),
-      backgroundColor: Colors.white,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return Padding(
-              padding: EdgeInsets.only(
-                left: 26.0,
-                right: 26.0,
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-                top: 16.0,
-              ),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        IconButton(
-                          icon: Icon(Icons.close),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        Center(
-                          child: Text(
-                            'Configuracion de la actividad',
-                            style: TextStyle(
-                              fontSize: 21,
-                              fontFamily: "Poppins",
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xff424242),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Nombre: ',
-                        style: TextStyle(
-                          color: Color(0xff585858),
-                          fontSize: 14.sp,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    CustomInput(
-                      controller: activityNameController,
-                      label: 'Nombre del quiz',
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Este campo es obligatorio';
-                        }
-                        return null;
-                      },
-                      maxLength: 50, // Aquí defines el límite de caracteres
-                      isDisabled: false, // Aquí defines si el campo está deshabilitado
-                    ),
-                    const SizedBox(height: 10),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Tipo: ',
-                        style: TextStyle(
-                          color: Color(0xff585858),
-                          fontSize: 14.sp,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    CustomInput(
-                      controller: activityTypeController,
-                      label: 'Actividad',
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Este campo es obligatorio';
-                        }
-                        return null;
-                      },
-                      maxLength: 50, // Aquí defines el límite de caracteres
-                      isDisabled: true, // Aquí defines si el campo está deshabilitado
-                    ),
-                    const SizedBox(height: 10),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Tiempo por pregunta: ',
-                        style: TextStyle(
-                          color: Color(0xff585858),
-                          fontSize: 14.sp,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    CustomSelectInput(
-                      label: "Selecciona una opción",
-                      suffix: " segundos",
-                      value: activityTimeController.text.isEmpty ? null : activityTimeController.text,
-                      options: ["30", "20", "10", "5", "3"],
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          activityTimeController.text = newValue ?? '';
-                        });
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor selecciona una opción';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 10),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        'Numero de preguntas: ',
-                        style: TextStyle(
-                          color: Color(0xff585858),
-                          fontSize: 14.sp,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    CustomSelectInput(
-                      label: "Selecciona una opción",
-                      suffix: " preguntas",
-                      value: activityQuantityController.text.isEmpty ? null : activityQuantityController.text,
-                      options: ["15", "10", "8", "5"],
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          activityQuantityController.text = newValue ?? '';
-                        });
-                      },
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Por favor selecciona una opción';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: _isLoading
-                            ? null
-                            : () async {  // Cambia a async para poder usar await
-                          if (_formKey.currentState!.validate()) {
-                            setState(() {
-                              _isLoading = true;  // Activa el loading
-                            });
-
-                            final quizProvider = Provider.of<QuizProvider>(context, listen: false);
-
-                            try {
-                               QuizActivity? quizActivity = await quizProvider.createQuiz(
-                                activityNameController.text,
-                                int.parse(activityTimeController.text), // Conversión a int
-                                int.parse(activityQuantityController.text), // Conversión a int
-                                widget.selectedPdf?.url ?? "",
-                              );
-
-                              if (quizActivity != null) {
-                                Navigator.of(context).pop(); // Cierra el diálogo si la respuesta es exitosa
-                                _showSuccessSnackBar('Error reportado exitosamente.');
-                              } else {
-                                Navigator.of(context).pop();
-                                _showErrorSnackBar('No se pudo reportar el error.');
-                              }
-                            } catch (e) {
-                              Navigator.of(context).pop();
-                              _showErrorSnackBar('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');
-                            } finally {
-                              setState(() {
-                                _isLoading = false;  // Desactiva el loading
-                              });
-                            }
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF6D5BFF),
-                          padding: const EdgeInsets.symmetric(vertical: 19),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        child: _isLoading
-                            ? const CircularProgressIndicator(
-                          color: Colors.white,
-                          strokeWidth: 2,
-                        )
-                            : const Text(
-                          'Crear',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w600,
-                            fontSize: 20,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
+  void _showQuizConfigDialog(BuildContext context) {
+    CreateQuizDialog.show(
+      context,
+      activityNameController: activityNameController,
+      activityTypeController: activityTypeController,
+      activityTimeController: activityTimeController,
+      activityQuantityController: activityQuantityController,
+      selectedPdf: widget.selectedPdf,
     );
   }
 

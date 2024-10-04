@@ -31,7 +31,7 @@ class CustomInput extends StatelessWidget {
             decoration: InputDecoration(
               hintText: hasFocus ? null : label,
               hintStyle: TextStyle(
-                color: isDisabled ? Color(0xFF6D5BFF) : Color(0xFF6D5BFF), // Color de hint deshabilitado y normal
+                color: isDisabled ? Color(0xFFB4ABFF) : Color(0xFFB4ABFF), // Color de hint deshabilitado y normal
                 fontSize: 18.0,
                 fontFamily: 'Poppins',
               ),
