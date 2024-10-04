@@ -48,6 +48,8 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
       final getPdfsProvider = Provider.of<GetPdfsProvider>(context, listen: false);
       List<Pdf>? pdfs = await getPdfsProvider.getPdfsByUserId(userId);
 
+      //await Future.delayed(Duration(seconds: 2)); // Temporizador de 2 segundos
+
       setState(() {
         if (pdfs != null) {
           pdfList = pdfs.map((pdf) => {
@@ -62,6 +64,7 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
         isLoading = false;
       });
     }
+
   }
 
   Future<void> _showLoadingDialog(BuildContext context, String message) async {

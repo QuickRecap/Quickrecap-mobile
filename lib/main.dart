@@ -4,14 +4,17 @@ import 'package:firebase_core/firebase_core.dart';
 import 'data/api/support_api.dart';
 import 'data/api/pdf_api.dart';
 import 'data/api/user_api.dart';
+import 'data/api/activity_api.dart';
 import 'data/repositories/support_repository_impl.dart';
 import 'data/repositories/pdf_repository_impl.dart';
 import 'data/repositories/user_repository_impl.dart';
+import 'data/repositories/activity_repository_impl.dart';
 import 'application/login_use_case.dart';
 import 'application/save_pdf_use_case.dart';
 import 'application/register_use_case.dart';
 import 'application/password_use_case.dart';
 import 'application/support_use_case.dart';
+import 'application/create_quiz_use_case.dart';
 import 'application/get_pdfs_use_case.dart.dart';
 import 'application/edit_profile_use_case.dart';
 import 'ui/pages/entrypoint.dart';
@@ -27,6 +30,7 @@ import 'ui/providers/login_provider.dart';
 import 'ui/providers/upload_pdf_provider.dart';
 import 'ui/providers/register_provider.dart';
 import 'ui/providers/support_provider.dart';
+import 'ui/providers/quiz_provider.dart';
 import 'ui/providers/edit_profile_provider.dart';
 import 'ui/providers/password_provider.dart';
 import 'ui/providers/get_pdfs_provider.dart';
@@ -41,6 +45,7 @@ void main() async {
   final userApi = UserApi();
   final supportApi = SupportApi();
   final pdfApi = PdfApi();
+  final activityApi = ActivityApi();
 
   runApp(
     MultiProvider(
@@ -68,6 +73,9 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => GetPdfsProvider(GetPdfsUseCase(PdfRepositoryImpl(pdfApi))),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => QuizProvider(CreateQuizUseCase(ActivityRepositoryImpl(activityApi))),
         ),
       ],
       child: const MyApp(),

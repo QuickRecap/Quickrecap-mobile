@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../domain/entities/pdf.dart';
+import '../../../../domain/entities/quiz_activity.dart';
 import '../../../../ui/constants/constants.dart';
+import 'dart:io';
+import 'dart:async';
+import 'package:uuid/uuid.dart';
+import 'widgets/custom_input.dart';
+import 'widgets/custom_select_input.dart';
+import 'package:provider/provider.dart';
+import '../../../providers/quiz_provider.dart';
 
 class CreateScreen extends StatefulWidget {
   final Pdf? selectedPdf; // Cambiado a selectedPdf
@@ -15,8 +23,11 @@ class CreateScreen extends StatefulWidget {
 class _CreateScreenState extends State<CreateScreen> {
 
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController activityNameController = TextEditingController();
+  final TextEditingController activityTypeController = TextEditingController();
+  final TextEditingController activityTimeController = TextEditingController();
+  final TextEditingController activityQuantityController = TextEditingController();
+
 
   void _showSuccessSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -158,9 +169,8 @@ class _CreateScreenState extends State<CreateScreen> {
     );
   }
 
+  bool _isLoading = false; // Mueve el estado aquí
   void _showQuizConfigDialog (BuildContext context) {
-    bool _isLoading = false; // Mueve el estado aquí
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -219,15 +229,17 @@ class _CreateScreenState extends State<CreateScreen> {
                       ),
                     ),
                     const SizedBox(height: 5),
-                    _buildTextField(
-                      nameController,
-                      'Nombre de la actividad',
+                    CustomInput(
+                      controller: activityNameController,
+                      label: 'Nombre del quiz',
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Por favor, ingrese su nombre';
+                          return 'Este campo es obligatorio';
                         }
                         return null;
                       },
+                      maxLength: 50, // Aquí defines el límite de caracteres
+                      isDisabled: false, // Aquí defines si el campo está deshabilitado
                     ),
                     const SizedBox(height: 10),
                     Align(
@@ -243,15 +255,17 @@ class _CreateScreenState extends State<CreateScreen> {
                       ),
                     ),
                     const SizedBox(height: 5),
-                    _buildTextField(
-                      nameController,
-                      'Actividad',
+                    CustomInput(
+                      controller: activityTypeController,
+                      label: 'Actividad',
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Por favor, ingrese su nombre';
+                          return 'Este campo es obligatorio';
                         }
                         return null;
                       },
+                      maxLength: 50, // Aquí defines el límite de caracteres
+                      isDisabled: true, // Aquí defines si el campo está deshabilitado
                     ),
                     const SizedBox(height: 10),
                     Align(
@@ -267,12 +281,19 @@ class _CreateScreenState extends State<CreateScreen> {
                       ),
                     ),
                     const SizedBox(height: 5),
-                    _buildTextField(
-                      nameController,
-                      '10 minutos',
+                    CustomSelectInput(
+                      label: "Selecciona una opción",
+                      suffix: " segundos",
+                      value: activityTimeController.text.isEmpty ? null : activityTimeController.text,
+                      options: ["30", "20", "10", "5", "3"],
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          activityTimeController.text = newValue ?? '';
+                        });
+                      },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Por favor, ingrese su nombre';
+                          return 'Por favor selecciona una opción';
                         }
                         return null;
                       },
@@ -290,13 +311,19 @@ class _CreateScreenState extends State<CreateScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 5),
-                    _buildTextField(
-                      nameController,
-                      '15 preguntas',
+                    CustomSelectInput(
+                      label: "Selecciona una opción",
+                      suffix: " preguntas",
+                      value: activityQuantityController.text.isEmpty ? null : activityQuantityController.text,
+                      options: ["15", "10", "8", "5"],
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          activityQuantityController.text = newValue ?? '';
+                        });
+                      },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Por favor, ingrese su nombre';
+                          return 'Por favor selecciona una opción';
                         }
                         return null;
                       },
@@ -313,35 +340,31 @@ class _CreateScreenState extends State<CreateScreen> {
                               _isLoading = true;  // Activa el loading
                             });
 
-                            /*final supportProvider = Provider.of<SupportProvider>(context, listen: false);
+                            final quizProvider = Provider.of<QuizProvider>(context, listen: false);
 
                             try {
-                              bool success = await supportProvider.reportError(
-                                nameController.text,
-                                descriptionController.text,
-                              ).timeout(Duration(seconds: 10));
+                               QuizActivity? quizActivity = await quizProvider.createQuiz(
+                                activityNameController.text,
+                                int.parse(activityTimeController.text), // Conversión a int
+                                int.parse(activityQuantityController.text), // Conversión a int
+                                widget.selectedPdf?.url ?? "",
+                              );
 
-                              if (success) {
+                              if (quizActivity != null) {
                                 Navigator.of(context).pop(); // Cierra el diálogo si la respuesta es exitosa
                                 _showSuccessSnackBar('Error reportado exitosamente.');
                               } else {
                                 Navigator.of(context).pop();
                                 _showErrorSnackBar('No se pudo reportar el error.');
                               }
-                            } on TimeoutException {
-                              Navigator.of(context).pop();
-                              _showErrorSnackBar('La operación está tardando demasiado. Por favor, verifica tu conexión e inténtalo de nuevo.');
                             } catch (e) {
                               Navigator.of(context).pop();
                               _showErrorSnackBar('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');
                             } finally {
-                              nameController.clear();
-                              descriptionController.clear();
-
                               setState(() {
                                 _isLoading = false;  // Desactiva el loading
                               });
-                            }*/
+                            }
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -378,59 +401,6 @@ class _CreateScreenState extends State<CreateScreen> {
     );
   }
 
-  Widget _buildTextField(
-      TextEditingController controller,
-      String labelText,
-      {bool isMultiline = false, String? Function(String?)? validator}
-      ) {
-    return Focus(
-      child: Builder(
-        builder: (BuildContext context) {
-          final bool hasFocus = Focus.of(context).hasFocus;
-
-          return TextFormField(
-            controller: controller,
-            decoration: InputDecoration(
-              // El hintText solo se mostrará cuando no haya foco
-              hintText: hasFocus ? null : labelText,
-              hintStyle: TextStyle(
-                color: Color(0xFF6D5BFF),
-                fontSize: 18.0,
-                fontFamily: 'Poppins',
-              ),
-              contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide(color: Color(0xFF6D5BFF), width: 1),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide(color: kPrimary, width: 2),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide(color: Color(0xFF6D5BFF), width: 1),
-              ),
-              errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide(color: Colors.red, width: 1),
-              ),
-              focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide(color: Colors.red, width: 2),
-              ),
-            ),
-            style: TextStyle(color: Color(0xFF585858)),
-            keyboardType: isMultiline ? TextInputType.multiline : TextInputType.text,
-            maxLines: isMultiline ? null : 1,
-            minLines: isMultiline ? 5 : 1,
-            validator: validator,
-          );
-        },
-      ),
-    );
-  }
-
   // Método para construir las opciones de modo
   Widget _buildModeOption({
     required IconData icon,
@@ -442,6 +412,10 @@ class _CreateScreenState extends State<CreateScreen> {
       onTap: isEnabled
           ? () {
         // Acción solo si el botón está habilitado
+        activityNameController.clear();
+        activityTypeController.text = title;
+        activityTimeController.clear();
+        activityQuantityController.clear();
         _showQuizConfigDialog(context);
       }
           : null, // No acción si está deshabilitado
