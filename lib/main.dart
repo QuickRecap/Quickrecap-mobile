@@ -15,6 +15,7 @@ import 'application/register_use_case.dart';
 import 'application/password_use_case.dart';
 import 'application/support_use_case.dart';
 import 'application/create_quiz_use_case.dart';
+import 'application/create_flashcard_use_case.dart';
 import 'application/get_pdfs_use_case.dart.dart';
 import 'application/edit_profile_use_case.dart';
 import 'ui/pages/entrypoint.dart';
@@ -31,6 +32,7 @@ import 'ui/providers/upload_pdf_provider.dart';
 import 'ui/providers/register_provider.dart';
 import 'ui/providers/support_provider.dart';
 import 'ui/providers/quiz_provider.dart';
+import 'ui/providers/flashcard_provider.dart';
 import 'ui/providers/edit_profile_provider.dart';
 import 'ui/providers/password_provider.dart';
 import 'ui/providers/get_pdfs_provider.dart';
@@ -76,6 +78,9 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => QuizProvider(CreateQuizUseCase(ActivityRepositoryImpl(activityApi))),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => FlashcardProvider(CreateFlashcardUseCase(ActivityRepositoryImpl(activityApi))),
         ),
       ],
       child: const MyApp(),

@@ -10,9 +10,8 @@ class ActivityRepositoryImpl implements ActivityRepository{
   ActivityRepositoryImpl(this.activityApi);
 
   @override
-  Future<Flashcard?> createFlashcard(String activityName, int activityTimer, int activityQuantity, String pdfUrl) {
-    // TODO: implement createFlashcard
-    throw UnimplementedError();
+  Future<List<Flashcard>?> createFlashcard(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
+    return await activityApi.createFlashCard(activityName, activityTimer, activityQuantity, pdfUrl);
   }
 
   @override

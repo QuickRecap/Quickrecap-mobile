@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../domain/entities/pdf.dart';
 import 'widgets/create_quiz_dialog.dart';
+import 'widgets/create_flashcard_dialog.dart';
 
 class CreateScreen extends StatefulWidget {
   final Pdf? selectedPdf; // Cambiado a selectedPdf
@@ -141,10 +142,20 @@ class _CreateScreenState extends State<CreateScreen> {
       ),
     );
   }
-
-  bool _isLoading = false; // Mueve el estado aquí
+ // Mueve el estado aquí
   void _showQuizConfigDialog(BuildContext context) {
     CreateQuizDialog.show(
+      context,
+      activityNameController: activityNameController,
+      activityTypeController: activityTypeController,
+      activityTimeController: activityTimeController,
+      activityQuantityController: activityQuantityController,
+      selectedPdf: widget.selectedPdf,
+    );
+  }
+
+  void _showFlashcardDialog(BuildContext context) {
+    CreateFlashcardDialog.show(
       context,
       activityNameController: activityNameController,
       activityTypeController: activityTypeController,
@@ -169,7 +180,22 @@ class _CreateScreenState extends State<CreateScreen> {
         activityTypeController.text = title;
         activityTimeController.clear();
         activityQuantityController.clear();
-        _showQuizConfigDialog(context);
+
+        switch (title) {
+          case 'Quiz':
+            _showQuizConfigDialog(context);
+            break;
+          case 'Flashcards':
+            _showFlashcardDialog(context);
+            break;
+          case 'Gaps':
+          case 'Linkers':
+          // Deja en blanco para estos casos
+            break;
+          default:
+          // Opcional: Manejar otros casos o errores
+            break;
+        }
       }
           : null, // No acción si está deshabilitado
       child: Container(
