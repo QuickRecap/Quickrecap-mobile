@@ -1,7 +1,7 @@
 class Quiz {
   String question;
   List<String> alternatives;
-  String answer;
+  int answer;
 
   Quiz({
     required this.question,

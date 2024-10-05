@@ -1,5 +1,6 @@
 import 'package:quickrecap/domain/entities/flashcard.dart';
 import 'package:quickrecap/domain/entities/quiz_activity.dart';
+import 'package:quickrecap/domain/entities/flashcard_activity.dart';
 import 'package:quickrecap/domain/repositories/activity_repository.dart';
 import '../api/activity_api.dart';
 
@@ -10,7 +11,7 @@ class ActivityRepositoryImpl implements ActivityRepository{
   ActivityRepositoryImpl(this.activityApi);
 
   @override
-  Future<List<Flashcard>?> createFlashcard(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
+  Future<FlashcardActivity?> createFlashcard(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
     return await activityApi.createFlashCard(activityName, activityTimer, activityQuantity, pdfUrl);
   }
 

@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'custom_input.dart';
 import 'custom_select_input.dart';
 import '../../../../providers/flashcard_provider.dart';
-import '../../../../../domain/entities/flashcard.dart';
+import '../../../../../domain/entities/flashcard_activity.dart';
 
 class CreateFlashcardDialog extends StatefulWidget {
   final TextEditingController activityNameController;
@@ -227,18 +227,16 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                           final flashcardProvider = Provider.of<FlashcardProvider>(context, listen: false);
 
                           try {
-                            List<Flashcard>? flashcards = await flashcardProvider.createFlashcard(
+                            FlashcardActivity? flashcardActivity = await flashcardProvider.createFlashcard(
                               widget.activityNameController.text,
                               int.parse(widget.activityTimeController.text),
                               int.parse(widget.activityQuantityController.text),
                               widget.selectedPdf?.url ?? "",
                             );
-                            print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-                            print(flashcards?[0].word);
 
                             setState(() {
                               _isConfigView = false;
-                              _isSuccess = flashcards != null;
+                              _isSuccess = flashcardActivity != null;
                             });
                           } catch (e) {
                             setState(() {

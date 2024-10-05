@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../domain/entities/quiz_activity.dart';
+import '../../domain/entities/flashcard_activity.dart';
 import '../../domain/entities/quiz.dart';
 import '../../domain/entities/flashcard.dart';
 import '../repositories/local_storage_service.dart';
@@ -30,7 +31,7 @@ class ActivityApi {
     if (response.statusCode == 200 || response.statusCode == 201) {
       final data = json.decode(response.body);
 
-      if (data['flashcards'] != null && data['quiz'] != null) {
+      if (data['flashcards'] != null && data['quiz'] != null && data['quiz'] != null) {
         List<Flashcard> flashcards = (data['flashcards'] as List)
             .map((flashcardJson) => Flashcard.fromJson(flashcardJson))
             .toList();
@@ -42,6 +43,9 @@ class ActivityApi {
         return QuizActivity(
           flashcards: flashcards,
           quizzes: quizzes,
+          name: data['activity']['nombre'],
+          quantity: data['activity']['numero_preguntas'],
+          timer: data['activity']['tiempo_pregunta']
         );
       } else {
         // Si los campos flashcards o quiz no están en la respuesta
@@ -54,7 +58,7 @@ class ActivityApi {
     }
   }
 
-  Future<List<Flashcard>?> createFlashCard(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
+  Future<FlashcardActivity?> createFlashCard(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
     // Obtener el userId desde el servicio de almacenamiento local
     LocalStorageService localStorageService = LocalStorageService();
     int userId = await localStorageService.getCurrentUserId();
@@ -78,12 +82,17 @@ class ActivityApi {
     if (response.statusCode == 200 || response.statusCode == 201) {
       final data = json.decode(response.body);
 
-      if (data['flashcards'] != null && data['quiz'] != null) {
+      if (data['flashcards'] != null) {
         List<Flashcard> flashcards = (data['flashcards'] as List)
             .map((flashcardJson) => Flashcard.fromJson(flashcardJson))
             .toList();
 
-        return flashcards;
+        return FlashcardActivity(
+            flashcards: flashcards,
+            name: data['activity']['nombre'],
+            quantity: data['activity']['numero_preguntas'],
+            timer: data['activity']['tiempo_pregunta']
+        );
       } else {
         // Si los campos flashcards o quiz no están en la respuesta
         return null;

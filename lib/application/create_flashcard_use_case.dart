@@ -1,3 +1,4 @@
+import '../domain/entities/flashcard_activity.dart';
 import '../domain/repositories/activity_repository.dart';
 import '../domain/entities/flashcard.dart';
 
@@ -6,10 +7,10 @@ class CreateFlashcardUseCase {
 
   CreateFlashcardUseCase(this.activityRepository);
 
-  Future<List<Flashcard>?> createFlashcard(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
+  Future<FlashcardActivity?> createFlashcard(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
     try {
-      final List<Flashcard>? flashcards =  await activityRepository.createFlashcard(activityName, activityTimer, activityQuantity,pdfUrl);
-      return flashcards;
+      final FlashcardActivity? flashcardActivity =  await activityRepository.createFlashcard(activityName, activityTimer, activityQuantity,pdfUrl);
+      return flashcardActivity;
     } catch (e) {
       return null;
     }
