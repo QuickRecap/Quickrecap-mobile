@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'dart:async'; // Importamos Timer
 import '../../../../../domain/entities/flashcard.dart';
 import '../../../../../domain/entities/flashcard_activity.dart';
 
@@ -17,9 +18,10 @@ class _PlayFlashcardsState extends State<PlayFlashcards> with SingleTickerProvid
   bool _showDefinition = false;
   late int _remainingTime;
   bool _timerStopped = false;
-  bool _hasShownDefinition = false;  // Nueva variable para rastrear si ya se mostró la definición
+  bool _hasShownDefinition = false;
   late AnimationController _controller;
   late Animation<double> _animation;
+  Timer? _timer; // Agregamos una variable para el Timer
 
   @override
   void initState() {
@@ -38,19 +40,23 @@ class _PlayFlashcardsState extends State<PlayFlashcards> with SingleTickerProvid
 
   @override
   void dispose() {
+    _timer?.cancel(); // Cancelamos el timer al disponer el widget
     _controller.dispose();
     super.dispose();
   }
 
   void _startTimer() {
-    Future.delayed(Duration(seconds: 1), () {
+    _timer?.cancel(); // Cancelamos cualquier timer existente
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (_remainingTime > 0 && mounted && !_timerStopped) {
         setState(() {
           _remainingTime--;
         });
-        _startTimer();
       } else if (_remainingTime == 0 && !_hasShownDefinition) {
         _flipCard();
+        timer.cancel();
+      } else {
+        timer.cancel();
       }
     });
   }
@@ -65,13 +71,14 @@ class _PlayFlashcardsState extends State<PlayFlashcards> with SingleTickerProvid
       _showDefinition = !_showDefinition;
       if (!_timerStopped) {
         _timerStopped = true;
-        _hasShownDefinition = true;  // Marcamos que ya se mostró la definición
+        _hasShownDefinition = true;
       }
     });
   }
 
   void _nextFlashcard() {
     if (_currentIndex < widget.flashcardActivity.flashcards!.length - 1) {
+      _timer?.cancel(); // Cancelamos el timer actual antes de iniciar uno nuevo
       setState(() {
         _currentIndex++;
         if (_showDefinition) {
@@ -79,10 +86,10 @@ class _PlayFlashcardsState extends State<PlayFlashcards> with SingleTickerProvid
           _showDefinition = false;
         }
         _timerStopped = false;
-        _hasShownDefinition = false;  // Reseteamos para la nueva tarjeta
+        _hasShownDefinition = false;
         _remainingTime = widget.flashcardActivity.timer;
       });
-      _startTimer();
+      _startTimer(); // Iniciamos un nuevo timer
     }
   }
 
