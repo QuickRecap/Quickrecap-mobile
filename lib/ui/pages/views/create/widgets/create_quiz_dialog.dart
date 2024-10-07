@@ -6,6 +6,8 @@ import 'custom_input.dart';
 import 'custom_select_input.dart';
 import '../../../../providers/quiz_provider.dart';
 import '../../../../../domain/entities/quiz_activity.dart';
+import '../../../../../domain/entities/quiz_activity.dart';
+import '../../activities/quiz/play_quiz.dart';
 
 class CreateQuizDialog extends StatefulWidget {
   final TextEditingController activityNameController;
@@ -54,6 +56,7 @@ class CreateQuizDialog extends StatefulWidget {
 }
 
 class _CreateQuizDialogState extends State<CreateQuizDialog> {
+  QuizActivity? quizActivity;
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   bool _isConfigView = true;
@@ -227,7 +230,7 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                           final quizProvider = Provider.of<QuizProvider>(context, listen: false);
 
                           try {
-                            QuizActivity? quizActivity = await quizProvider.createQuiz(
+                            quizActivity = await quizProvider.createQuiz(
                               widget.activityNameController.text,
                               int.parse(widget.activityTimeController.text),
                               int.parse(widget.activityQuantityController.text),
@@ -331,8 +334,13 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      if (_isSuccess) {
-                        Navigator.of(context).pop();
+                      if (_isSuccess && quizActivity != null) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PlayQuiz(quizActivity: quizActivity!),
+                          ),
+                        );
                       } else {
                         setState(() {
                           _isConfigView = true;
