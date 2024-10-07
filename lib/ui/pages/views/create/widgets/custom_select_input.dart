@@ -41,24 +41,24 @@ class CustomSelectInput extends StatelessWidget {
                 fontSize: 18.0,
                 fontFamily: 'Poppins',
               ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(15),
                 borderSide: const BorderSide(
                   color: Color(0xFF6D5BFF),
                   width: 1,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(15),
                 borderSide: const BorderSide(color: Color(0xFF6D5BFF), width: 2),
               ),
               errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(15),
                 borderSide: const BorderSide(color: Colors.red, width: 1),
               ),
               focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(15),
                 borderSide: const BorderSide(color: Colors.red, width: 2),
               ),
             ),

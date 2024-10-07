@@ -89,7 +89,7 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                         child: Text(
                           'Configuracion de la actividad',
                           style: TextStyle(
-                            fontSize: 21,
+                            fontSize: 18,
                             fontFamily: "Poppins",
                             fontWeight: FontWeight.w600,
                             color: Color(0xff424242),
@@ -111,7 +111,7 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 10),
                   CustomInput(
                     controller: widget.activityNameController,
                     label: 'Ingresa un nombre',
@@ -124,7 +124,7 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                     maxLength: 50,
                     isDisabled: false,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 15),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -137,7 +137,7 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 10),
                   CustomInput(
                     controller: widget.activityTypeController,
                     label: 'Actividad',
@@ -150,7 +150,7 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                     maxLength: 50, // Aquí defines el límite de caracteres
                     isDisabled: true, // Aquí defines si el campo está deshabilitado
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 15),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -163,7 +163,7 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 10),
                   CustomSelectInput(
                     label: "Selecciona una opción",
                     suffix: " segundos",
@@ -181,7 +181,7 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 15),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -194,7 +194,7 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 10),
                   CustomSelectInput(
                     label: "Selecciona una opción",
                     suffix: " preguntas",
@@ -291,7 +291,7 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                         child: Text(
                           'Configuracion de la actividad',
                           style: TextStyle(
-                            fontSize: 21,
+                            fontSize: 18,
                             fontFamily: "Poppins",
                             fontWeight: FontWeight.w600,
                             color: Color(0xff424242),

@@ -87,15 +87,13 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                           Navigator.of(context).pop();
                         },
                       ),
-                      Center(
-                        child: Text(
-                          'Configuracion de la actividad',
-                          style: TextStyle(
-                            fontSize: 21,
-                            fontFamily: "Poppins",
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xff424242),
-                          ),
+                      Text(
+                        'Configuracion de la actividad',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontFamily: "Poppins",
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xff424242),
                         ),
                       ),
                     ],
@@ -113,7 +111,7 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 10),
                   CustomInput(
                     controller: widget.activityNameController,
                     label: 'Ingresa un nombre',
@@ -126,7 +124,7 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                     maxLength: 50,
                     isDisabled: false,
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 15),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -139,7 +137,7 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 10),
                   CustomInput(
                     controller: widget.activityTypeController,
                     label: 'Actividad',
@@ -152,7 +150,7 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                     maxLength: 50, // Aquí defines el límite de caracteres
                     isDisabled: true, // Aquí defines si el campo está deshabilitado
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 15),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -165,7 +163,7 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 10),
                   CustomSelectInput(
                     label: "Selecciona una opción",
                     suffix: " segundos",
@@ -183,7 +181,7 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 15),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
@@ -196,7 +194,7 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 5),
+                  const SizedBox(height: 10),
                   CustomSelectInput(
                     label: "Selecciona una opción",
                     suffix: " flascards",
@@ -255,7 +253,7 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF6D5BFF),
-                        padding: const EdgeInsets.symmetric(vertical: 19),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
@@ -294,7 +292,7 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                         child: Text(
                           'Configuracion de la actividad',
                           style: TextStyle(
-                            fontSize: 21,
+                            fontSize: 18,
                             fontFamily: "Poppins",
                             fontWeight: FontWeight.w600,
                             color: Color(0xff424242),

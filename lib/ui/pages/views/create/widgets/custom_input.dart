@@ -37,31 +37,31 @@ class CustomInput extends StatelessWidget {
               ),
               filled: isDisabled, // Aplica el color de fondo solo cuando está deshabilitado
               fillColor: isDisabled ? Color(0xFFF0EFFE) : null, // Fondo para deshabilitado
-              contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(15),
                 borderSide: BorderSide(
                   color: isDisabled ? Color(0xFFF0EFFE) : Color(0xFF6D5BFF), // Borde cuando está habilitado o deshabilitado
                   width: 1,
                 ),
               ),
               disabledBorder: OutlineInputBorder( // Aseguramos el borde cuando está deshabilitado
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(15),
                 borderSide: const BorderSide(
                   color: Color(0xFFF0EFFE), // Color específico para el borde deshabilitado
                   width: 1,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(15),
                 borderSide: const BorderSide(color: Color(0xFF6D5BFF), width: 2),
               ),
               errorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(15),
                 borderSide: const BorderSide(color: Colors.red, width: 1),
               ),
               focusedErrorBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(15),
                 borderSide: const BorderSide(color: Colors.red, width: 2),
               ),
             ),

@@ -221,7 +221,7 @@ class _PlayFlashcardsState extends State<PlayFlashcards> with SingleTickerProvid
                   style: TextStyle(
                     color: Color(0xFF6D5BFF),
                     fontFamily: 'Poppins',
-                    fontSize: 48,
+                    fontSize: 40,
                     fontWeight: FontWeight.w600,
                   ),
                 )
