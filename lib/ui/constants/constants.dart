@@ -11,6 +11,10 @@ const kWhite = Color(0xfffFFFFF);
 const kDark = Color(0xff000000);
 const kGrey = Color(0xFF585858);
 
+const kGrey2 = Color(0xFF474747);
+
+const kPrimaryLight = Color.fromRGBO(140, 121, 235, 1);
+
 double height = 825.h;
 double width = 375.w;
 
