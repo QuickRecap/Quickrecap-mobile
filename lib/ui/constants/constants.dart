@@ -15,6 +15,8 @@ const kGrey2 = Color(0xFF474747);
 
 const kPrimaryLight = Color.fromRGBO(140, 121, 235, 1);
 
+const kYellow = Color.fromRGBO(255, 209, 0, 1);
+
 double height = 825.h;
 double width = 375.w;
 

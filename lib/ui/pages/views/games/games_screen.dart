@@ -74,7 +74,7 @@ class _GamesScreenState extends State<GamesScreen> {
                             Text(
                               "Mis actividades",
                               style: TextStyle(
-                                color: Colors.white,
+                                color: kWhite,
                                 fontSize: 26.sp,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -82,7 +82,7 @@ class _GamesScreenState extends State<GamesScreen> {
                             IconButton(
                               icon: Icon(
                                 Icons.logout,
-                                color: Colors.white,
+                                color: kWhite,
                                 size: 30.sp,
                               ),
                               onPressed: () {
@@ -96,7 +96,7 @@ class _GamesScreenState extends State<GamesScreen> {
                         Container(
                           padding: EdgeInsets.symmetric(horizontal: 15.w),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: kWhite,
                             borderRadius: BorderRadius.circular(20.r),
                           ),
                           child: TextField(
@@ -122,7 +122,7 @@ class _GamesScreenState extends State<GamesScreen> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: kDark.withOpacity(0.2),
                             spreadRadius: 1,
                             blurRadius: 10,
                             offset: Offset(0, -2),
@@ -166,10 +166,9 @@ class _GamesScreenState extends State<GamesScreen> {
                                   dropdownColor: Colors
                                       .white, // Fondo blanco del menú desplegable
                                   style: TextStyle(
-                                    color: kDark, // Texto negro
-                                    fontSize: 14.sp,
-                                    fontWeight: FontWeight.w500
-                                  ),
+                                      color: kDark, // Texto negro
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.w500),
                                   items: <String>[
                                     'Todos',
                                     'Quiz',
@@ -182,7 +181,9 @@ class _GamesScreenState extends State<GamesScreen> {
                                       value: value,
                                       child: Text(
                                         value,
-                                        style: TextStyle(color: kDark), // Asegura que el texto de las opciones también sea negro
+                                        style: TextStyle(
+                                            color:
+                                                kDark), // Asegura que el texto de las opciones también sea negro
                                       ),
                                     );
                                   }).toList(),
@@ -196,9 +197,9 @@ class _GamesScreenState extends State<GamesScreen> {
                           Expanded(
                             child: TabBarView(
                               children: [
-                                _buildActivityList(),
-                                _buildActivityList(),
-                                _buildActivityList(),
+                                _buildActivityList(0, context),
+                                _buildActivityList(1, context),
+                                _buildActivityList(2, context),
                               ],
                             ),
                           ),
@@ -215,7 +216,7 @@ class _GamesScreenState extends State<GamesScreen> {
     );
   }
 
-  Widget _buildActivityList() {
+  Widget _buildActivityList(int currentTabIndex, BuildContext context) {
     return ListView.builder(
       padding: EdgeInsets.symmetric(horizontal: 30.w),
       itemCount: 4,
@@ -240,9 +241,216 @@ class _GamesScreenState extends State<GamesScreen> {
                   ),
                 ),
               ),
-              SizedBox(
-                  width: 10), // Ajusta este valor para controlar el espacio
-              Icon(Icons.star, color: Colors.grey),
+              SizedBox(width: 10),
+              GestureDetector(
+                onTap: () => _showOptionsBottomSheet(context),
+                child: _getIconForTab(currentTabIndex),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _getIconForTab(int currentTabIndex) {
+    switch (currentTabIndex) {
+      case 0: // Creados
+        return Icon(
+          Icons.settings,
+          color: kGrey,
+          size: 25,
+        );
+      case 1: // Favoritos
+        return Icon(
+          Icons.bookmark,
+          color: kYellow,
+          size: 25,
+        );
+      case 2: // Historialr
+        return Container(
+          width: 60,
+          height: 40,
+          decoration: BoxDecoration(
+            color: kPrimaryLight.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                '10/10',
+                style: TextStyle(
+                  color: kPrimaryLight,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+            ],
+          ),
+        );
+      default:
+        return Icon(
+          Icons.help_outline,
+          color: kPrimaryLight,
+          size: 25,
+        );
+    }
+  }
+
+  void _showOptionsBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return Container(
+          decoration: BoxDecoration(
+            color: kWhite,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(10),
+              topRight: Radius.circular(10),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.close,
+                          size: 30, weight: 700), // Increased size and weight
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    Text(
+                      'Opciones de la actividad',
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    SizedBox(width: 48), // Para equilibrar el layout
+                  ],
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(left: 6, bottom: 7), // Added left padding
+                      child: Text('Nombre:',
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15)),
+                    ),
+                    SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: kPrimaryLight.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Text('Quiz de Derecho Penal',
+                          style: TextStyle(
+                              color: kPrimary,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 15)),
+                    ),
+                    SizedBox(height: 16),
+                    Padding(
+                      padding: EdgeInsets.only(left: 6, bottom: 7), // Added left padding
+                      child: Text('Estado:',
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14)),
+                    ),
+                    SizedBox(height: 8),
+                    Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: kWhite,
+                        border: Border.all(color: kPrimary, width: 1),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: 'Público',
+                          isExpanded: true,
+                          items: <String>['Público', 'Privado']
+                              .map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value,
+                                  style: TextStyle(
+                                      color: kPrimary,
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14)),
+                            );
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            // Aquí puedes manejar el cambio de valor
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 24),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          elevation: 5,
+                          shadowColor: kDark, // Customized shadow color
+                        ),
+                        child: Text('Eliminar',
+                            style: TextStyle(color: kWhite)),
+                        onPressed: () {
+                          // Lógica para eliminar
+                        },
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: kPrimaryLight,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          elevation: 5,
+                          shadowColor: kDark,
+                        ),
+                        child: Text('Guardar',
+                            style: TextStyle(color: kWhite)),
+                        onPressed: () {
+                          // Lógica para guardar
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 24),
             ],
           ),
         );

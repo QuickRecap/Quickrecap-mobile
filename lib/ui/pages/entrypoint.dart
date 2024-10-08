@@ -97,7 +97,7 @@ class _MainScreenState extends State<MainScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(Icons.dashboard),
-                      Text('Minijuegos', style: TextStyle(fontFamily: 'Poppins', fontSize: 15, color: Color(0xff565656))),
+                      Text('Actividades', style: TextStyle(fontFamily: 'Poppins', fontSize: 15, color: Color(0xff565656))),
                     ],
                   ),
                 ),
