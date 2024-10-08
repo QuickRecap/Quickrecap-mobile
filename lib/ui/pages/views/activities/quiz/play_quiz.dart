@@ -128,9 +128,12 @@ class _PlayQuizState extends State<PlayQuiz> {
 
   void _showAnswerDialog(BuildContext context, {required bool correct}) {
     _timer?.cancel();
-    String message = correct ? "Buen Trabajo!" : "Oops, Tu respuesta no es correcta";
-    String subMessage = correct ? "+100 puntos" : "";
-    Color backgroundColor = correct ? _successLightColor : _errorLightColor;
+    String message = correct ? "¡Buen Trabajo!" : "Oops, Tu respuesta no es correcta";
+    String subMessage = correct ? "+100 puntos" : "Casi adivinas la respuesta correcta, inténtalo de nuevo";
+    String additionalMessage = correct ? "Excelente, continúa con la siguiente pregunta" : "";
+    Color backgroundColor = correct ? Color(0xFFBDFFC2) : Color(0xFFFFCFD0);
+    Color textColor = correct ? Color(0xFF00C853) : Color(0xFFF44337);
+    Color buttonTextColor = correct ? Color(0xFF00C853) : Color(0xFFF44337);
 
     showModalBottomSheet(
       context: context,
@@ -141,6 +144,7 @@ class _PlayQuizState extends State<PlayQuiz> {
         return WillPopScope(
           onWillPop: () async => false,
           child: Container(
+            width: MediaQuery.of(context).size.width,  // Siempre ocupará todo el ancho
             padding: EdgeInsets.all(16.0),
             decoration: BoxDecoration(
               color: backgroundColor,
@@ -152,20 +156,36 @@ class _PlayQuizState extends State<PlayQuiz> {
                 Text(
                   message,
                   style: TextStyle(
+                    fontFamily: 'Poppins',
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: _textColor,
+                    color: textColor,
                   ),
                   textAlign: TextAlign.center,
                 ),
-                if (subMessage.isNotEmpty)
-                  Text(
-                    subMessage,
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: _textColor,
+                SizedBox(height: 10),
+                Text(
+                  subMessage,
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                if (additionalMessage.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      additionalMessage,
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 16,
+                        color: Colors.black,  // El texto de este mensaje es negro según el mockup
+                      ),
+                      textAlign: TextAlign.center,
                     ),
-                    textAlign: TextAlign.center,
                   ),
                 SizedBox(height: 20),
                 ElevatedButton(
@@ -174,9 +194,22 @@ class _PlayQuizState extends State<PlayQuiz> {
                     _nextQuiz();
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _primaryColor,
+                    backgroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15), // Ajuste de tamaño del botón
+                    textStyle: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 16,
+                      color: buttonTextColor,
+                    ),
                   ),
-                  child: Text("Continuar"),
+                  child: Text(
+                    "Continuar",
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 16,
+                      color: buttonTextColor,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -328,26 +361,64 @@ class _PlayQuizState extends State<PlayQuiz> {
             ...currentQuiz.alternatives.asMap().entries.map((entry) {
               int index = entry.key;
               String alternative = entry.value;
+
+              // Determinar el color de fondo y texto según el estado
+              Color backgroundColor;
+              Color textColor = Colors.black;  // Color por defecto para el texto
+
+              // Si ya se ha enviado la respuesta, mostrar colores de correcto o incorrecto
+              if (_isAnswered) {
+                if (index == currentQuiz.answer) {
+                  backgroundColor = Color(0xFF00B849);  // Color verde si es la respuesta correcta
+                  textColor = Colors.white;
+                } else if (index == _selectedAnswer) {
+                  backgroundColor = Color(0xFFFF444E);  // Color rojo si la respuesta es incorrecta
+                  textColor = Colors.white;
+                } else {
+                  backgroundColor = Colors.white;  // Alternativas no seleccionadas
+                }
+              } else {
+                // Si no se ha enviado aún, cambiar a morado solo la opción seleccionada
+                backgroundColor = (index == _selectedAnswer)
+                    ? Color(0xFF6D5BFF)  // Morado si está seleccionada pero aún no enviada
+                    : Colors.white;  // Fondo blanco para alternativas no seleccionadas
+              }
+
               return Padding(
                 padding: EdgeInsets.symmetric(vertical: 8),
-                child: RadioListTile<int>(
-                  title: Text(alternative, style: TextStyle(color: _textColor)),
-                  value: index,
-                  groupValue: _selectedAnswer,
-                  activeColor: _primaryColor,
-                  onChanged: (int? value) {
+                child: GestureDetector(
+                  onTap: !_isAnswered ? () {
                     setState(() {
-                      _selectedAnswer = value!;
-                      _isAnswered = true;
+                      _selectedAnswer = index;  // Actualizar la respuesta seleccionada
                     });
-                  },
+                  } : null,  // Solo permitir selección si no se ha respondido
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: backgroundColor,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: (index == _selectedAnswer && !_isAnswered)
+                            ? Color(0xFF6D5BFF)  // Borde morado para la selección antes de enviar
+                            : Colors.grey,  // Borde gris para no seleccionadas o ya enviadas
+                        width: 2,
+                      ),
+                    ),
+                    child: Text(
+                      alternative,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
                 ),
               );
             }).toList(),
             Spacer(),
             SizedBox(height: 16),
             ElevatedButton(
-              onPressed: _isAnswered ? _checkAnswer : null,
+              onPressed: _selectedAnswer != null ? _checkAnswer : null,  // Habilitar solo si hay una selección
               style: ElevatedButton.styleFrom(
                 backgroundColor: _primaryColor,
                 padding: EdgeInsets.symmetric(vertical: 16),
