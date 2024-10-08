@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import '../../../../../domain/entities/quiz.dart';
 import '../../../../../domain/entities/quiz_activity.dart';
+import 'package:dotted_border/dotted_border.dart';
 
 class PlayQuiz extends StatefulWidget {
   final QuizActivity quizActivity;
@@ -281,8 +282,9 @@ class _PlayQuizState extends State<PlayQuiz> {
     Quiz currentQuiz = widget.quizActivity.quizzes![_currentIndex];
 
     return Scaffold(
+        backgroundColor: Color(0xFFF6F8FC),
         appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: Color(0xFFF6F8FC),
           elevation: 0,
           automaticallyImplyLeading: false, // Desactiva el botón de retroceso predeterminado
           title: Row(
@@ -292,17 +294,27 @@ class _PlayQuizState extends State<PlayQuiz> {
                 onPressed: () => Navigator.pop(context),
               ),
               Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                  child: LinearProgressIndicator(
-                    value: (_currentIndex + 1) / widget.quizActivity.quizzes!.length,
-                    backgroundColor: Colors.grey[200],
-                    valueColor: AlwaysStoppedAnimation<Color>(_primaryColor),
+                child: Container(
+                  margin: EdgeInsets.symmetric(horizontal: 16.0), // Margen horizontal
+                  height: 13,
+                  decoration: BoxDecoration(
+                    color: Color(0x1A6D5BFF),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: (_currentIndex + 1) / widget.quizActivity.quizzes!.length,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Color(0xFF6D5BFF),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
                   ),
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                padding: const EdgeInsets.symmetric(horizontal: 13.0, vertical: 4.0),
                 decoration: BoxDecoration(
                   color: Color(0xff6D5BFF),
                   borderRadius: BorderRadius.circular(12.0),
@@ -311,6 +323,8 @@ class _PlayQuizState extends State<PlayQuiz> {
                   '${_currentIndex + 1}/${widget.quizActivity.quizzes!.length}',
                   style: TextStyle(
                     color: Colors.white,
+                    fontFamily: 'Poppins',
+                    fontSize: 13,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -319,19 +333,18 @@ class _PlayQuizState extends State<PlayQuiz> {
           ),
         ),
         body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
+          padding: EdgeInsets.fromLTRB(30.0, 1.0, 30.0, 16.0),
+          child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-
-            SizedBox(height: 16),
             Row(
               children: [
                 Text(
                   "Pregunta ${_currentIndex + 1}",
                   style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
                     color: _textColor,
                   ),
                 ),
@@ -343,17 +356,47 @@ class _PlayQuizState extends State<PlayQuiz> {
               ],
             ),
             SizedBox(height: 16),
-            Text(
-              currentQuiz.question,
-              style: TextStyle(fontSize: 24, color: _textColor),
+            Center(
+              child: DottedBorder(
+                borderType: BorderType.RRect,
+                radius: Radius.circular(20), // Borde redondeado
+                dashPattern: [5, 5], // Patrón de puntos y espacios
+                color: Color(0xff6D5BFF), // Color del borde
+                strokeWidth: 3, // Ancho del borde
+                padding: EdgeInsets.all(0), // Padding interno del borde punteado
+                child: Card(
+                  color: Colors.white, // Fondo blanco
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20), // Misma curva que el borde punteado
+                  ),
+                  elevation: 0, // Eliminar la sombra
+                  margin: EdgeInsets.all(0), // Reducir cualquier margen extra
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+                    child: Center(
+                      child: Text(
+                        currentQuiz.question,
+                        style: TextStyle(
+                          fontSize: 20,
+                          color: Color(0xff212121),
+                          fontFamily: 'poppins',
+                          fontWeight: FontWeight.w500, // Fuente personalizada si es necesario
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
             SizedBox(height: 20),
             Text(
               _remainingTime > 0 ? "00:${_remainingTime.toString().padLeft(2, '0')}" : "00:00",
               style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: _textColor,
+                fontFamily: 'Poppins',
+                fontSize: 27,
+                fontWeight: FontWeight.w600,
+                color: Color(0xff6D5BFF),
               ),
               textAlign: TextAlign.center,
             ),
@@ -364,26 +407,20 @@ class _PlayQuizState extends State<PlayQuiz> {
 
               // Determinar el color de fondo y texto según el estado
               Color backgroundColor;
-              Color textColor = Colors.black;  // Color por defecto para el texto
+              Color textColor = Color(0xff212121);  // Color por defecto para el texto
 
               // Si ya se ha enviado la respuesta, mostrar colores de correcto o incorrecto
-              if (_isAnswered) {
-                if (index == currentQuiz.answer) {
-                  backgroundColor = Color(0xFF00B849);  // Color verde si es la respuesta correcta
-                  textColor = Colors.white;
-                } else if (index == _selectedAnswer) {
-                  backgroundColor = Color(0xFFFF444E);  // Color rojo si la respuesta es incorrecta
-                  textColor = Colors.white;
-                } else {
-                  backgroundColor = Colors.white;  // Alternativas no seleccionadas
-                }
+              if (!_isAnswered) {
+                // Si no se ha enviado aún, cambiar a morado solo la opción seleccionada
+                backgroundColor = (index == _selectedAnswer)
+                    ? Color(0xFF6D5BFF)  // Morado si está seleccionada pero aún no enviada
+                    : Colors.white;  // Fondo blanco para alternativas no seleccionadas
               } else {
                 // Si no se ha enviado aún, cambiar a morado solo la opción seleccionada
                 backgroundColor = (index == _selectedAnswer)
                     ? Color(0xFF6D5BFF)  // Morado si está seleccionada pero aún no enviada
                     : Colors.white;  // Fondo blanco para alternativas no seleccionadas
               }
-
               return Padding(
                 padding: EdgeInsets.symmetric(vertical: 8),
                 child: GestureDetector(
@@ -396,11 +433,11 @@ class _PlayQuizState extends State<PlayQuiz> {
                     padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
                     decoration: BoxDecoration(
                       color: backgroundColor,
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                         color: (index == _selectedAnswer && !_isAnswered)
                             ? Color(0xFF6D5BFF)  // Borde morado para la selección antes de enviar
-                            : Colors.grey,  // Borde gris para no seleccionadas o ya enviadas
+                            : Color(0xffE1E1E1),  // Borde gris para no seleccionadas o ya enviadas
                         width: 2,
                       ),
                     ),
@@ -408,7 +445,9 @@ class _PlayQuizState extends State<PlayQuiz> {
                       alternative,
                       style: TextStyle(
                         color: textColor,
-                        fontSize: 16,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500,
+                        fontSize: 15,
                       ),
                     ),
                   ),
