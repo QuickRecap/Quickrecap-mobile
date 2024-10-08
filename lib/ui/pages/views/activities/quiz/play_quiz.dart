@@ -282,189 +282,190 @@ class _PlayQuizState extends State<PlayQuiz> {
     Quiz currentQuiz = widget.quizActivity.quizzes![_currentIndex];
 
     return Scaffold(
+      backgroundColor: Color(0xFFF6F8FC),
+      appBar: AppBar(
         backgroundColor: Color(0xFFF6F8FC),
-        appBar: AppBar(
-          backgroundColor: Color(0xFFF6F8FC),
-          elevation: 0,
-          automaticallyImplyLeading: false, // Desactiva el botón de retroceso predeterminado
-          title: Row(
-            children: [
-              IconButton(
-                icon: Icon(Icons.close, color: Colors.black),
-                onPressed: () => Navigator.pop(context),
-              ),
-              Expanded(
-                child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 16.0), // Margen horizontal
-                  height: 13,
-                  decoration: BoxDecoration(
-                    color: Color(0x1A6D5BFF),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: (_currentIndex + 1) / widget.quizActivity.quizzes!.length,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Color(0xFF6D5BFF),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 13.0, vertical: 4.0),
-                decoration: BoxDecoration(
-                  color: Color(0xff6D5BFF),
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                child: Text(
-                  '${_currentIndex + 1}/${widget.quizActivity.quizzes!.length}',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontFamily: 'Poppins',
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        body: Padding(
-          padding: EdgeInsets.fromLTRB(30.0, 1.0, 30.0, 16.0),
-          child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        title: Row(
           children: [
-            Row(
-              children: [
-                Text(
-                  "Pregunta ${_currentIndex + 1}",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
-                    color: _textColor,
-                  ),
-                ),
-                Spacer(), // Este widget empuja los elementos a los extremos
-                IconButton(
-                  icon: Icon(Icons.pause, color: _textColor),
-                  onPressed: _pauseQuiz,
-                ),
-              ],
+            IconButton(
+              icon: Icon(Icons.close, color: Colors.black),
+              onPressed: () => Navigator.pop(context),
             ),
-            SizedBox(height: 16),
-            Center(
-              child: DottedBorder(
-                borderType: BorderType.RRect,
-                radius: Radius.circular(20), // Borde redondeado
-                dashPattern: [5, 5], // Patrón de puntos y espacios
-                color: Color(0xff6D5BFF), // Color del borde
-                strokeWidth: 3, // Ancho del borde
-                padding: EdgeInsets.all(0), // Padding interno del borde punteado
-                child: Card(
-                  color: Colors.white, // Fondo blanco
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20), // Misma curva que el borde punteado
-                  ),
-                  elevation: 0, // Eliminar la sombra
-                  margin: EdgeInsets.all(0), // Reducir cualquier margen extra
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-                    child: Center(
-                      child: Text(
-                        currentQuiz.question,
-                        style: TextStyle(
-                          fontSize: 20,
-                          color: Color(0xff212121),
-                          fontFamily: 'poppins',
-                          fontWeight: FontWeight.w500, // Fuente personalizada si es necesario
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
+            Expanded(
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 16.0),
+                height: 13,
+                decoration: BoxDecoration(
+                  color: Color(0x1A6D5BFF),
+                  borderRadius: BorderRadius.circular(20),
                 ),
-              ),
-            ),
-            SizedBox(height: 20),
-            Text(
-              _remainingTime > 0 ? "00:${_remainingTime.toString().padLeft(2, '0')}" : "00:00",
-              style: TextStyle(
-                fontFamily: 'Poppins',
-                fontSize: 27,
-                fontWeight: FontWeight.w600,
-                color: Color(0xff6D5BFF),
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 16),
-            ...currentQuiz.alternatives.asMap().entries.map((entry) {
-              int index = entry.key;
-              String alternative = entry.value;
-
-              // Determinar el color de fondo y texto según el estado
-              Color backgroundColor;
-              Color textColor = Color(0xff212121);  // Color por defecto para el texto
-
-              // Si ya se ha enviado la respuesta, mostrar colores de correcto o incorrecto
-              if (!_isAnswered) {
-                // Si no se ha enviado aún, cambiar a morado solo la opción seleccionada
-                backgroundColor = (index == _selectedAnswer)
-                    ? Color(0xFF6D5BFF)  // Morado si está seleccionada pero aún no enviada
-                    : Colors.white;  // Fondo blanco para alternativas no seleccionadas
-              } else {
-                // Si no se ha enviado aún, cambiar a morado solo la opción seleccionada
-                backgroundColor = (index == _selectedAnswer)
-                    ? Color(0xFF6D5BFF)  // Morado si está seleccionada pero aún no enviada
-                    : Colors.white;  // Fondo blanco para alternativas no seleccionadas
-              }
-              return Padding(
-                padding: EdgeInsets.symmetric(vertical: 8),
-                child: GestureDetector(
-                  onTap: !_isAnswered ? () {
-                    setState(() {
-                      _selectedAnswer = index;  // Actualizar la respuesta seleccionada
-                    });
-                  } : null,  // Solo permitir selección si no se ha respondido
+                child: FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: (_currentIndex + 1) / widget.quizActivity.quizzes!.length,
                   child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
                     decoration: BoxDecoration(
-                      color: backgroundColor,
+                      color: Color(0xFF6D5BFF),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: (index == _selectedAnswer && !_isAnswered)
-                            ? Color(0xFF6D5BFF)  // Borde morado para la selección antes de enviar
-                            : Color(0xffE1E1E1),  // Borde gris para no seleccionadas o ya enviadas
-                        width: 2,
-                      ),
-                    ),
-                    child: Text(
-                      alternative,
-                      style: TextStyle(
-                        color: textColor,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 15,
-                      ),
                     ),
                   ),
                 ),
-              );
-            }).toList(),
-            Spacer(),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _selectedAnswer != null ? _checkAnswer : null,  // Habilitar solo si hay una selección
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _primaryColor,
-                padding: EdgeInsets.symmetric(vertical: 16),
               ),
-              child: Text("Enviar", style: TextStyle(fontSize: 18)),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 13.0, vertical: 4.0),
+              decoration: BoxDecoration(
+                color: Color(0xff6D5BFF),
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+              child: Text(
+                '${_currentIndex + 1}/${widget.quizActivity.quizzes!.length}',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontFamily: 'Poppins',
+                  fontSize: 13,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ),
           ],
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(30.0, 1.0, 30.0, 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    "Pregunta ${_currentIndex + 1}",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w500,
+                      color: _textColor,
+                    ),
+                  ),
+                  Spacer(),
+                  IconButton(
+                    icon: Icon(Icons.pause, color: _textColor),
+                    onPressed: _pauseQuiz,
+                  ),
+                ],
+              ),
+              SizedBox(height: 16),
+              Center(
+                child: DottedBorder(
+                  borderType: BorderType.RRect,
+                  radius: Radius.circular(20),
+                  dashPattern: [5, 5],
+                  color: Color(0xff6D5BFF),
+                  strokeWidth: 3,
+                  padding: EdgeInsets.all(0),
+                  child: Card(
+                    color: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    elevation: 0,
+                    margin: EdgeInsets.all(0),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+                      child: Center(
+                        child: Text(
+                          currentQuiz.question,
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Color(0xff212121),
+                            fontFamily: 'poppins',
+                            fontWeight: FontWeight.w500,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              Text(
+                _remainingTime > 0 ? "00:${_remainingTime.toString().padLeft(2, '0')}" : "00:00",
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 27,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xff6D5BFF),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 16),
+              ...currentQuiz.alternatives.asMap().entries.map((entry) {
+                int index = entry.key;
+                String alternative = entry.value;
+
+                Color backgroundColor;
+                Color textColor = Color(0xff212121);
+
+                if (!_isAnswered) {
+                  backgroundColor = (index == _selectedAnswer)
+                      ? Color(0xFF6D5BFF)
+                      : Colors.white;
+                  textColor = (index == _selectedAnswer)
+                      ? Colors.white
+                      : Color(0xff212121);
+                } else {
+                  backgroundColor = (index == _selectedAnswer)
+                      ? Color(0xFF6D5BFF)
+                      : Colors.white;
+                }
+                return Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: GestureDetector(
+                    onTap: !_isAnswered ? () {
+                      setState(() {
+                        _selectedAnswer = index;
+                      });
+                    } : null,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: backgroundColor,
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: (index == _selectedAnswer && !_isAnswered)
+                              ? Color(0xFF6D5BFF)
+                              : Color(0xffE1E1E1),
+                          width: 2,
+                        ),
+                      ),
+                      child: Text(
+                        alternative,
+                        style: TextStyle(
+                          color: textColor,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              }).toList(),
+              SizedBox(height: 30),
+              ElevatedButton(
+                onPressed: _selectedAnswer != -1 ? () => _checkAnswer() : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _primaryColor,
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: Text("Enviar", style: TextStyle(fontSize: 18)),
+              ),
+              SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );
