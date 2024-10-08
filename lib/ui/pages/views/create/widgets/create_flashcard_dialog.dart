@@ -349,7 +349,7 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xFF6D5BFF),
-                      padding: const EdgeInsets.symmetric(vertical: 19),
+                      padding: const EdgeInsets.symmetric(vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),

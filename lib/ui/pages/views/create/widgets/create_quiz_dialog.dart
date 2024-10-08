@@ -255,7 +255,7 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color(0xFF6D5BFF),
-                        padding: const EdgeInsets.symmetric(vertical: 19),
+                        padding: const EdgeInsets.symmetric(vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                         ),
