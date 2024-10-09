@@ -6,8 +6,15 @@ import '../../../../../domain/entities/flashcard_activity.dart';
 
 class PlayFlashcards extends StatefulWidget {
   final FlashcardActivity flashcardActivity;
+  final bool isPreparation;
+  final VoidCallback? onPreparationComplete; // Callback opcional para notificar cuando se complete la preparación
 
-  PlayFlashcards({required this.flashcardActivity});
+  PlayFlashcards({
+    required this.flashcardActivity,
+    required this.isPreparation,
+    this.onPreparationComplete, // Asegúrate de requerirla en el constructor
+  });
+
 
   @override
   _PlayFlashcardsState createState() => _PlayFlashcardsState();
@@ -78,19 +85,28 @@ class _PlayFlashcardsState extends State<PlayFlashcards> with SingleTickerProvid
 
   void _nextFlashcard() {
     if (_currentIndex < widget.flashcardActivity.flashcards!.length - 1) {
-      _timer?.cancel(); // Cancelamos el timer actual antes de iniciar uno nuevo
+      _timer?.cancel();
       setState(() {
         _currentIndex++;
-        if (_showDefinition) {
-          _controller.reverse();
-          _showDefinition = false;
-        }
-        _timerStopped = false;
-        _hasShownDefinition = false;
-        _remainingTime = widget.flashcardActivity.timer;
+        _resetCardState();
       });
-      _startTimer(); // Iniciamos un nuevo timer
+      _startTimer();
+    } else {
+      // Si es la fase de preparación, notificamos que se completó
+      if (widget.isPreparation && widget.onPreparationComplete != null) {
+        widget.onPreparationComplete!();
+      }
     }
+  }
+
+  void _resetCardState() {
+    if (_showDefinition) {
+      _controller.reverse();
+      _showDefinition = false;
+    }
+    _timerStopped = false;
+    _hasShownDefinition = false;
+    _remainingTime = widget.flashcardActivity.timer;
   }
 
   @override
@@ -159,15 +175,17 @@ class _PlayFlashcardsState extends State<PlayFlashcards> with SingleTickerProvid
               ],
             ),
             SizedBox(height: 20),
-            Text(
-              "Preparacion",
-              style: TextStyle(
-                fontSize: 24,
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.w500,
-                color: Colors.black,
+            // Condición para mostrar el texto solo si isPreparation es true
+            if (widget.isPreparation)
+              Text(
+                "Preparación",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black,
+                ),
               ),
-            ),
             SizedBox(height: 15),
             Expanded(
               child: Center(
