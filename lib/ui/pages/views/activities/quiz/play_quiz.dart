@@ -52,40 +52,44 @@ class _PlayQuizState extends State<PlayQuiz> {
   void _showTimeUpDialog() {
     showModalBottomSheet(
       context: context,
-      isDismissible: false,
-      enableDrag: false,
-      backgroundColor: Colors.transparent,
+      isDismissible: false, // No permite cerrar el modal tocando fuera
+      enableDrag: false, // No permite arrastrar para cerrar
+      backgroundColor: Colors.transparent, // Hace el fondo del modal transparente
       builder: (BuildContext context) {
         return WillPopScope(
-          onWillPop: () async => false,
+          onWillPop: () async => false, // Deshabilita el botón de atrás
           child: Container(
+            width: MediaQuery.of(context).size.width, // Ocupa todo el ancho de la pantalla
             padding: EdgeInsets.all(16.0),
             decoration: BoxDecoration(
-              color: _errorLightColor,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+              color: Colors.white, // Color de fondo blanco
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(15), // Bordes redondeados solo en la parte superior
+              ),
             ),
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisSize: MainAxisSize.min, // Ocupa el mínimo espacio necesario
               children: [
                 Text(
                   "Tiempo Agotado",
                   style: TextStyle(
                     fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: _textColor,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xff212121), // Color del texto
                   ),
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pop(context);
-                    _nextQuiz();
+                    Navigator.pop(context); // Cierra el modal
+                    _nextQuiz(); // Ejecuta la siguiente acción
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _primaryColor,
+                    backgroundColor: _primaryColor, // Color del botón
                   ),
-                  child: Text("Continuar"),
+                  child: Text("Continuar", style: TextStyle(fontFamily: 'Poppins',fontWeight: FontWeight.w500, color: Colors.white),),
                 ),
               ],
             ),
@@ -94,6 +98,7 @@ class _PlayQuizState extends State<PlayQuiz> {
       },
     );
   }
+
 
   void _nextQuiz() {
     if (_currentIndex < widget.quizActivity.quizzes!.length - 1) {
@@ -120,9 +125,10 @@ class _PlayQuizState extends State<PlayQuiz> {
   void _resetQuiz() {
     setState(() {
       _currentIndex = 0;
-      _remainingTime = 10;
+      _remainingTime = widget.quizActivity.timer; // Usar el timer original de la actividad
       _score = 0;
       _isAnswered = false;
+      _selectedAnswer = -1; // Reiniciar la respuesta seleccionada
     });
     _startTimer();
   }
@@ -130,7 +136,7 @@ class _PlayQuizState extends State<PlayQuiz> {
   void _showAnswerDialog(BuildContext context, {required bool correct}) {
     _timer?.cancel();
     String message = correct ? "¡Buen Trabajo!" : "Oops, Tu respuesta no es correcta";
-    String subMessage = correct ? "+100 puntos" : "Casi adivinas la respuesta correcta, inténtalo de nuevo";
+    String subMessage = "No te preocupes, sigue intentandolo";
     String additionalMessage = correct ? "Excelente, continúa con la siguiente pregunta" : "";
     Color backgroundColor = correct ? Color(0xFFBDFFC2) : Color(0xFFFFCFD0);
     Color textColor = correct ? Color(0xFF00C853) : Color(0xFFF44337);
@@ -154,26 +160,52 @@ class _PlayQuizState extends State<PlayQuiz> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                SizedBox(height: 10),
                 Text(
                   message,
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w500,
                     color: textColor,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 SizedBox(height: 10),
-                Text(
-                  subMessage,
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: textColor,
-                  ),
-                  textAlign: TextAlign.center,
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (correct) // Mostrar solo si la respuesta es correcta
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12), // Padding dentro del container
+                        decoration: BoxDecoration(
+                          color: Colors.white, // Fondo blanco
+                          borderRadius: BorderRadius.circular(20), // Bordes redondeados
+                        ),
+                        child: Text(
+                          "+100 puntos",
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 17,
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF00C853), // Color del texto para la respuesta correcta
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    SizedBox(height: 10),
+                    if (!correct) // Espacio entre los textos
+                      Text(
+                        subMessage,
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          fontSize: 17,
+                          fontWeight: FontWeight.w500,
+                          color: textColor,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                  ],
                 ),
                 if (additionalMessage.isNotEmpty)
                   Padding(
@@ -183,7 +215,8 @@ class _PlayQuizState extends State<PlayQuiz> {
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: 16,
-                        color: Colors.black,  // El texto de este mensaje es negro según el mockup
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xff00C853),  // El texto de este mensaje es negro según el mockup
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -200,6 +233,7 @@ class _PlayQuizState extends State<PlayQuiz> {
                     textStyle: TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 16,
+                      fontWeight: FontWeight.w500,
                       color: buttonTextColor,
                     ),
                   ),
@@ -228,48 +262,91 @@ class _PlayQuizState extends State<PlayQuiz> {
   void _showPauseDialog() {
     showDialog(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: false, // El diálogo no se cierra al tocar fuera
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            "Pausa",
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: _textColor,
+        return Dialog(
+          backgroundColor: Colors.transparent, // Fondo transparente
+          child: Container(
+            padding: EdgeInsets.all(3), // Espacio para el borde
+            decoration: BoxDecoration(
+              color: Colors.white, // No se necesita color de fondo aquí
+              borderRadius: BorderRadius.circular(20), // Borde redondeado externo
+              border: Border.all(color: Color(0xFF6D5BFF), width: 3), // Borde de color
             ),
-            textAlign: TextAlign.center,
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _startTimer();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _primaryColor,
-                ),
-                child: Text("Reanudar"),
+            child: Container(
+              width: 200,
+              padding: EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white, // Fondo blanco para el contenido del diálogo
+                borderRadius: BorderRadius.circular(20), // Borde redondeado interno
               ),
-              SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  _resetQuiz();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: _primaryColor,
-                ),
-                child: Text("Reiniciar"),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Pausa",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF212121),
+                      fontFamily: 'Poppins',
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                          _startTimer();
+                        },
+                        child: Container(
+                          width: 64,
+                          height: 64,
+                          decoration: BoxDecoration(
+                            color: Color(0xFF6D5BFF),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.play_arrow,
+                            color: Colors.white,
+                            size: 32,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 32),
+                      InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                          _resetQuiz();
+                        },
+                        child: Container(
+                          width: 64,
+                          height: 64,
+                          decoration: BoxDecoration(
+                            color: Color(0xFF6D5BFF),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.refresh,
+                            color: Colors.white,
+                            size: 32,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 15),
+                ],
               ),
-            ],
+            ),
           ),
         );
       },
     );
   }
+
 
   @override
   void dispose() {
@@ -458,10 +535,19 @@ class _PlayQuizState extends State<PlayQuiz> {
               ElevatedButton(
                 onPressed: _selectedAnswer != -1 ? () => _checkAnswer() : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _primaryColor,
+                  backgroundColor: _primaryColor, // Color del fondo cuando está habilitado
                   padding: EdgeInsets.symmetric(vertical: 16),
+                  disabledBackgroundColor: Colors.grey[300], // Color de fondo cuando está deshabilitado
                 ),
-                child: Text("Enviar", style: TextStyle(fontSize: 18)),
+                child: Text(
+                  "Enviar",
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
+                    color: _selectedAnswer != -1 ? Colors.white : Color(0xFF7A7C7F), // Color del texto
+                  ),
+                ),
               ),
               SizedBox(height: 16),
             ],
