@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../domain/entities/pdf.dart';
+import '../../../../ui/pages/views/activities/review/review_activity_screen.dart';
 import 'widgets/create_quiz_dialog.dart';
 import 'widgets/create_flashcard_dialog.dart';
 
@@ -189,6 +190,12 @@ class _CreateScreenState extends State<CreateScreen> {
             _showFlashcardDialog(context);
             break;
           case 'Gaps':
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ReviewActivityScreen(), // Usamos el operador ! para indicar que no es nulo
+              ),
+            );
           case 'Linkers':
           // Deja en blanco para estos casos
             break;

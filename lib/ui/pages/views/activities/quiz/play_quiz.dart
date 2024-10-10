@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import '../../../../../domain/entities/quiz.dart';
 import '../../../../../domain/entities/quiz_activity.dart';
+import '../../../../pages/views/activities/review/review_activity_screen.dart';
 import 'package:dotted_border/dotted_border.dart';
 
 class PlayQuiz extends StatefulWidget {
@@ -109,6 +110,13 @@ class _PlayQuizState extends State<PlayQuiz> {
         _remainingTime = widget.quizActivity.timer;
       });
       _startTimer();
+    }else{
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ReviewActivityScreen(), // Usamos el operador ! para indicar que no es nulo
+        ),
+      );
     }
   }
 
