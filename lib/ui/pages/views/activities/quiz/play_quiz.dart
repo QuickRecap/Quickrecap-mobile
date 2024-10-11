@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import '../../../../../domain/entities/quiz.dart';
 import '../../../../../domain/entities/quiz_activity.dart';
-import '../../../../pages/views/activities/review/review_activity_screen.dart';
+import '../../../../pages/views/activities/quiz/review_quiz.dart';
 import 'package:dotted_border/dotted_border.dart';
+import '../../../../../domain/entities/activity_review.dart';
+
 
 class PlayQuiz extends StatefulWidget {
   final QuizActivity quizActivity;
@@ -20,13 +22,10 @@ class _PlayQuizState extends State<PlayQuiz> {
   int _selectedAnswer = -1;
   int _score = 0;
   int _remainingTime = 0;
+  int _elapsedTime = 0;
   Timer? _timer;
 
   final Color _primaryColor = Color(0xFF6D5BFF);
-  final Color _successColor = Color(0xFF00B849);
-  final Color _successLightColor = Color(0xFFBDFFC2);
-  final Color _errorColor = Color(0xFFFF444E);
-  final Color _errorLightColor = Color(0xFFFFCFD0);
   final Color _textColor = Color(0xFF212121);
 
   @override
@@ -42,6 +41,7 @@ class _PlayQuizState extends State<PlayQuiz> {
       if (_remainingTime > 0) {
         setState(() {
           _remainingTime--;
+          _elapsedTime++; // Incrementa el tiempo transcurrido solo si el temporizador está en marcha
         });
       } else {
         _timer?.cancel();
@@ -111,16 +111,31 @@ class _PlayQuizState extends State<PlayQuiz> {
       });
       _startTimer();
     }else{
+      ActivityReview activityReview = ActivityReview(
+          activityId: 10,
+          activityType: "Quiz",
+          totalSeconds: _elapsedTime, // Enviar el tiempo transcurrido
+          score: _score,
+          questions: widget.quizActivity.quizzes!.length,
+          correctAnswers: (_score / 100).toInt(),
+      );
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ReviewActivityScreen(), // Usamos el operador ! para indicar que no es nulo
+          builder: (context) => ReviewQuiz(
+            activityReview: activityReview,
+            quizActivity: widget.quizActivity,
+          ), // Usamos el operador ! para indicar que no es nulo
         ),
       );
     }
   }
 
   void _checkAnswer() {
+
+    // Asigna la respuesta seleccionada al quiz actual antes de hacer la validación
+    widget.quizActivity.quizzes![_currentIndex].selectedAnswer = _selectedAnswer;
+
     Quiz currentQuiz = widget.quizActivity.quizzes![_currentIndex];
     if (_selectedAnswer == currentQuiz.answer) {
       _score += 100; // Sumar 100 puntos por respuesta correcta
@@ -133,10 +148,11 @@ class _PlayQuizState extends State<PlayQuiz> {
   void _resetQuiz() {
     setState(() {
       _currentIndex = 0;
-      _remainingTime = widget.quizActivity.timer; // Usar el timer original de la actividad
+      _remainingTime = widget.quizActivity.timer;
+      _elapsedTime = 0; // Reinicia el tiempo transcurrido
       _score = 0;
       _isAnswered = false;
-      _selectedAnswer = -1; // Reiniciar la respuesta seleccionada
+      _selectedAnswer = -1;
     });
     _startTimer();
   }

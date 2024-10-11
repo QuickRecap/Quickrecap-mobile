@@ -2,11 +2,13 @@ class Quiz {
   String question;
   List<String> alternatives;
   int answer;
+  int? selectedAnswer;
 
   Quiz({
     required this.question,
     required this.alternatives,
     required this.answer,
+    this.selectedAnswer,
   });
 
   // Método para crear una instancia de Quiz desde un JSON

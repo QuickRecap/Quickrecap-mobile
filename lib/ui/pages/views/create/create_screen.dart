@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../domain/entities/pdf.dart';
-import '../../../../ui/pages/views/activities/review/review_activity_screen.dart';
+import '../../../../ui/pages/views/activities/quiz/review_quiz.dart';
 import 'widgets/create_quiz_dialog.dart';
 import 'widgets/create_flashcard_dialog.dart';
+import '../../../../domain/entities/activity_review.dart';
 
 class CreateScreen extends StatefulWidget {
   final Pdf? selectedPdf; // Cambiado a selectedPdf
@@ -190,12 +191,7 @@ class _CreateScreenState extends State<CreateScreen> {
             _showFlashcardDialog(context);
             break;
           case 'Gaps':
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ReviewActivityScreen(), // Usamos el operador ! para indicar que no es nulo
-              ),
-            );
+            break;
           case 'Linkers':
           // Deja en blanco para estos casos
             break;
