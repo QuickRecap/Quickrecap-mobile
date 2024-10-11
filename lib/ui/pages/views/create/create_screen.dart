@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../domain/entities/pdf.dart';
-import '../../../../ui/pages/views/activities/quiz/review_quiz.dart';
+import '../../../../ui/pages/views/activities/quiz/results_quiz.dart';
 import 'widgets/create_quiz_dialog.dart';
 import 'widgets/create_flashcard_dialog.dart';
 import '../../../../domain/entities/activity_review.dart';

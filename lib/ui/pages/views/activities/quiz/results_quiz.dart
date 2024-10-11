@@ -3,21 +3,23 @@ import '../widgets/info_container.dart';
 import '../../../../../domain/entities/activity_review.dart';
 import '../../../../../domain/entities/quiz_activity.dart';
 import '../widgets/rating_dialog.dart'; // Importa el archivo
+import 'play_quiz_activity.dart';
+import 'review_answers_quiz.dart';
 
-class ReviewQuiz extends StatefulWidget {
+class ResultsQuiz extends StatefulWidget {
   final ActivityReview activityReview;
   final QuizActivity quizActivity;
 
-  ReviewQuiz({
+  ResultsQuiz({
     required this.quizActivity,
     required this.activityReview
   });
 
   @override
-  State<ReviewQuiz> createState() => _ReviewQuizState();
+  State<ResultsQuiz> createState() => _ResultsQuizState();
 }
 
-class _ReviewQuizState extends State<ReviewQuiz> {
+class _ResultsQuizState extends State<ResultsQuiz> {
 
   // Función para convertir segundos a formato de minutos
   String formatTime(int totalSeconds) {
@@ -169,7 +171,12 @@ class _ReviewQuizState extends State<ReviewQuiz> {
                         ),
                       ),
                       onPressed: () {
-                        // Acción del botón
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ReviewAnswersQuiz(quizActivity: widget.quizActivity), // Usamos el operador ! para indicar que no es nulo
+                          ),
+                        );
                       },
                       child: Text(
                         'Ver respuestas',
@@ -195,7 +202,12 @@ class _ReviewQuizState extends State<ReviewQuiz> {
                         ),
                       ),
                       onPressed: () {
-                        // Acción del botón
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PlayQuizActivity(quizActivity: widget.quizActivity), // Usamos el operador ! para indicar que no es nulo
+                          ),
+                        );
                       },
                       child: Text(
                         'Volver a intentar',

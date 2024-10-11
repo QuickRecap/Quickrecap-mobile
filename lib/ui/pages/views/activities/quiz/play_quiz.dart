@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import '../../../../../domain/entities/quiz.dart';
 import '../../../../../domain/entities/quiz_activity.dart';
-import '../../../../pages/views/activities/quiz/review_quiz.dart';
+import '../../../../pages/views/activities/quiz/results_quiz.dart';
 import 'package:dotted_border/dotted_border.dart';
 import '../../../../../domain/entities/activity_review.dart';
 
@@ -122,7 +122,7 @@ class _PlayQuizState extends State<PlayQuiz> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ReviewQuiz(
+          builder: (context) => ResultsQuiz(
             activityReview: activityReview,
             quizActivity: widget.quizActivity,
           ), // Usamos el operador ! para indicar que no es nulo
