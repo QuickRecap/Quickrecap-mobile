@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickrecap/ui/constants/constants.dart';
 import '../../../../data/repositories/local_storage_service.dart';
 import '../../../../domain/entities/user.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class GamesScreen extends StatefulWidget {
   const GamesScreen({super.key});
@@ -16,11 +18,16 @@ class _GamesScreenState extends State<GamesScreen> {
   String? userFirstName;
   String? userLastName;
   String? userProfileImg;
+  List<dynamic> activities = [];
+  bool isLoading = false;
+  String? error;
 
   @override
   void initState() {
     super.initState();
-    _fetchUserId();
+    _fetchUserId().then((_) {
+      _fetchActivities(0);
+    });
   }
 
   Future<void> _fetchUserId() async {
@@ -36,6 +43,42 @@ class _GamesScreenState extends State<GamesScreen> {
       });
     } else {
       print('No se encontró el usuario.');
+    }
+  }
+
+  Future<void> _fetchActivities(int tabIndex) async {
+    if (userId == null) return;
+
+    setState(() {
+      isLoading = true;
+      error = null;
+      activities = []; // Clear previous activities
+    });
+
+    String url = 'http://10.0.2.2:8000/quickrecap/activity/search/$userId';
+    if (tabIndex == 1) {
+      url += '?favorito=true';
+    }
+
+    try {
+      final response = await http.get(Uri.parse(url));
+      if (response.statusCode == 200) {
+        final decodedData = json.decode(response.body);
+        setState(() {
+          activities = decodedData is List ? decodedData : [];
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          error = 'Error al cargar las actividades';
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        error = 'Error de conexión: $e';
+        isLoading = false;
+      });
     }
   }
 
@@ -135,6 +178,9 @@ class _GamesScreenState extends State<GamesScreen> {
                           TabBar(
                             labelColor: kPrimary,
                             unselectedLabelColor: kGrey,
+                            onTap: (index) {
+                              _fetchActivities(index);
+                            },
                             tabs: [
                               Tab(text: 'Creados'),
                               Tab(text: 'Favoritos'),
@@ -150,7 +196,7 @@ class _GamesScreenState extends State<GamesScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 Text(
-                                  '4 actividades',
+                                  '${activities.length} actividades',
                                   style: TextStyle(
                                     color: kDark,
                                     fontSize: 14.sp,
@@ -195,13 +241,17 @@ class _GamesScreenState extends State<GamesScreen> {
                             ),
                           ),
                           Expanded(
-                            child: TabBarView(
-                              children: [
-                                _buildActivityList(0, context),
-                                _buildActivityList(1, context),
-                                _buildActivityList(2, context),
-                              ],
-                            ),
+                            child: activities.isEmpty
+                                ? Center(
+                                    child:
+                                        CircularProgressIndicator()) //No borrar, sale error si no tiene el spinner
+                                : TabBarView(
+                                    children: [
+                                      _buildActivityList(0, context),
+                                      _buildActivityList(1, context),
+                                      _buildActivityList(2, context),
+                                    ],
+                                  ),
                           ),
                         ],
                       ),
@@ -217,10 +267,32 @@ class _GamesScreenState extends State<GamesScreen> {
   }
 
   Widget _buildActivityList(int currentTabIndex, BuildContext context) {
+    if (isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+
+    if (error != null) {
+      return Center(child: Text(error!, style: TextStyle(color: Colors.red)));
+    }
+
+    if (activities.isEmpty) {
+      return Center(
+        child: Text(
+          'No hay actividades disponibles',
+          style: TextStyle(
+            color: kGrey2,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      );
+    }
+
     return ListView.builder(
       padding: EdgeInsets.symmetric(horizontal: 30.w),
-      itemCount: 4,
+      itemCount: activities.length,
       itemBuilder: (context, index) {
+        final activity = activities[index];
         return Container(
           height: 65,
           child: Row(
@@ -233,7 +305,7 @@ class _GamesScreenState extends State<GamesScreen> {
               SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Quiz de Derecho Penal',
+                  activity['nombre'] ?? 'Sin nombre',
                   style: TextStyle(
                     color: kGrey2,
                     fontWeight: FontWeight.bold,
@@ -243,8 +315,8 @@ class _GamesScreenState extends State<GamesScreen> {
               ),
               SizedBox(width: 10),
               GestureDetector(
-                onTap: () => _showOptionsBottomSheet(context),
-                child: _getIconForTab(currentTabIndex),
+                onTap: () => _showOptionsBottomSheet(context, activity),
+                child: _getIconForTab(currentTabIndex, activity),
               ),
             ],
           ),
@@ -253,7 +325,7 @@ class _GamesScreenState extends State<GamesScreen> {
     );
   }
 
-  Widget _getIconForTab(int currentTabIndex) {
+  Widget _getIconForTab(int currentTabIndex, dynamic activity) {
     switch (currentTabIndex) {
       case 0: // Creados
         return Icon(
@@ -267,7 +339,7 @@ class _GamesScreenState extends State<GamesScreen> {
           color: kYellow,
           size: 25,
         );
-      case 2: // Historialr
+      case 2: // Historial
         return Container(
           width: 60,
           height: 40,
@@ -279,7 +351,7 @@ class _GamesScreenState extends State<GamesScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                '10/10',
+                '${activity['puntuacion_maxima'] ?? '0'}/${activity['numero_preguntas'] ?? '0'}',
                 style: TextStyle(
                   color: kPrimaryLight,
                   fontWeight: FontWeight.bold,
@@ -298,161 +370,240 @@ class _GamesScreenState extends State<GamesScreen> {
     }
   }
 
-  void _showOptionsBottomSheet(BuildContext context) {
+  void _showOptionsBottomSheet(BuildContext context, dynamic activity) {
+    String currentState = activity['estado'] ?? 'Público';
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        return Container(
-          decoration: BoxDecoration(
-            color: kWhite,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(10),
-              topRight: Radius.circular(10),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: EdgeInsets.all(16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.close,
-                          size: 30, weight: 700), // Increased size and weight
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                    Text(
-                      'Opciones de la actividad',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(width: 48), // Para equilibrar el layout
-                  ],
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            return Container(
+              decoration: BoxDecoration(
+                color: kWhite,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(left: 6, bottom: 7), // Added left padding
-                      child: Text('Nombre:',
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 15)),
-                    ),
-                    SizedBox(height: 8),
-                    Container(
-                      width: double.infinity,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: kPrimaryLight.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Text('Quiz de Derecho Penal',
-                          style: TextStyle(
-                              color: kPrimary,
-                              fontWeight: FontWeight.w500,
-                              fontSize: 15)),
-                    ),
-                    SizedBox(height: 16),
-                    Padding(
-                      padding: EdgeInsets.only(left: 6, bottom: 7), // Added left padding
-                      child: Text('Estado:',
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14)),
-                    ),
-                    SizedBox(height: 8),
-                    Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: kWhite,
-                        border: Border.all(color: kPrimary, width: 1),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: 'Público',
-                          isExpanded: true,
-                          items: <String>['Público', 'Privado']
-                              .map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value,
-                                  style: TextStyle(
-                                      color: kPrimary,
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14)),
-                            );
-                          }).toList(),
-                          onChanged: (String? newValue) {
-                            // Aquí puedes manejar el cambio de valor
-                          },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.all(16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.close, size: 30, weight: 700),
+                          onPressed: () => Navigator.pop(context),
                         ),
-                      ),
+                        Text(
+                          'Opciones de la actividad',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        SizedBox(width: 48),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 24),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          shape: RoundedRectangleBorder(
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 6, bottom: 7),
+                          child: Text('Nombre:',
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 15)),
+                        ),
+                        SizedBox(height: 8),
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: kPrimaryLight.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(15),
                           ),
-                          elevation: 5,
-                          shadowColor: kDark, // Customized shadow color
+                          child: Text(
+                            activity['nombre'] ?? 'Sin nombre',
+                            style: TextStyle(
+                                color: kPrimary,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 15),
+                          ),
                         ),
-                        child: Text('Eliminar',
-                            style: TextStyle(color: kWhite)),
-                        onPressed: () {
-                          // Lógica para eliminar
-                        },
-                      ),
-                    ),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: kPrimaryLight,
-                          shape: RoundedRectangleBorder(
+                        SizedBox(height: 16),
+                        Padding(
+                          padding: EdgeInsets.only(left: 6, bottom: 7),
+                          child: Text('Estado:',
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14)),
+                        ),
+                        SizedBox(height: 8),
+                        Container(
+                          width: double.infinity,
+                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: kWhite,
+                            border: Border.all(color: kPrimary, width: 1),
                             borderRadius: BorderRadius.circular(15),
                           ),
-                          elevation: 5,
-                          shadowColor: kDark,
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value:
+                                  activity['privado'] ? 'Privado' : 'Público',
+                              isExpanded: true,
+                              items: <String>['Público', 'Privado']
+                                  .map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value,
+                                      style: TextStyle(
+                                          color: kPrimary,
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 14)),
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                if (newValue != null) {
+                                  setState(() {
+                                    activity['privado'] = newValue == 'Privado';
+                                  });
+                                }
+                              },
+                            ),
+                          ),
                         ),
-                        child: Text('Guardar',
-                            style: TextStyle(color: kWhite)),
-                        onPressed: () {
-                          // Lógica para guardar
-                        },
-                      ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: 24),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              elevation: 5,
+                              shadowColor: kDark,
+                            ),
+                            child: Text('Eliminar',
+                                style: TextStyle(color: kWhite)),
+                            onPressed: () async {
+                              try {
+                                final response = await http.delete(
+                                  Uri.parse(
+                                      'http://10.0.2.2:8000/quickrecap/activity/delete/${activity['id']}'),
+                                  headers: <String, String>{
+                                    'Content-Type':
+                                        'application/json; charset=UTF-8',
+                                  },
+                                );
+
+                                if (response.statusCode == 204) {
+                                  // Actualización exitosa
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Actividad borrada con éxito')),
+                                  );
+                                  Navigator.pop(context); // Cierra el pop-up
+                                  _fetchActivities(
+                                      0); // Refresca la lista de actividades
+                                } else {
+                                  print(response);
+                                }
+                              } catch (e) {
+                                // Error de conexión
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text('Error de conexión: $e')),
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: kPrimaryLight,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              elevation: 5,
+                              shadowColor: kDark,
+                            ),
+                            child: Text('Guardar',
+                                style: TextStyle(color: kWhite)),
+                            onPressed: () async {
+                              bool isPrivate = currentState == 'Privado';
+                              // Crear el cuerpo de la solicitud
+                              final requestBody = jsonEncode(<String, dynamic>{
+                                'privado': isPrivate,
+                              });
+
+                              try {
+                                final response = await http.put(
+                                  Uri.parse(
+                                      'http://10.0.2.2:8000/quickrecap/activity/update/${activity['id']}'),
+                                  headers: <String, String>{
+                                    'Content-Type':
+                                        'application/json; charset=UTF-8',
+                                  },
+                                  body: jsonEncode(<String, dynamic>{
+                                    'privado': isPrivate,
+                                  }),
+                                );
+
+                                if (response.statusCode == 200) {
+                                  // Actualización exitosa
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(
+                                            'Actividad actualizada con éxito')),
+                                  );
+                                  Navigator.pop(context); // Cierra el pop-up
+                                  _fetchActivities(
+                                      0); // Refresca la lista de actividades
+                                } else {
+                                  print(response);
+                                }
+                              } catch (e) {
+                                // Error de conexión
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                      content: Text('Error de conexión: $e')),
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 24),
+                ],
               ),
-              SizedBox(height: 24),
-            ],
-          ),
+            );
+          },
         );
       },
     );
