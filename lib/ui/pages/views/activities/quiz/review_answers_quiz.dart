@@ -149,19 +149,21 @@ class _ReviewAnswersQuizState extends State<ReviewAnswersQuiz> {
 
                 return Padding(
                   padding: EdgeInsets.symmetric(vertical: 8),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: isSelected ? Color(0xFF6D5BFF) : Color(0xffE1E1E1),
-                        width: 2,
-                      ),
-                    ),
-                    child: Stack(
-                      children: [
-                        Text(
+                  child: Stack(
+                    clipBehavior: Clip.none, // Permite que los íconos sobresalgan del contenedor
+                    children: [
+                      Container(
+                        width: double.infinity, // Asegura que el ancho del contenedor sea completo
+                        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: isSelected ? Color(0xFF6D5BFF) : Color(0xffE1E1E1),
+                            width: 2,
+                          ),
+                        ),
+                        child: Text(
                           alternative,
                           style: TextStyle(
                             color: Color(0xff212121),
@@ -170,34 +172,46 @@ class _ReviewAnswersQuizState extends State<ReviewAnswersQuiz> {
                             fontSize: 15,
                           ),
                         ),
-                        if (isCorrectAnswer)
-                          Positioned(
-                            right: 8,
-                            top: 0,
-                            bottom: 0,
-                            child: Center(
-                              child: Icon(
-                                Icons.check_circle_rounded,
-                                color: Colors.green,
-                                size: 24,
-                              ),
-                            ),
+                      ),
+                      if (isCorrectAnswer)
+                        Positioned(
+                          right: -8, // Se sobresale un poco fuera del contenedor
+                          top: -8,
+                          child: Icon(
+                            Icons.check_circle_rounded,
+                            color: Colors.green,
+                            size: 30,
                           ),
-                        if (isSelected && !isCorrectAnswer)
-                          Positioned(
-                            right: 8,
-                            top: 0,
-                            bottom: 0,
+                        ),
+                      if (isSelected && !isCorrectAnswer)
+                        Positioned(
+                          top: -10,
+                          right: -10,
+                          child: Container(
+                            width: 28,
+                            height: 28,
+                            decoration: BoxDecoration(
+                              color: Color(0xFFFF444E),
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  spreadRadius: 1,
+                                  blurRadius: 3,
+                                  offset: Offset(0, 1),
+                                ),
+                              ],
+                            ),
                             child: Center(
                               child: Icon(
                                 Icons.close,
-                                color: Colors.red,
-                                size: 24,
+                                color: Colors.white,
+                                size: 20,
                               ),
                             ),
                           ),
-                      ],
-                    ),
+                        ),
+                    ],
                   ),
                 );
               }).toList(),

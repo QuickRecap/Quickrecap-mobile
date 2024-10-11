@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'dart:async'; // Importamos Timer
 import '../../../../../domain/entities/flashcard.dart';
 import '../../../../../domain/entities/flashcard_activity.dart';
+import 'results_flashcards.dart';
 
 class PlayFlashcards extends StatefulWidget {
   final FlashcardActivity flashcardActivity;
@@ -95,6 +96,13 @@ class _PlayFlashcardsState extends State<PlayFlashcards> with SingleTickerProvid
       // Si es la fase de preparación, notificamos que se completó
       if (widget.isPreparation && widget.onPreparationComplete != null) {
         widget.onPreparationComplete!();
+      }else{
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ResultsFlashcards() // Usamos el operador ! para indicar que no es nulo
+          ),
+        );
       }
     }
   }
@@ -123,7 +131,7 @@ class _PlayFlashcardsState extends State<PlayFlashcards> with SingleTickerProvid
           onPressed: () => Navigator.pop(context),
         ),
         title: Text(
-          "Aprendizaje Flashcards",
+          "Flashcards",
           style: TextStyle(color: Colors.black),
         ),
       ),
