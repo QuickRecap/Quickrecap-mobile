@@ -337,7 +337,10 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => PlayFlashcards(flashcardActivity: flashcardActivity!),
+                            builder: (context) => PlayFlashcards(
+                              flashcardActivity: flashcardActivity!,
+                              isPreparation: false, // Agrega 'isPreparation' como parámetro nombrado
+                            ),
                           ),
                         );
                       } else {

@@ -7,7 +7,8 @@ import 'custom_select_input.dart';
 import '../../../../providers/quiz_provider.dart';
 import '../../../../../domain/entities/quiz_activity.dart';
 import '../../../../../domain/entities/quiz_activity.dart';
-import '../../activities/quiz/play_quiz.dart';
+import '../../activities/quiz/play_quiz_activity.dart';
+import '../../activities/flashcards/play_flashcards.dart';
 
 class CreateQuizDialog extends StatefulWidget {
   final TextEditingController activityNameController;
@@ -335,13 +336,15 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                   child: ElevatedButton(
                     onPressed: () {
                       if (_isSuccess && quizActivity != null) {
+                        // Navegamos a PlayQuizActivity, pasando la instancia de quizActivity
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => PlayQuiz(quizActivity: quizActivity!),
+                            builder: (context) => PlayQuizActivity(quizActivity: quizActivity!), // Usamos el operador ! para indicar que no es nulo
                           ),
                         );
-                      } else {
+                      }
+                      else {
                         setState(() {
                           _isConfigView = true;
                         });

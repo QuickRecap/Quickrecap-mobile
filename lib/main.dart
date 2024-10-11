@@ -23,6 +23,7 @@ import 'ui/pages/login_screen.dart';
 import 'ui/pages/register_screen.dart';
 import 'ui/pages/terms_conditions_screen.dart';
 import 'ui/pages/views/profile/configuration_screen.dart';
+import 'ui/pages/views/games/games_screen.dart';
 import 'ui/pages/views/profile/support_screen.dart';
 import 'ui/pages/views/profile/password_screen.dart';
 import 'ui/pages/views/profile/information_screen.dart';
@@ -127,6 +128,7 @@ class MyApp extends StatelessWidget {
             '/password': (context) => PasswordScreen(),
             '/information': (context) => ProfileInformationScreen(),
             '/select_pdf': (context) => SelectPdfScreen(),
+            '/games': (context) => GamesScreen(),
           },
         );
       },
