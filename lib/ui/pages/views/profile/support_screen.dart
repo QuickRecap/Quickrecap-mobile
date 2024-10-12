@@ -234,7 +234,7 @@ class _SupportScreenState extends State<SupportScreen> {
                               bool success = await supportProvider.reportError(
                                 nameController.text,
                                 descriptionController.text,
-                              ).timeout(Duration(seconds: 10));
+                              );
 
                               if (success) {
                                 Navigator.of(context).pop(); // Cierra el diálogo si la respuesta es exitosa
@@ -243,9 +243,6 @@ class _SupportScreenState extends State<SupportScreen> {
                                 Navigator.of(context).pop();
                                 _showErrorSnackBar('No se pudo reportar el error.');
                               }
-                            } on TimeoutException {
-                              Navigator.of(context).pop();
-                              _showErrorSnackBar('La operación está tardando demasiado. Por favor, verifica tu conexión e inténtalo de nuevo.');
                             } catch (e) {
                               Navigator.of(context).pop();
                               _showErrorSnackBar('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');

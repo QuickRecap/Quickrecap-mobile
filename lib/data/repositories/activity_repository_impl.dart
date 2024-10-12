@@ -20,4 +20,9 @@ class ActivityRepositoryImpl implements ActivityRepository{
     return await activityApi.createQuiz(activityName, activityTimer, activityQuantity, pdfUrl);
   }
 
+  @override
+  Future<bool> rateActivity(int activityId, String activityType, int rating, String commentary) async {
+    return await activityApi.rateActivity(activityId, activityType, rating, commentary);
+  }
+
 }

@@ -1,4 +1,4 @@
-import 'package:quickrecap/domain/repositories/support_repository.dart';
+import '../domain/repositories/support_repository.dart';
 
 class SupportUseCase {
   final SupportRepository supportRepository;

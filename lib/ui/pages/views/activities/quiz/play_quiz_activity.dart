@@ -23,11 +23,13 @@ class _PlayQuizActivityState extends State<PlayQuizActivity> {
       // Extraemos las propiedades del quizActivity
       List<Flashcard>? flashcards = widget.quizActivity.flashcards;
       String? name = widget.quizActivity.name;
+      int id = widget.quizActivity.id;
       int? quantity = widget.quizActivity.quantity;
       int? timer = widget.quizActivity.timer;
 
       // Crear una nueva instancia de FlashcardActivity
       FlashcardActivity flashcardActivity = FlashcardActivity(
+        id: id,
         flashcards: flashcards,
         name: name,
         quantity: quantity,

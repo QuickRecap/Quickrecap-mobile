@@ -43,6 +43,7 @@ class ActivityApi {
         return QuizActivity(
           flashcards: flashcards,
           quizzes: quizzes,
+          id: data['activity']['id'],
           name: data['activity']['nombre'],
           quantity: data['activity']['numero_preguntas'],
           timer: data['activity']['tiempo_pregunta']
@@ -88,6 +89,7 @@ class ActivityApi {
             .toList();
 
         return FlashcardActivity(
+            id: data['activity']['id'],
             flashcards: flashcards,
             name: data['activity']['nombre'],
             quantity: data['activity']['numero_preguntas'],
@@ -103,4 +105,25 @@ class ActivityApi {
       return null;
     }
   }
+
+  Future<bool> rateActivity(int activityId, String activityType, int rating, String commentary) async{
+    LocalStorageService localStorageService = LocalStorageService();
+    int userId = await localStorageService.getCurrentUserId();
+
+    final response = await http.post(
+      Uri.parse('http://10.0.2.2:8000/quickrecap/activity/rate'),
+      body: jsonEncode({
+        'activity_id': activityId,
+        'rating': rating,
+        'commentary': commentary,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    // Consider both 200 OK and 201 Created as success
+    return response.statusCode == 200 || response.statusCode == 201;
+  }
+
 }

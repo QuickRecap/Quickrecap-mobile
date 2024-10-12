@@ -1,12 +1,50 @@
 import 'package:flutter/material.dart';
+import '../../../../providers/rate_activity_provider.dart';
+import 'package:provider/provider.dart';
 
 class RatingDialog extends StatefulWidget {
+  final int activityId;
+  final String activityType;
+
+  RatingDialog({
+    required this.activityId,
+    required this.activityType
+  });
+
   @override
   _RatingDialogState createState() => _RatingDialogState();
 }
 
 class _RatingDialogState extends State<RatingDialog> {
   int _rating = 0;
+  final _formKey = GlobalKey<FormState>();
+  bool _isLoading = false;
+  final TextEditingController _commentController = TextEditingController();
+
+  @override
+  void dispose() {
+    // Limpia el controlador cuando se destruya el widget
+    _commentController.dispose();
+    super.dispose();
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message, style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,9 +114,9 @@ class _RatingDialogState extends State<RatingDialog> {
                 }),
               ),
               const SizedBox(height: 16),
-
               // Campo de texto para el comentario
               TextField(
+                controller: _commentController,
                 decoration: InputDecoration(
                   hintText: 'Déjanos un comentario',
                   hintStyle: TextStyle(color: Color(0xff585858)), // Color de las letras del contenido
@@ -112,9 +150,38 @@ class _RatingDialogState extends State<RatingDialog> {
                       borderRadius: BorderRadius.circular(25),
                     ),
                   ),
-                  onPressed: () {
-                    // Acción al presionar enviar
-                    Navigator.pop(context); // Cierra el modal
+                  onPressed: _isLoading
+                      ? null
+                      : () async {
+                    if (_formKey.currentState!.validate()) {
+                      setState(() {
+                        _isLoading = true;  // Activa el loading
+                      });
+
+                      final rateActivityProvider = Provider.of<RateActivityProvider>(context, listen: false);
+
+                      try {
+                        bool success = await rateActivityProvider.rateActivity(widget.activityId, widget.activityType, _rating,_commentController.text);
+
+                        if (success) {
+                          Navigator.of(context).pop(); // Cierra el diálogo si la respuesta es exitosa
+                          _showSuccessSnackBar('Error reportado exitosamente.');
+                        } else {
+                          Navigator.of(context).pop();
+                          _showErrorSnackBar('No se pudo calificar la actividad.');
+                        }
+                      } catch (e) {
+                        Navigator.of(context).pop();
+                        _showErrorSnackBar('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');
+                      } finally {
+                        _rating=0;
+                        _commentController.clear();
+
+                        setState(() {
+                          _isLoading = false;  // Desactiva el loading
+                        });
+                      }
+                    }
                   },
                   child: Text(
                     'Enviar',

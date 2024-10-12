@@ -98,7 +98,10 @@ class _ResultsQuizState extends State<ResultsQuiz> {
                         context: context,
                         backgroundColor: Colors.transparent,
                         isScrollControlled: true,
-                        builder: (context) => RatingDialog(), // Usa el widget aquí
+                        builder: (context) => RatingDialog(
+                          activityId: widget.quizActivity.id,
+                          activityType: 'Quiz',
+                        ), // Usa el widget aquí
                       );
                     },
                     child: Text(

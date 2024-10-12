@@ -112,19 +112,27 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  CustomInput(
-                    controller: widget.activityNameController,
-                    label: 'Ingresa un nombre',
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Este campo es obligatorio';
-                      }
-                      return null;
-                    },
-                    maxLength: 50,
-                    isDisabled: false,
-                  ),
-                  const SizedBox(height: 15),
+                CustomInput(
+                  controller: widget.activityNameController,
+                  label: 'Ingresa un nombre',
+                  validator: (value) {
+                    // Validar si el campo está vacío
+                    if (value == null || value.isEmpty) {
+                      return 'Este campo es obligatorio';
+                    }
+
+                    // Expresión regular para permitir solo letras, números y espacios
+                    RegExp regExp = RegExp(r'^[a-zA-Z0-9\s]+$');
+                    if (!regExp.hasMatch(value)) {
+                      return 'No se permiten caracteres especiales';
+                    }
+
+                    return null; // Si todo está bien, devuelve null
+                  },
+                  maxLength: 50,
+                  isDisabled: false,
+                ),
+                const SizedBox(height: 15),
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(

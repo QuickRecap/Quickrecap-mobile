@@ -100,7 +100,9 @@ class _PlayFlashcardsState extends State<PlayFlashcards> with SingleTickerProvid
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ResultsFlashcards() // Usamos el operador ! para indicar que no es nulo
+            builder: (context) => ResultsFlashcards(
+              flashcardActivity: widget.flashcardActivity,
+            ) // Usamos el operador ! para indicar que no es nulo
           ),
         );
       }

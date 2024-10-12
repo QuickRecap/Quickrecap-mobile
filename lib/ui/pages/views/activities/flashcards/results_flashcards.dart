@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
-import '../widgets/info_container.dart';
-import '../../../../../domain/entities/activity_review.dart';
-import '../../../../../domain/entities/quiz_activity.dart';
 import '../widgets/rating_dialog.dart';
+import '../../../../../domain/entities/flashcard_activity.dart';
+import '';
 
 class ResultsFlashcards extends StatefulWidget {
+  final FlashcardActivity flashcardActivity;
+
+  ResultsFlashcards({
+    required this.flashcardActivity,
+  });
 
   @override
   State<ResultsFlashcards> createState() => _ResultsFlashcardsState();
@@ -89,7 +93,10 @@ class _ResultsFlashcardsState extends State<ResultsFlashcards> {
                         context: context,
                         backgroundColor: Colors.transparent,
                         isScrollControlled: true,
-                        builder: (context) => RatingDialog(), // Usa el widget aquí
+                        builder: (context) => RatingDialog(
+                          activityId: widget.flashcardActivity.id,
+                          activityType: 'Flashcards',
+                        ), // Usa el widget aquí
                       );
                     },
                     child: Text(

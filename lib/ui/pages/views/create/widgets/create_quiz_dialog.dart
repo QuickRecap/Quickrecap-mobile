@@ -123,6 +123,12 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                       if (value == null || value.isEmpty) {
                         return 'Este campo es obligatorio';
                       }
+                      // Expresión regular para permitir solo letras, números y espacios
+                      RegExp regExp = RegExp(r'^[a-zA-Z0-9\s]+$');
+                      if (!regExp.hasMatch(value)) {
+                        return 'No se permiten caracteres especiales';
+                      }
+
                       return null;
                     },
                     maxLength: 50,
