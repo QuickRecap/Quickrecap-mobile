@@ -143,6 +143,7 @@ class _GamesScreenState extends State<GamesScreen> {
                             borderRadius: BorderRadius.circular(20.r),
                           ),
                           child: TextField(
+                            style: TextStyle(color: Colors.black),
                             decoration: InputDecoration(
                               hintText: 'Buscar',
                               border: InputBorder.none,
@@ -208,11 +209,11 @@ class _GamesScreenState extends State<GamesScreen> {
                                   icon:
                                       Icon(Icons.arrow_drop_down, color: kDark),
                                   underline:
-                                      Container(), // Elimina la línea inferior
+                                      Container(),
                                   dropdownColor: Colors
-                                      .white, // Fondo blanco del menú desplegable
+                                      .white,
                                   style: TextStyle(
-                                      color: kDark, // Texto negro
+                                      color: kDark,
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w500),
                                   items: <String>[
@@ -229,12 +230,11 @@ class _GamesScreenState extends State<GamesScreen> {
                                         value,
                                         style: TextStyle(
                                             color:
-                                                kDark), // Asegura que el texto de las opciones también sea negro
+                                                kDark),
                                       ),
                                     );
                                   }).toList(),
                                   onChanged: (String? newValue) {
-                                    // Aquí puedes manejar el cambio de selección
                                   },
                                 ),
                               ],
@@ -462,8 +462,7 @@ class _GamesScreenState extends State<GamesScreen> {
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
-                              value:
-                                  activity['privado'] ? 'Privado' : 'Público',
+                              value:activity['privado'] ? 'Privado' : 'Público',
                               isExpanded: true,
                               items: <String>['Público', 'Privado']
                                   .map((String value) {
@@ -521,14 +520,10 @@ class _GamesScreenState extends State<GamesScreen> {
                                   // Actualización exitosa
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                        content: Text(
-                                            'Actividad borrada con éxito')),
+                                        content: Text('Actividad borrada con éxito')),
                                   );
-                                  Navigator.pop(context); // Cierra el pop-up
-                                  _fetchActivities(
-                                      0); // Refresca la lista de actividades
-                                } else {
-                                  print(response);
+                                  Navigator.pop(context);
+                                  _fetchActivities(0);
                                 }
                               } catch (e) {
                                 // Error de conexión
@@ -554,8 +549,7 @@ class _GamesScreenState extends State<GamesScreen> {
                             child: Text('Guardar',
                                 style: TextStyle(color: kWhite)),
                             onPressed: () async {
-                              bool isPrivate = currentState == 'Privado';
-                              // Crear el cuerpo de la solicitud
+                              bool isPrivate = currentState.toLowerCase() == 'público';
                               final requestBody = jsonEncode(<String, dynamic>{
                                 'privado': isPrivate,
                               });
@@ -574,23 +568,17 @@ class _GamesScreenState extends State<GamesScreen> {
                                 );
 
                                 if (response.statusCode == 200) {
-                                  // Actualización exitosa
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                         content: Text(
                                             'Actividad actualizada con éxito')),
                                   );
-                                  Navigator.pop(context); // Cierra el pop-up
-                                  _fetchActivities(
-                                      0); // Refresca la lista de actividades
-                                } else {
-                                  print(response);
+                                  Navigator.pop(context);
+                                  _fetchActivities(0);
                                 }
                               } catch (e) {
-                                // Error de conexión
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text('Error de conexión: $e')),
+                                  SnackBar(content: Text('Error de conexión: $e')),
                                 );
                               }
                             },
