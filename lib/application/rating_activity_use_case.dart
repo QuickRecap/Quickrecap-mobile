@@ -5,9 +5,9 @@ class RatingActivityUseCase{
 
   RatingActivityUseCase(this.activityRepository);
 
-  Future<bool> rateActivity(int activityId, String activityType, int rating, String commentary) async {
+  Future<bool> rateActivity(int activityId, int rating, String commentary) async {
     try {
-      return await activityRepository.rateActivity(activityId, activityType, rating, commentary);
+      return await activityRepository.rateActivity(activityId, rating, commentary);
     } catch (e) {
       return false;
     }

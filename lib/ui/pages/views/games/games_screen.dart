@@ -21,8 +21,10 @@ class _GamesScreenState extends State<GamesScreen> {
   List<dynamic> activities = [];
   bool isLoading = false;
   String? error;
-
   String _currentValue = 'Todos';
+  String searchQuery = '';
+  List<dynamic> allActivities = []; // Lista para almacenar todas las actividades
+
 
   @override
   void initState() {
@@ -48,34 +50,12 @@ class _GamesScreenState extends State<GamesScreen> {
     }
   }
 
-  Future<void> _sendRequestToBackend(String value) async {
-    final url = Uri.parse(
-        'http://10.0.2.2:8000/quickrecap/activity/search/$userId?tipo=$value');
-    try {
-      final response = await http.get(
-        url,
-      );
-      if (response.statusCode == 200) {
-        final decodedData = json.decode(response.body);
-        setState(() {
-          activities = decodedData is List ? decodedData : [];
-          isLoading = false;
-        });
-      } else {
-        print('Error al enviar la solicitud: ${response.statusCode}');
-      }
-    } catch (e) {
-      print('Error de conexión: $e');
-    }
-  }
-
   Future<void> _fetchActivities(int tabIndex) async {
     if (userId == null) return;
 
     setState(() {
       isLoading = true;
       error = null;
-      activities = []; // Clear previous activities
     });
 
     String url = 'http://10.0.2.2:8000/quickrecap/activity/search/$userId';
@@ -89,7 +69,7 @@ class _GamesScreenState extends State<GamesScreen> {
       if (response.statusCode == 200) {
         final decodedData = json.decode(response.body);
         setState(() {
-          activities = decodedData is List ? decodedData : [];
+          allActivities = decodedData is List ? decodedData : [];
           isLoading = false;
         });
       } else {
@@ -104,6 +84,14 @@ class _GamesScreenState extends State<GamesScreen> {
         isLoading = false;
       });
     }
+  }
+
+  List<dynamic> getFilteredActivities() {
+    return allActivities.where((activity) {
+      bool matchesSearch = activity['nombre'].toLowerCase().contains(searchQuery.toLowerCase());
+      bool matchesType = _currentValue == 'Todos' || activity['tipo_actividad'] == _currentValue;
+      return matchesSearch && matchesType;
+    }).toList();
   }
 
   @override
@@ -173,6 +161,11 @@ class _GamesScreenState extends State<GamesScreen> {
                               border: InputBorder.none,
                               icon: Icon(Icons.search),
                             ),
+                            onChanged: (value) {
+                              setState(() {
+                                searchQuery = value;
+                              });
+                            },
                           ),
                         ),
                       ],
@@ -221,7 +214,7 @@ class _GamesScreenState extends State<GamesScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 Text(
-                                  '${activities.length} actividades',
+                                  '${getFilteredActivities().length} actividades',
                                   style: TextStyle(
                                     color: kDark,
                                     fontSize: 14.sp,
@@ -230,22 +223,21 @@ class _GamesScreenState extends State<GamesScreen> {
                                 ),
                                 DropdownButton<String>(
                                   value: _currentValue,
-                                  icon:
-                                      Icon(Icons.arrow_drop_down, color: kDark),
+                                  icon: Icon(Icons.arrow_drop_down, color: kDark),
                                   underline: Container(),
                                   dropdownColor: Colors.white,
                                   style: TextStyle(
                                       color: kDark,
                                       fontSize: 14.sp,
-                                      fontWeight: FontWeight.w500),
+                                      fontWeight: FontWeight.w500
+                                  ),
                                   items: <String>[
                                     'Todos',
                                     'Quiz',
                                     'Flashcards',
                                     'Gap',
                                     'Linkers'
-                                  ].map<DropdownMenuItem<String>>(
-                                      (String value) {
+                                  ].map<DropdownMenuItem<String>>((String value) {
                                     return DropdownMenuItem<String>(
                                       value: value,
                                       child: Text(
@@ -259,7 +251,6 @@ class _GamesScreenState extends State<GamesScreen> {
                                       setState(() {
                                         _currentValue = newValue;
                                       });
-                                      _sendRequestToBackend(newValue);
                                     }
                                   },
                                 ),
@@ -301,7 +292,9 @@ class _GamesScreenState extends State<GamesScreen> {
       return Center(child: Text(error!, style: TextStyle(color: Colors.red)));
     }
 
-    if (activities.isEmpty) {
+    List<dynamic> filteredActivities = getFilteredActivities();
+
+    if (filteredActivities.isEmpty) {
       return Center(
         child: Text(
           'No hay actividades disponibles',
@@ -316,9 +309,9 @@ class _GamesScreenState extends State<GamesScreen> {
 
     return ListView.builder(
       padding: EdgeInsets.symmetric(horizontal: 30.w),
-      itemCount: activities.length,
+      itemCount: filteredActivities.length,
       itemBuilder: (context, index) {
-        final activity = activities[index];
+        final activity = filteredActivities[index];
         return Container(
           height: 65,
           child: Row(

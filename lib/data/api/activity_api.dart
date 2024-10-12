@@ -46,7 +46,8 @@ class ActivityApi {
           id: data['activity']['id'],
           name: data['activity']['nombre'],
           quantity: data['activity']['numero_preguntas'],
-          timer: data['activity']['tiempo_pregunta']
+          timer: data['activity']['tiempo_pregunta'],
+          isRated: false,
         );
       } else {
         // Si los campos flashcards o quiz no están en la respuesta
@@ -93,7 +94,8 @@ class ActivityApi {
             flashcards: flashcards,
             name: data['activity']['nombre'],
             quantity: data['activity']['numero_preguntas'],
-            timer: data['activity']['tiempo_pregunta']
+            timer: data['activity']['tiempo_pregunta'],
+            isRated: false
         );
       } else {
         // Si los campos flashcards o quiz no están en la respuesta
@@ -106,16 +108,17 @@ class ActivityApi {
     }
   }
 
-  Future<bool> rateActivity(int activityId, String activityType, int rating, String commentary) async{
+  Future<bool> rateActivity(int activityId, int rating, String commentary) async{
     LocalStorageService localStorageService = LocalStorageService();
     int userId = await localStorageService.getCurrentUserId();
 
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:8000/quickrecap/activity/rate'),
+      Uri.parse('http://10.0.2.2:8000/quickrecap/comments/create'),
       body: jsonEncode({
-        'activity_id': activityId,
-        'rating': rating,
-        'commentary': commentary,
+        "comentario": commentary,
+        "calificacion": rating,
+        "actividad_id": activityId,
+        "usuario": userId
       }),
       headers: {
         'Content-Type': 'application/json',

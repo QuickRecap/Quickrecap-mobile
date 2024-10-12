@@ -34,6 +34,7 @@ class _PlayQuizActivityState extends State<PlayQuizActivity> {
         name: name,
         quantity: quantity,
         timer: timer,
+        isRated: false
       );
 
       // Mostrar la fase de preparación usando PlayFlashcards

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../domain/entities/user.dart';
+import '../repositories/local_storage_service.dart';
 
 class UserApi {
   Future<User?> login(String email, String password) async {
@@ -73,6 +74,25 @@ class UserApi {
     );
 
     return response.statusCode == 200 || response.statusCode == 201;
+  }
+
+  Future<bool> addUserPoints(int points) async{
+    // Obtener el userId desde el servicio de almacenamiento local
+    LocalStorageService localStorageService = LocalStorageService();
+    int userId = await localStorageService.getCurrentUserId();
+
+      final response = await http.put(
+        Uri.parse('http://10.0.2.2:8000/quickrecap/user/addpoints/$userId'),
+        body: jsonEncode({
+          'puntos': points,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      // Consider both 200 OK and 201 Created as success
+      return response.statusCode == 200 || response.statusCode == 201;
   }
 
 }

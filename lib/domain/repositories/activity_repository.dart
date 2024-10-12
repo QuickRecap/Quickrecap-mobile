@@ -6,5 +6,5 @@ import '../entities/flashcard.dart';
 abstract class ActivityRepository {
   Future<QuizActivity?> createQuiz(String activityName, int activityTimer, int activityQuantity, String pdfUrl);
   Future<FlashcardActivity?> createFlashcard(String activityName, int activityTimer, int activityQuantity, String pdfUrl);
-  Future<bool> rateActivity(int activityId, String activityType, int rating, String commentary);
+  Future<bool> rateActivity(int activityId, int rating, String commentary);
 }

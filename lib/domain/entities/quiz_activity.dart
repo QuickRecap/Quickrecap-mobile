@@ -8,6 +8,7 @@ class QuizActivity {
   String name;
   int quantity;
   int timer;
+  bool isRated;
 
   QuizActivity({
     required this.id,
@@ -16,6 +17,7 @@ class QuizActivity {
     required this.name,
     required this.quantity,
     required this.timer,
+    required this.isRated
 
   });
 }

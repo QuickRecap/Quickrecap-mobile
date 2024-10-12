@@ -21,8 +21,8 @@ class ActivityRepositoryImpl implements ActivityRepository{
   }
 
   @override
-  Future<bool> rateActivity(int activityId, String activityType, int rating, String commentary) async {
-    return await activityApi.rateActivity(activityId, activityType, rating, commentary);
+  Future<bool> rateActivity(int activityId, int rating, String commentary) async {
+    return await activityApi.rateActivity(activityId, rating, commentary);
   }
 
 }

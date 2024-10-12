@@ -6,6 +6,7 @@ class FlashcardActivity {
   int quantity;
   int timer;
   int id;
+  bool isRated;
 
   FlashcardActivity({
     required this.flashcards,
@@ -13,6 +14,7 @@ class FlashcardActivity {
     required this.id,
     required this.quantity,
     required this.timer,
+    required this.isRated
 
   });
 }

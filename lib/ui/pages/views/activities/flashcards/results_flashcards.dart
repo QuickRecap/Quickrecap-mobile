@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../widgets/rating_dialog.dart';
 import '../../../../../domain/entities/flashcard_activity.dart';
-import '';
+import '../../../../providers/add_user_points_provider.dart';
+import 'package:provider/provider.dart';
 
 class ResultsFlashcards extends StatefulWidget {
   final FlashcardActivity flashcardActivity;
@@ -15,6 +16,30 @@ class ResultsFlashcards extends StatefulWidget {
 }
 
 class _ResultsFlashcardsState extends State<ResultsFlashcards> {
+
+  @override
+  void initState() {
+    super.initState();
+    // Llamamos a la función asíncrona dentro de Future para evitar el problema en initState
+    Future.microtask(() => addUserPoints());
+  }
+
+// Función para agregar puntos al usuario
+  Future<void> addUserPoints() async {
+    final addUserPointsProvider = Provider.of<AddUserPointsProvider>(context, listen: false);
+    try {
+      bool success = await addUserPointsProvider.addUserPoints(100);
+      if (success) {
+        print("Puntos añadidos correctamente.");
+      } else {
+        print("Error al añadir puntos.");
+      }
+    } catch (e) {
+      print("Excepción al añadir puntos: $e");
+    } finally {
+      // Aquí puedes hacer cualquier limpieza si es necesario
+    }
+  }
 
   // Función para convertir segundos a formato de minutos
   String formatTime(int totalSeconds) {
@@ -78,9 +103,10 @@ class _ResultsFlashcardsState extends State<ResultsFlashcards> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  ElevatedButton(
+                  widget.flashcardActivity.isRated == false
+                      ? ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xff7768fc), // Fondo transparente
+                      backgroundColor: Color(0xff7768fc), // Fondo del botón
                       foregroundColor: Colors.white, // Letra blanca
                       padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                       shape: RoundedRectangleBorder(
@@ -107,7 +133,8 @@ class _ResultsFlashcardsState extends State<ResultsFlashcards> {
                         color: Colors.white, // Asegurarse de que el texto sea blanco
                       ),
                     ),
-                  ),
+                  )
+                      : SizedBox.shrink(), // No muestra nada si está calificado
                   const SizedBox(height: 30),
                   // Botón 'Continuar'
                   SizedBox(

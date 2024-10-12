@@ -19,6 +19,7 @@ import 'application/create_flashcard_use_case.dart';
 import 'application/get_pdfs_use_case.dart.dart';
 import 'application/rating_activity_use_case.dart';
 import 'application/edit_profile_use_case.dart';
+import 'application/add_user_points_use_case.dart';
 import 'ui/pages/entrypoint.dart';
 import 'ui/pages/login_screen.dart';
 import 'ui/pages/register_screen.dart';
@@ -38,6 +39,7 @@ import 'ui/providers/flashcard_provider.dart';
 import 'ui/providers/rate_activity_provider.dart';
 import 'ui/providers/edit_profile_provider.dart';
 import 'ui/providers/password_provider.dart';
+import 'ui/providers/add_user_points_provider.dart';
 import 'ui/providers/get_pdfs_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -87,6 +89,9 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => FlashcardProvider(CreateFlashcardUseCase(ActivityRepositoryImpl(activityApi))),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => AddUserPointsProvider(AddUserPointsUseCase(UserRepositoryImpl(userApi))),
         ),
       ],
       child: const MyApp(),

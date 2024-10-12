@@ -8,7 +8,7 @@ class RateActivityProvider extends ChangeNotifier {
   // Constructor que inicializa el supportUseCase
   RateActivityProvider(this.ratingActivityUseCase);
 
-  Future<bool> rateActivity(int activityId,String activityType, int rating, String commentary) async {
-    return await ratingActivityUseCase.rateActivity(activityId,activityType, rating, commentary);
+  Future<bool> rateActivity(int activityId, int rating, String commentary) async {
+    return await ratingActivityUseCase.rateActivity(activityId, rating, commentary);
   }
 }
