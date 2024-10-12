@@ -22,6 +22,8 @@ class _GamesScreenState extends State<GamesScreen> {
   bool isLoading = false;
   String? error;
 
+  String _currentValue = 'Todos';
+
   @override
   void initState() {
     super.initState();
@@ -46,6 +48,27 @@ class _GamesScreenState extends State<GamesScreen> {
     }
   }
 
+  Future<void> _sendRequestToBackend(String value) async {
+    final url = Uri.parse(
+        'http://10.0.2.2:8000/quickrecap/activity/search/$userId?tipo=$value');
+    try {
+      final response = await http.get(
+        url,
+      );
+      if (response.statusCode == 200) {
+        final decodedData = json.decode(response.body);
+        setState(() {
+          activities = decodedData is List ? decodedData : [];
+          isLoading = false;
+        });
+      } else {
+        print('Error al enviar la solicitud: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error de conexión: $e');
+    }
+  }
+
   Future<void> _fetchActivities(int tabIndex) async {
     if (userId == null) return;
 
@@ -56,6 +79,7 @@ class _GamesScreenState extends State<GamesScreen> {
     });
 
     String url = 'http://10.0.2.2:8000/quickrecap/activity/search/$userId';
+
     if (tabIndex == 1) {
       url += '?favorito=true';
     }
@@ -205,7 +229,7 @@ class _GamesScreenState extends State<GamesScreen> {
                                   ),
                                 ),
                                 DropdownButton<String>(
-                                  value: 'Todos',
+                                  value: _currentValue,
                                   icon:
                                       Icon(Icons.arrow_drop_down, color: kDark),
                                   underline: Container(),
@@ -230,7 +254,14 @@ class _GamesScreenState extends State<GamesScreen> {
                                       ),
                                     );
                                   }).toList(),
-                                  onChanged: (String? newValue) {},
+                                  onChanged: (String? newValue) {
+                                    if (newValue != null) {
+                                      setState(() {
+                                        _currentValue = newValue;
+                                      });
+                                      _sendRequestToBackend(newValue);
+                                    }
+                                  },
                                 ),
                               ],
                             ),
