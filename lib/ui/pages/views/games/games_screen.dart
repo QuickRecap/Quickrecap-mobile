@@ -208,10 +208,8 @@ class _GamesScreenState extends State<GamesScreen> {
                                   value: 'Todos',
                                   icon:
                                       Icon(Icons.arrow_drop_down, color: kDark),
-                                  underline:
-                                      Container(),
-                                  dropdownColor: Colors
-                                      .white,
+                                  underline: Container(),
+                                  dropdownColor: Colors.white,
                                   style: TextStyle(
                                       color: kDark,
                                       fontSize: 14.sp,
@@ -228,14 +226,11 @@ class _GamesScreenState extends State<GamesScreen> {
                                       value: value,
                                       child: Text(
                                         value,
-                                        style: TextStyle(
-                                            color:
-                                                kDark),
+                                        style: TextStyle(color: kDark),
                                       ),
                                     );
                                   }).toList(),
-                                  onChanged: (String? newValue) {
-                                  },
+                                  onChanged: (String? newValue) {},
                                 ),
                               ],
                             ),
@@ -372,6 +367,7 @@ class _GamesScreenState extends State<GamesScreen> {
 
   void _showOptionsBottomSheet(BuildContext context, dynamic activity) {
     String currentState = activity['estado'] ?? 'Público';
+    bool isFavorite = activity['favorito'] ?? false;
 
     showModalBottomSheet(
       context: context,
@@ -462,7 +458,8 @@ class _GamesScreenState extends State<GamesScreen> {
                           ),
                           child: DropdownButtonHideUnderline(
                             child: DropdownButton<String>(
-                              value:activity['privado'] ? 'Privado' : 'Público',
+                              value:
+                                  activity['privado'] ? 'Privado' : 'Público',
                               isExpanded: true,
                               items: <String>['Público', 'Privado']
                                   .map((String value) {
@@ -485,6 +482,62 @@ class _GamesScreenState extends State<GamesScreen> {
                             ),
                           ),
                         ),
+                        SizedBox(height: 16),
+                        Padding(
+                          padding: EdgeInsets.only(left: 6, bottom: 7),
+                          child: Text('Favorito:',
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14)),
+                        ),
+                        Container(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Checkbox(
+                                value: isFavorite,
+                                activeColor: kPrimary,
+                                onChanged: (bool? value) async {
+                                  if (value != null) {
+                                    setState(() {
+                                      isFavorite = value;
+                                    });
+                                  }
+
+                                  try {
+                                    final response = await http.put(
+                                      Uri.parse(
+                                          'http://10.0.2.2:8000/quickrecap/activity/update/${activity['id']}'),
+                                      headers: <String, String>{
+                                        'Content-Type':
+                                            'application/json; charset=UTF-8',
+                                      },
+                                      body: jsonEncode(<String, dynamic>{
+                                        'favorito': isFavorite,
+                                      }),
+                                    );
+
+                                    if (response.statusCode == 200) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                            content: Text(
+                                                'Actividad actualizada con éxito')),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                          content:
+                                              Text('Error de conexión: $e')),
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          ),
+                        )
                       ],
                     ),
                   ),
@@ -520,7 +573,8 @@ class _GamesScreenState extends State<GamesScreen> {
                                   // Actualización exitosa
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                        content: Text('Actividad borrada con éxito')),
+                                        content: Text(
+                                            'Actividad borrada con éxito')),
                                   );
                                   Navigator.pop(context);
                                   _fetchActivities(0);
@@ -549,10 +603,14 @@ class _GamesScreenState extends State<GamesScreen> {
                             child: Text('Guardar',
                                 style: TextStyle(color: kWhite)),
                             onPressed: () async {
-                              bool isPrivate = currentState.toLowerCase() == 'público';
+                              bool isPrivate =
+                                  currentState.toLowerCase() == 'público';
+
                               final requestBody = jsonEncode(<String, dynamic>{
                                 'privado': isPrivate,
                               });
+
+                              print(requestBody);
 
                               try {
                                 final response = await http.put(
@@ -578,7 +636,8 @@ class _GamesScreenState extends State<GamesScreen> {
                                 }
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Error de conexión: $e')),
+                                  SnackBar(
+                                      content: Text('Error de conexión: $e')),
                                 );
                               }
                             },
