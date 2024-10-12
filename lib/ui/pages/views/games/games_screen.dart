@@ -70,6 +70,7 @@ class _GamesScreenState extends State<GamesScreen> {
         final decodedData = json.decode(response.body);
         setState(() {
           allActivities = decodedData is List ? decodedData : [];
+          activities = allActivities;
           isLoading = false;
         });
       } else {
@@ -258,17 +259,13 @@ class _GamesScreenState extends State<GamesScreen> {
                             ),
                           ),
                           Expanded(
-                            child: activities.isEmpty
-                                ? Center(
-                                    child:
-                                        CircularProgressIndicator()) //No borrar, sale error si no tiene el spinner
-                                : TabBarView(
-                                    children: [
-                                      _buildActivityList(0, context),
-                                      _buildActivityList(1, context),
-                                      _buildActivityList(2, context),
-                                    ],
-                                  ),
+                            child: TabBarView(
+                              children: [
+                                _buildActivityList(0, context),
+                                _buildActivityList(1, context),
+                                _buildActivityList(2, context),
+                              ],
+                            ),
                           ),
                         ],
                       ),
