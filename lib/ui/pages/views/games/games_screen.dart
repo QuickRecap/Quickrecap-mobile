@@ -23,8 +23,8 @@ class _GamesScreenState extends State<GamesScreen> {
   String? error;
   String _currentValue = 'Todos';
   String searchQuery = '';
-  List<dynamic> allActivities = []; // Lista para almacenar todas las actividades
-
+  List<dynamic> allActivities =
+      []; // Lista para almacenar todas las actividades
 
   @override
   void initState() {
@@ -89,8 +89,10 @@ class _GamesScreenState extends State<GamesScreen> {
 
   List<dynamic> getFilteredActivities() {
     return allActivities.where((activity) {
-      bool matchesSearch = activity['nombre'].toLowerCase().contains(searchQuery.toLowerCase());
-      bool matchesType = _currentValue == 'Todos' || activity['tipo_actividad'] == _currentValue;
+      bool matchesSearch =
+          activity['nombre'].toLowerCase().contains(searchQuery.toLowerCase());
+      bool matchesType = _currentValue == 'Todos' ||
+          activity['tipo_actividad'] == _currentValue;
       return matchesSearch && matchesType;
     }).toList();
   }
@@ -224,21 +226,22 @@ class _GamesScreenState extends State<GamesScreen> {
                                 ),
                                 DropdownButton<String>(
                                   value: _currentValue,
-                                  icon: Icon(Icons.arrow_drop_down, color: kDark),
+                                  icon:
+                                      Icon(Icons.arrow_drop_down, color: kDark),
                                   underline: Container(),
                                   dropdownColor: Colors.white,
                                   style: TextStyle(
                                       color: kDark,
                                       fontSize: 14.sp,
-                                      fontWeight: FontWeight.w500
-                                  ),
+                                      fontWeight: FontWeight.w500),
                                   items: <String>[
                                     'Todos',
                                     'Quiz',
                                     'Flashcards',
                                     'Gap',
                                     'Linkers'
-                                  ].map<DropdownMenuItem<String>>((String value) {
+                                  ].map<DropdownMenuItem<String>>(
+                                      (String value) {
                                     return DropdownMenuItem<String>(
                                       value: value,
                                       child: Text(
@@ -579,34 +582,75 @@ class _GamesScreenState extends State<GamesScreen> {
                             ),
                             child: Text('Eliminar',
                                 style: TextStyle(color: kWhite)),
-                            onPressed: () async {
-                              try {
-                                final response = await http.delete(
-                                  Uri.parse(
-                                      'http://10.0.2.2:8000/quickrecap/activity/delete/${activity['id']}'),
-                                  headers: <String, String>{
-                                    'Content-Type':
-                                        'application/json; charset=UTF-8',
-                                  },
-                                );
+                            onPressed: () {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(15),
+                                      ),
+                                      title: Text('Confirmar eliminación', style: TextStyle(color: kDark, fontFamily: 'Poppins', fontSize: 24, fontWeight: FontWeight.w500)),
+                                      content: Text(
+                                          '¿Desea eliminar la actividad "${activity['nombre']}"?', style: TextStyle(color: kDark, fontFamily: 'Poppins', fontSize: 16),),
+                                      actions: [
+                                        TextButton(
+                                          child: Text('Cancelar',
+                                              style:
+                                                  TextStyle(color: kGrey)),
+                                          onPressed: () {
+                                            Navigator.of(context)
+                                                .pop(); // Cierra el diálogo
+                                          },
+                                        ),
+                                        ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.red,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                            ),
+                                          ),
+                                          child: Text('Confirmar',
+                                              style: TextStyle(color: kWhite)),
+                                          onPressed: () async {
+                                            Navigator.of(context)
+                                                .pop(); // Cierra el diálogo
+                                            try {
+                                              final response =
+                                                  await http.delete(
+                                                Uri.parse(
+                                                    'http://10.0.2.2:8000/quickrecap/activity/delete/${activity['id']}'),
+                                                headers: <String, String>{
+                                                  'Content-Type':
+                                                      'application/json; charset=UTF-8',
+                                                },
+                                              );
 
-                                if (response.statusCode == 204) {
-                                  // Actualización exitosa
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(
-                                            'Actividad borrada con éxito')),
-                                  );
-                                  Navigator.pop(context);
-                                  _fetchActivities(0);
-                                }
-                              } catch (e) {
-                                // Error de conexión
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text('Error de conexión: $e')),
-                                );
-                              }
+                                              if (response.statusCode == 204) {
+                                                ScaffoldMessenger.of(context)
+                                                    .showSnackBar(
+                                                  SnackBar(
+                                                      content: Text(
+                                                          'Actividad borrada con éxito')),
+                                                );
+                                                Navigator.pop(
+                                                    context); // Cierra el bottom sheet
+                                                _fetchActivities(0);
+                                              }
+                                            } catch (e) {
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(
+                                                SnackBar(
+                                                    content: Text(
+                                                        'Error de conexión: $e')),
+                                              );
+                                            }
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  });
                             },
                           ),
                         ),
