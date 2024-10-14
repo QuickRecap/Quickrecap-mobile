@@ -23,13 +23,13 @@ class ActivityApi {
           'usuario': userId,
         }),
         headers: {
-          'Content-Type': 'application/json',
+          'Content-Type': 'application/json; charset=UTF-8',  // Asegura UTF-8 en la cabecera
         }
     );
 
     // Verificamos si el código de estado es 200 o 201
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final data = json.decode(response.body);
+      final data = json.decode(utf8.decode(response.bodyBytes));
 
       if (data['flashcards'] != null && data['quiz'] != null && data['quiz'] != null) {
         List<Flashcard> flashcards = (data['flashcards'] as List)
@@ -76,13 +76,13 @@ class ActivityApi {
         'usuario': userId,
       }),
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=UTF-8',  // Asegura UTF-8 en la cabecera
       },
     );
 
     // Verificamos si el código de estado es 200 o 201
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final data = json.decode(response.body);
+      final data = json.decode(utf8.decode(response.bodyBytes));
 
       if (data['flashcards'] != null) {
         List<Flashcard> flashcards = (data['flashcards'] as List)

@@ -177,10 +177,23 @@ class _ReviewAnswersQuizState extends State<ReviewAnswersQuiz> {
                         Positioned(
                           right: -8, // Se sobresale un poco fuera del contenedor
                           top: -8,
-                          child: Icon(
-                            Icons.check_circle_rounded,
-                            color: Colors.green,
-                            size: 30,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Container(
+                                width: 25,
+                                height: 25,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              Icon(
+                                Icons.check_circle_rounded,
+                                color: Colors.green,
+                                size: 30,
+                              ),
+                            ],
                           ),
                         ),
                       if (isSelected && !isCorrectAnswer)

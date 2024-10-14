@@ -190,7 +190,7 @@ class _PlayQuizState extends State<PlayQuiz> {
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontSize: 24,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                     color: textColor,
                   ),
                   textAlign: TextAlign.center,
@@ -257,7 +257,7 @@ class _PlayQuizState extends State<PlayQuiz> {
                     textStyle: TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
                       color: buttonTextColor,
                     ),
                   ),
@@ -265,7 +265,8 @@ class _PlayQuizState extends State<PlayQuiz> {
                     "Continuar",
                     style: TextStyle(
                       fontFamily: 'Poppins',
-                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 18,
                       color: buttonTextColor,
                     ),
                   ),

@@ -205,8 +205,12 @@ class _GamesScreenState extends State<GamesScreen> {
                             tabs: [
                               Tab(text: 'Creados'),
                               Tab(text: 'Favoritos'),
-                              Tab(text: 'Historial'),
+                              Tab(text: 'Historial')
                             ],
+                            labelStyle: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w500
+                            ), // Aplica el estilo aquí
                           ),
                           Padding(
                             padding: EdgeInsets.symmetric(
@@ -222,6 +226,7 @@ class _GamesScreenState extends State<GamesScreen> {
                                     color: kDark,
                                     fontSize: 14.sp,
                                     fontWeight: FontWeight.w500,
+                                    fontFamily: 'Poppins'
                                   ),
                                 ),
                                 DropdownButton<String>(
