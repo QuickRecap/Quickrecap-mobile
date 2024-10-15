@@ -7,6 +7,8 @@ import 'package:quickrecap/ui/pages/views/games/games_screen.dart';
 import 'package:quickrecap/ui/pages/views/home/home_screen.dart';
 import 'package:quickrecap/ui/pages/views/profile/profile_dart.dart';
 import '../../domain/entities/pdf.dart';
+import '../../domain/entities/user.dart';
+import '../../data/repositories/local_storage_service.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -36,14 +38,63 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
+  Future<User?> loadUserProfile() async {
+    print("consultando a LocalStorageService");
+    try {
+      LocalStorageService localStorageService = LocalStorageService();
+      User? user = await localStorageService.getCurrentUser();
+
+      if (user != null) {
+        return User(
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          gender: user.gender,
+          phone: user.phone,
+          email: user.email,
+          birthday: user.birthday,
+          profileImg: user.profileImg,
+        );
+      } else {
+        print("No se encontró información del usuario.");
+        return null;
+      }
+    } catch (e) {
+      print("Error al cargar el perfil: $e");
+      return null;
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final List<Widget> pageList = [
         const HomeScreen(),
         const GamesScreen(),
-        CreateScreen(selectedPdf: selectedPdf), // Pasa el PDF aquí.
-        const ProfileScreen(),
+            () {
+          if (controller.tabIndex == 2) {
+            return CreateScreen(selectedPdf: selectedPdf);
+          } else {
+            return Container(); // Un contenedor vacío cuando no está seleccionado
+          }
+        }(),
+        FutureBuilder<User?>(
+          future: loadUserProfile(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(child: CircularProgressIndicator()); // Mostramos un cargador mientras se obtienen los datos
+            }
+            if (snapshot.hasError) {
+              return Center(child: Text('Error al cargar el perfil'));
+            }
+            if (snapshot.hasData) {
+              return ProfileScreen(user: snapshot.data!);
+            } else {
+              return Center(child: Text('No se encontró información del usuario.'));
+            }
+          },
+        ),
       ];
 
       return Scaffold(
@@ -71,8 +122,17 @@ class _MainScreenState extends State<MainScreen> {
             // ------- FUNCTIONS ------- //
             type: BottomNavigationBarType.fixed,
             currentIndex: controller.tabIndex,
-            onTap: (value) {
+            onTap: (value) async {
               controller.tabIndex = value;
+              // Si se selecciona la pestaña de crear y no hay PDF seleccionado, puedes manejarlo aquí
+              if (value == 2 && selectedPdf == null) {
+                print('Navegando a CreateScreen sin PDF seleccionado');
+                // Puedes mostrar un diálogo o snackbar aquí si lo deseas
+              }
+              if (value == 3) {
+                // Si el índice es 3 (perfil), cargamos el perfil
+                await loadUserProfile();
+              }
             },
 
             // ------- ITEMS ------- //

@@ -5,38 +5,19 @@ import '../../../../data/repositories/local_storage_service.dart';
 import '../../../../domain/entities/user.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final User user;
+
+  const ProfileScreen({Key? key, required this.user}) : super(key: key);
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String? userId;
-  String? userFirstName;
-  String? userLastName;
-  String? userProfileImg;
 
   @override
   void initState() {
     super.initState();
-    _fetchUserId();
-  }
-
-  Future<void> _fetchUserId() async {
-    LocalStorageService localStorageService = LocalStorageService();
-    User? user = await localStorageService.getCurrentUser();
-
-    if (user != null) {
-      setState(() {
-        userId= user.id;
-        userFirstName= user.firstName;
-        userLastName= user.lastName;
-        userProfileImg= user.profileImg;
-      });
-    } else {
-      print('No se encontró el usuario.');
-    }
   }
 
 
@@ -131,8 +112,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               CircleAvatar(
                 radius: 35,
-                backgroundImage: (userProfileImg != null && userProfileImg!.isNotEmpty)
-                    ? NetworkImage(userProfileImg!) // Cargar la imagen de red
+                backgroundImage: (widget.user.profileImg != null && widget.user.profileImg!.isNotEmpty)
+                    ? NetworkImage(widget.user.profileImg!) // Cargar la imagen de red
                     : AssetImage('assets/images/profile_pic.png') as ImageProvider, // Imagen por defecto
               ),
               SizedBox(width: 16.w),
@@ -142,13 +123,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   children: [
                     // Mostrar nombre dinámico basado en las variables userFirstName y userLastName
                     Text(
-                      userFirstName != null && userLastName != null
-                          ? '$userFirstName $userLastName'
-                          : '', // Mensaje alternativo en caso de que no se haya cargado
+                      '${widget.user.firstName} ${widget.user.lastName}', // Llamada directa a las propiedades
                       style: TextStyle(
                         fontSize: 18.sp,
                         fontWeight: FontWeight.w500,
-                        color: Color(0xff212121),
+                        color: const Color(0xff212121),
                       ),
                     ),
                   ],

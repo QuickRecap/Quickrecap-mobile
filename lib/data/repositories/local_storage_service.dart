@@ -123,8 +123,6 @@ class LocalStorageService {
     final db = await database;
     var results = await db.query('User', limit: 1);
 
-    print("Resultados de la consulta: $results"); // Depuración
-
     if (results.isNotEmpty) {
       return User(
         id: results.first['id'] as String,
