@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickrecap/ui/constants/constants.dart';
 import '../../../../data/repositories/local_storage_service.dart';
 import '../../../../domain/entities/user.dart';
+import '../../../../domain/entities/activity.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -15,16 +16,12 @@ class GamesScreen extends StatefulWidget {
 
 class _GamesScreenState extends State<GamesScreen> {
   String? userId;
-  String? userFirstName;
-  String? userLastName;
-  String? userProfileImg;
-  List<dynamic> activities = [];
+  List<Activity> activities = [];
   bool isLoading = false;
   String? error;
   String _currentValue = 'Todos';
   String searchQuery = '';
-  List<dynamic> allActivities =
-      []; // Lista para almacenar todas las actividades
+  List<Activity> allActivities = []; // Lista para almacenar todas las actividades
 
   @override
   void initState() {
@@ -41,9 +38,6 @@ class _GamesScreenState extends State<GamesScreen> {
     if (user != null) {
       setState(() {
         userId = user.id;
-        userFirstName = user.firstName;
-        userLastName = user.lastName;
-        userProfileImg = user.profileImg;
       });
     } else {
       print('No se encontró el usuario.');
@@ -67,10 +61,10 @@ class _GamesScreenState extends State<GamesScreen> {
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
-        final decodedData = json.decode(response.body);
+        final List<dynamic> decodedData = json.decode(response.body);
         setState(() {
-          allActivities = decodedData is List ? decodedData : [];
-          activities = allActivities;
+          allActivities = decodedData.map((json) => Activity.fromJson(json)).toList();
+          activities = List<Activity>.from(allActivities); // Ensure type safety
           isLoading = false;
         });
       } else {
@@ -87,12 +81,10 @@ class _GamesScreenState extends State<GamesScreen> {
     }
   }
 
-  List<dynamic> getFilteredActivities() {
+  List<Activity> getFilteredActivities() {
     return allActivities.where((activity) {
-      bool matchesSearch =
-          activity['nombre'].toLowerCase().contains(searchQuery.toLowerCase());
-      bool matchesType = _currentValue == 'Todos' ||
-          activity['tipo_actividad'] == _currentValue;
+      bool matchesSearch = activity.name.toLowerCase().contains(searchQuery.toLowerCase());
+      bool matchesType = _currentValue == 'Todos' || activity.activityType == _currentValue;
       return matchesSearch && matchesType;
     }).toList();
   }
@@ -269,9 +261,9 @@ class _GamesScreenState extends State<GamesScreen> {
                           Expanded(
                             child: TabBarView(
                               children: [
-                                _buildActivityList(0, context),
-                                _buildActivityList(1, context),
-                                _buildActivityList(2, context),
+                                _buildCreatedActivityList(0, context),
+                                _buildFavoriteActivityList(1, context),
+                                _buildHistoryActivityList(2, context),
                               ],
                             ),
                           ),
@@ -288,7 +280,72 @@ class _GamesScreenState extends State<GamesScreen> {
     );
   }
 
-  Widget _buildActivityList(int currentTabIndex, BuildContext context) {
+  Widget _buildCreatedActivityList(int currentTabIndex, BuildContext context) {
+    if (isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+
+    if (error != null) {
+      return Center(child: Text(error!, style: TextStyle(color: Colors.red)));
+    }
+
+    List<Activity> filteredActivities = getFilteredActivities();
+
+    if (filteredActivities.isEmpty) {
+      return Center(
+        child: Text(
+          'No hay actividades disponibles',
+          style: TextStyle(
+            color: kGrey2,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: EdgeInsets.symmetric(horizontal: 30.w),
+      itemCount: filteredActivities.length,
+      itemBuilder: (context, index) {
+        final activity = filteredActivities[index];
+        return Container(
+          height: 65,
+          child: Row(
+            children: [
+              Icon(
+                Icons.play_circle_fill_outlined,
+                color: kPrimaryLight,
+                size: 40,
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  activity.name,
+                  style: TextStyle(
+                    color: kGrey2,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              SizedBox(width: 10),
+              GestureDetector(
+                  onTap: () => _showOptionsBottomSheet(context, activity),
+                  child: Icon(
+                    Icons.settings,
+                    color: kGrey,
+                    size: 25,
+                  )
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFavoriteActivityList(int currentTabIndex, BuildContext context) {
     if (isLoading) {
       return Center(child: CircularProgressIndicator());
     }
@@ -329,7 +386,7 @@ class _GamesScreenState extends State<GamesScreen> {
               SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  activity['nombre'] ?? 'Sin nombre',
+                  activity.name,
                   style: TextStyle(
                     color: kGrey2,
                     fontWeight: FontWeight.bold,
@@ -340,7 +397,11 @@ class _GamesScreenState extends State<GamesScreen> {
               SizedBox(width: 10),
               GestureDetector(
                 onTap: () => _showOptionsBottomSheet(context, activity),
-                child: _getIconForTab(currentTabIndex, activity),
+                child: Icon(
+                  Icons.bookmark,
+                  color: kYellow,
+                  size: 25,
+                ),
               ),
             ],
           ),
@@ -349,54 +410,90 @@ class _GamesScreenState extends State<GamesScreen> {
     );
   }
 
-  Widget _getIconForTab(int currentTabIndex, dynamic activity) {
-    switch (currentTabIndex) {
-      case 0: // Creados
-        return Icon(
-          Icons.settings,
-          color: kGrey,
-          size: 25,
-        );
-      case 1: // Favoritos
-        return Icon(
-          Icons.bookmark,
-          color: kYellow,
-          size: 25,
-        );
-      case 2: // Historial
-        return Container(
-          width: 60,
-          height: 40,
-          decoration: BoxDecoration(
-            color: kPrimaryLight.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(15),
+  Widget _buildHistoryActivityList(int currentTabIndex, BuildContext context) {
+    if (isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+
+    if (error != null) {
+      return Center(child: Text(error!, style: TextStyle(color: Colors.red)));
+    }
+
+    List<dynamic> filteredActivities = getFilteredActivities();
+
+    if (filteredActivities.isEmpty) {
+      return Center(
+        child: Text(
+          'No hay actividades disponibles',
+          style: TextStyle(
+            color: kGrey2,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w500,
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: EdgeInsets.symmetric(horizontal: 30.w),
+      itemCount: filteredActivities.length,
+      itemBuilder: (context, index) {
+        final activity = filteredActivities[index];
+        return Container(
+          height: 65,
+          child: Row(
             children: [
-              Text(
-                '${activity['puntuacion_maxima'] ?? '0'}/${activity['numero_preguntas'] ?? '0'}',
-                style: TextStyle(
-                  color: kPrimaryLight,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+              Icon(
+                Icons.play_circle_fill_outlined,
+                color: kPrimaryLight,
+                size: 40,
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  activity.name,
+                  style: TextStyle(
+                    color: kGrey2,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+              SizedBox(width: 10),
+              GestureDetector(
+                onTap: () => _showOptionsBottomSheet(context, activity),
+                child: Container(
+                  width: 60,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: kPrimaryLight.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '${activity['puntuacion_maxima'] ?? '0'}/${activity['numero_preguntas'] ?? '0'}',
+                        style: TextStyle(
+                          color: kPrimaryLight,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
           ),
         );
-      default:
-        return Icon(
-          Icons.help_outline,
-          color: kPrimaryLight,
-          size: 25,
-        );
-    }
+      },
+    );
   }
 
-  void _showOptionsBottomSheet(BuildContext context, dynamic activity) {
-    String currentState = activity['estado'] ?? 'Público';
-    bool isFavorite = activity['favorito'] ?? false;
+  void _showOptionsBottomSheet(BuildContext context, Activity activity) {
+    String currentState = activity.private ? 'Privado' : 'Público';
+    bool isFavorite = activity.favorite;
 
     showModalBottomSheet(
       context: context,
@@ -426,7 +523,7 @@ class _GamesScreenState extends State<GamesScreen> {
                           onPressed: () => Navigator.pop(context),
                         ),
                         Text(
-                          'Opciones de la actividad',
+                          'Configuracion de la actividad',
                           style: TextStyle(
                             color: Colors.black,
                             fontWeight: FontWeight.bold,
@@ -442,6 +539,152 @@ class _GamesScreenState extends State<GamesScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Padding(
+                          padding: EdgeInsets.only(left: 6, bottom: 7),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // Primer item (Favoritos)
+                              Expanded(
+                                flex: 40, // Ocupa el 45% del ancho
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    setState(() {
+                                      isLoading = true;
+                                    });
+
+                                    try {
+                                      final response = await http.put(
+                                        Uri.parse('http://10.0.2.2:8000/quickrecap/activity/update/${activity.id}'),
+                                        headers: <String, String>{
+                                          'Content-Type': 'application/json; charset=UTF-8',
+                                        },
+                                        body: jsonEncode(<String, dynamic>{
+                                          'favorito': !isFavorite,
+                                        }),
+                                      );
+
+                                      if (response.statusCode == 200) {
+                                        setState(() {
+                                          isFavorite = !isFavorite;
+                                        });
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('No pudimos agregar esta actividad a tus favoritos'),
+                                            backgroundColor: Color(0xffFFCFD0),
+                                            behavior: SnackBarBehavior.floating,
+                                          ),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text('Error de conexión: $e'),
+                                          backgroundColor: Color(0xffFFCFD0),
+                                          behavior: SnackBarBehavior.floating,
+                                        ),
+                                      );
+                                    } finally {
+                                      setState(() {
+                                        isLoading = false;
+                                      });
+                                    }
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFFF5F5F5),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        isLoading
+                                            ? SizedBox(
+                                          width: 25,
+                                          height: 25,
+                                          child: CircularProgressIndicator(
+                                            color: Color(0xFFB3B3B3),
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                            : Icon(
+                                          Icons.bookmark,
+                                          color: isFavorite ? Color(0xffffd100) : Color(0xff4d4a4b),
+                                          size: 30, // Aumentar el tamaño del icono
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          isFavorite ? "Quitar de \nfavoritos" : "Agregar a \nfavoritos",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: Color(0XFF212121),
+                                            fontFamily: 'Poppins',
+                                            fontWeight: FontWeight.w600, // Aumentar el grosor del texto
+                                            fontSize: 14, // Aumentar el tamaño del texto
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 20), // Espacio entre los elementos
+
+                              // Segundo item (Ajustes de privacidad)
+                              Expanded(
+                                flex: 40, // Ocupa el 45% del ancho
+                                child: GestureDetector(
+                                  onTap: () {
+                                    showModalBottomSheet(
+                                      context: context,
+                                      builder: (context) {
+                                        return Container(
+                                          height: 200,
+                                          child: Center(
+                                            child: Text('Ajustes de privacidad'),
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(
+                                      color: Color(0xFFF5F5F5),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.lock,
+                                          color: Color(0xff4d4a4b),
+                                          size: 30, // Aumentar el tamaño del icono
+                                        ),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          "Ajustes de \nprivacidad",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: Color(0XFF212121),
+                                            fontFamily: 'Poppins',
+                                            fontWeight: FontWeight.w600, // Aumentar el grosor del texto
+                                            fontSize: 14, // Aumentar el tamaño del texto
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 8),
                         Padding(
                           padding: EdgeInsets.only(left: 6, bottom: 7),
                           child: Text('Nombre:',
@@ -460,7 +703,7 @@ class _GamesScreenState extends State<GamesScreen> {
                             borderRadius: BorderRadius.circular(15),
                           ),
                           child: Text(
-                            activity['nombre'] ?? 'Sin nombre',
+                            activity.name ?? 'Sin nombre',
                             style: TextStyle(
                                 color: kPrimary,
                                 fontWeight: FontWeight.w500,
@@ -470,103 +713,29 @@ class _GamesScreenState extends State<GamesScreen> {
                         SizedBox(height: 16),
                         Padding(
                           padding: EdgeInsets.only(left: 6, bottom: 7),
-                          child: Text('Estado:',
+                          child: Text('Tipo:',
                               style: TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 14)),
+                                  fontSize: 15)),
                         ),
                         SizedBox(height: 8),
                         Container(
                           width: double.infinity,
-                          padding: EdgeInsets.symmetric(horizontal: 12),
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 12),
                           decoration: BoxDecoration(
-                            color: kWhite,
-                            border: Border.all(color: kPrimary, width: 1),
+                            color: kPrimaryLight.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(15),
                           ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value:
-                                  activity['privado'] ? 'Privado' : 'Público',
-                              isExpanded: true,
-                              items: <String>['Público', 'Privado']
-                                  .map((String value) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value,
-                                      style: TextStyle(
-                                          color: kPrimary,
-                                          fontWeight: FontWeight.w500,
-                                          fontSize: 14)),
-                                );
-                              }).toList(),
-                              onChanged: (String? newValue) {
-                                if (newValue != null) {
-                                  setState(() {
-                                    activity['privado'] = newValue == 'Privado';
-                                  });
-                                }
-                              },
-                            ),
+                          child: Text(
+                            activity.activityType ?? 'Sin categoria',
+                            style: TextStyle(
+                                color: kPrimary,
+                                fontWeight: FontWeight.w500,
+                                fontSize: 15),
                           ),
                         ),
-                        SizedBox(height: 16),
-                        Padding(
-                          padding: EdgeInsets.only(left: 6, bottom: 7),
-                          child: Text('Favorito:',
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14)),
-                        ),
-                        Container(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Checkbox(
-                                value: isFavorite,
-                                activeColor: kPrimary,
-                                onChanged: (bool? value) async {
-                                  if (value != null) {
-                                    setState(() {
-                                      isFavorite = value;
-                                    });
-                                  }
-
-                                  try {
-                                    final response = await http.put(
-                                      Uri.parse(
-                                          'http://10.0.2.2:8000/quickrecap/activity/update/${activity['id']}'),
-                                      headers: <String, String>{
-                                        'Content-Type':
-                                            'application/json; charset=UTF-8',
-                                      },
-                                      body: jsonEncode(<String, dynamic>{
-                                        'favorito': isFavorite,
-                                      }),
-                                    );
-
-                                    if (response.statusCode == 200) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(
-                                        SnackBar(
-                                            content: Text(
-                                                'Actividad actualizada con éxito')),
-                                      );
-                                    }
-                                  } catch (e) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content:
-                                              Text('Error de conexión: $e')),
-                                    );
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        )
                       ],
                     ),
                   ),
@@ -578,15 +747,18 @@ class _GamesScreenState extends State<GamesScreen> {
                         Expanded(
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
+                              backgroundColor: Color(0xffEB2525),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(15),
                               ),
-                              elevation: 5,
-                              shadowColor: kDark,
+                              elevation: 0,
                             ),
-                            child: Text('Eliminar',
-                                style: TextStyle(color: kWhite)),
+                            child: Text('Eliminar Actividad',
+                                style: TextStyle(
+                                    color: kWhite,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w600
+                                )),
                             onPressed: () {
                               showDialog(
                                   context: context,
@@ -595,9 +767,10 @@ class _GamesScreenState extends State<GamesScreen> {
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(15),
                                       ),
-                                      title: Text('Confirmar eliminación', style: TextStyle(color: kDark, fontFamily: 'Poppins', fontSize: 24, fontWeight: FontWeight.w500)),
+                                      title: Text('Confirmar eliminación',
+                                          style: TextStyle(color: kDark, fontFamily: 'Poppins', fontSize: 24, fontWeight: FontWeight.w600)),
                                       content: Text(
-                                          '¿Desea eliminar la actividad "${activity['nombre']}"?', style: TextStyle(color: kDark, fontFamily: 'Poppins', fontSize: 16),),
+                                          '¿Desea eliminar la actividad "${activity.name}"?', style: TextStyle(color: kDark, fontFamily: 'Poppins', fontSize: 16),),
                                       actions: [
                                         TextButton(
                                           child: Text('Cancelar',
@@ -625,7 +798,7 @@ class _GamesScreenState extends State<GamesScreen> {
                                               final response =
                                                   await http.delete(
                                                 Uri.parse(
-                                                    'http://10.0.2.2:8000/quickrecap/activity/delete/${activity['id']}'),
+                                                    'http://10.0.2.2:8000/quickrecap/activity/delete/${activity.id}'),
                                                 headers: <String, String>{
                                                   'Content-Type':
                                                       'application/json; charset=UTF-8',
@@ -656,60 +829,6 @@ class _GamesScreenState extends State<GamesScreen> {
                                       ],
                                     );
                                   });
-                            },
-                          ),
-                        ),
-                        SizedBox(width: 16),
-                        Expanded(
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: kPrimaryLight,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              elevation: 5,
-                              shadowColor: kDark,
-                            ),
-                            child: Text('Guardar',
-                                style: TextStyle(color: kWhite)),
-                            onPressed: () async {
-                              bool isPrivate =
-                                  currentState.toLowerCase() == 'público';
-
-                              final requestBody = jsonEncode(<String, dynamic>{
-                                'privado': isPrivate,
-                              });
-
-                              print(requestBody);
-
-                              try {
-                                final response = await http.put(
-                                  Uri.parse(
-                                      'http://10.0.2.2:8000/quickrecap/activity/update/${activity['id']}'),
-                                  headers: <String, String>{
-                                    'Content-Type':
-                                        'application/json; charset=UTF-8',
-                                  },
-                                  body: jsonEncode(<String, dynamic>{
-                                    'privado': isPrivate,
-                                  }),
-                                );
-
-                                if (response.statusCode == 200) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                        content: Text(
-                                            'Actividad actualizada con éxito')),
-                                  );
-                                  Navigator.pop(context);
-                                  _fetchActivities(0);
-                                }
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text('Error de conexión: $e')),
-                                );
-                              }
                             },
                           ),
                         ),
