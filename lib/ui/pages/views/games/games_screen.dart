@@ -81,6 +81,45 @@ class _GamesScreenState extends State<GamesScreen> {
     }
   }
 
+  Future<void> _updateActivityPrivacy(Activity activity, bool privateValue) async {
+    try {
+      final response = await http.put(
+        Uri.parse('http://10.0.2.2:8000/quickrecap/activity/update/${activity.id}'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'private': privateValue,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          // Encuentra la actividad y actualiza su estado de privacidad
+          final index = activities.indexWhere((a) => a.id == activity.id);
+          if (index != -1) {
+            activities[index].private = privateValue;
+          }
+        });
+      } else {
+        _showErrorSnackBar('No pudimos cambiar la privacidad de esta actividad');
+      }
+    } catch (e) {
+      _showErrorSnackBar('Error de conexión: $e');
+    }
+  }
+
+  void _showErrorSnackBar(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Color(0xffFFCFD0),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   List<Activity> getFilteredActivities() {
     return allActivities.where((activity) {
       bool matchesSearch = activity.name.toLowerCase().contains(searchQuery.toLowerCase());
@@ -114,7 +153,7 @@ class _GamesScreenState extends State<GamesScreen> {
                 children: [
                   Padding(
                     padding:
-                        EdgeInsets.only(left: 20.w, right: 20.w, top: 15.h),
+                    EdgeInsets.only(left: 20.w, right: 20.w, top: 15.h),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -200,8 +239,8 @@ class _GamesScreenState extends State<GamesScreen> {
                               Tab(text: 'Historial')
                             ],
                             labelStyle: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w500
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w500
                             ), // Aplica el estilo aquí
                           ),
                           Padding(
@@ -215,16 +254,16 @@ class _GamesScreenState extends State<GamesScreen> {
                                 Text(
                                   '${getFilteredActivities().length} actividades',
                                   style: TextStyle(
-                                    color: kDark,
-                                    fontSize: 14.sp,
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: 'Poppins'
+                                      color: kDark,
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: 'Poppins'
                                   ),
                                 ),
                                 DropdownButton<String>(
                                   value: _currentValue,
                                   icon:
-                                      Icon(Icons.arrow_drop_down, color: kDark),
+                                  Icon(Icons.arrow_drop_down, color: kDark),
                                   underline: Container(),
                                   dropdownColor: Colors.white,
                                   style: TextStyle(
@@ -238,15 +277,15 @@ class _GamesScreenState extends State<GamesScreen> {
                                     'Gap',
                                     'Linkers'
                                   ].map<DropdownMenuItem<String>>(
-                                      (String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(
-                                        value,
-                                        style: TextStyle(color: kDark),
-                                      ),
-                                    );
-                                  }).toList(),
+                                          (String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(
+                                            value,
+                                            style: TextStyle(color: kDark),
+                                          ),
+                                        );
+                                      }).toList(),
                                   onChanged: (String? newValue) {
                                     if (newValue != null) {
                                       setState(() {
@@ -560,9 +599,8 @@ class _GamesScreenState extends State<GamesScreen> {
 
   void _showOptionsBottomSheet(BuildContext context, Activity activity) {
     bool isFavorite = activity.favorite;
-    bool isPrivate = activity.private;
 
-    showModalBottomSheet(
+        showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
@@ -717,166 +755,102 @@ class _GamesScreenState extends State<GamesScreen> {
                                         borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
                                       ),
                                       builder: (BuildContext context) {
-                                        return Padding(
-                                          padding: EdgeInsets.all(20),
-                                          child: Column(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Row(
-                                                mainAxisAlignment: MainAxisAlignment.end,
+                                        return StatefulBuilder(
+                                          builder: (BuildContext context, StateSetter setModalState) {
+                                            return Padding(
+                                              padding: EdgeInsets.all(20),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  IconButton(
-                                                    icon: Icon(Icons.close),
-                                                    onPressed: () => Navigator.pop(context),
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.end,
+                                                    children: [
+                                                      IconButton(
+                                                        icon: Icon(Icons.close),
+                                                        onPressed: () => Navigator.pop(context),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Text(
+                                                    'Ajustes de privacidad',
+                                                    style: TextStyle(
+                                                      color: Color(0XFF212121),
+                                                      fontFamily: 'Poppins',
+                                                      fontSize: 24,
+                                                      fontWeight: FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 15),
+                                                  Text(
+                                                    '¿Quién puede ver tu actividad?',
+                                                    style: TextStyle(
+                                                      color: Color(0XFF757575),
+                                                      fontFamily: 'Poppins',
+                                                      fontSize: 16,
+                                                    ),
+                                                    textAlign: TextAlign.center,
+                                                  ),
+                                                  SizedBox(height: 20),
+                                                  Column(
+                                                    children: [
+                                                      ListTile(
+                                                        title: Text('Todo el mundo'),
+                                                        leading: Icon(Icons.public),
+                                                        trailing: Container(
+                                                          width: 24,
+                                                          height: 24,
+                                                          decoration: BoxDecoration(
+                                                            shape: BoxShape.circle,
+                                                            border: Border.all(color: Color(0xFF6D5BFF), width: 2),
+                                                          ),
+                                                          child: !activity.private
+                                                              ? Container(
+                                                            decoration: BoxDecoration(
+                                                              shape: BoxShape.circle,
+                                                              color: Color(0xFF6D5BFF),
+                                                            ),
+                                                          )
+                                                              : null,
+                                                        ),
+                                                        onTap: () async {
+                                                          if (activity.private == true) {
+                                                            await _updateActivityPrivacy(activity, false);
+                                                            setModalState(() {}); // Actualiza el BottomSheet después del cambio
+                                                          }
+                                                        },
+                                                      ),
+                                                      ListTile(
+                                                        title: Text('Solo tú'),
+                                                        leading: Icon(Icons.lock),
+                                                        trailing: Container(
+                                                          width: 24,
+                                                          height: 24,
+                                                          decoration: BoxDecoration(
+                                                            shape: BoxShape.circle,
+                                                            border: Border.all(color: Color(0xFF6D5BFF), width: 2),
+                                                          ),
+                                                          child: activity.private
+                                                              ? Container(
+                                                            decoration: BoxDecoration(
+                                                              shape: BoxShape.circle,
+                                                              color: Color(0xFF6D5BFF),
+                                                            ),
+                                                          )
+                                                              : null,
+                                                        ),
+                                                        onTap: () async {
+                                                          if (activity.private == false) {
+                                                            await _updateActivityPrivacy(activity, true);
+                                                            setModalState(() {}); // Actualiza el BottomSheet después del cambio
+                                                          }
+                                                        },
+                                                      ),
+                                                    ],
                                                   ),
                                                 ],
                                               ),
-                                              Text(
-                                                'Ajustes de privacidad',
-                                                style: TextStyle(
-                                                  color: Color(0XFF212121),
-                                                  fontFamily: 'Poppins',
-                                                  fontSize: 24,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
-                                              SizedBox(height: 15),
-                                              Text(
-                                                '¿Quién puede ver tu actividad?',
-                                                style: TextStyle(
-                                                  color: Color(0XFF757575),
-                                                  fontFamily: 'Poppins',
-                                                  fontSize: 16,
-                                                ),
-                                                textAlign: TextAlign.center,
-                                              ),
-                                              SizedBox(height: 20),
-                                              Column(
-                                                children: [
-                                                  ListTile(
-                                                    title: Text('Todo el mundo'),
-                                                    leading: Icon(Icons.public),
-                                                    trailing: Container(
-                                                      width: 24,
-                                                      height: 24,
-                                                      decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        border: Border.all(color: Color(0xFF6D5BFF), width: 2),
-                                                      ),
-                                                      child: !isPrivate
-                                                          ? Container(
-                                                        decoration: BoxDecoration(
-                                                          shape: BoxShape.circle,
-                                                          color: Color(0xFF6D5BFF),
-                                                        ),
-                                                      )
-                                                          : null,
-                                                    ),
-                                                    onTap: () async {
-                                                      // Si el valor actual es el mismo que el nuevo, no hacemos nada
-                                                      if (isPrivate == false) {// Si es el mismo valor, cerramos el BottomSheet
-                                                        return;
-                                                      }
-
-                                                      try {
-                                                        final response = await http.put(
-                                                          Uri.parse('http://10.0.2.2:8000/quickrecap/activity/update/${activity.id}'),
-                                                          headers: <String, String>{
-                                                            'Content-Type': 'application/json; charset=UTF-8',
-                                                          },
-                                                          body: jsonEncode(<String, dynamic>{
-                                                            'private': false, // El valor "false" corresponde a "Todo el mundo"
-                                                          }),
-                                                        );
-
-                                                        if (response.statusCode == 200) {
-                                                          print("cambie a Todo el mundo");
-                                                        } else {
-                                                          // Si la respuesta no es exitosa, mostramos un mensaje
-                                                          ScaffoldMessenger.of(context).showSnackBar(
-                                                            SnackBar(
-                                                              content: Text('No pudimos cambiar la privacidad de esta actividad'),
-                                                              backgroundColor: Color(0xffFFCFD0),
-                                                              behavior: SnackBarBehavior.floating,
-                                                            ),
-                                                          );
-                                                        }
-                                                      } catch (e) {
-                                                        ScaffoldMessenger.of(context).showSnackBar(
-                                                          SnackBar(
-                                                            content: Text('Error de conexión: $e'),
-                                                            backgroundColor: Color(0xffFFCFD0),
-                                                            behavior: SnackBarBehavior.floating,
-                                                          ),
-                                                        );
-                                                      } finally { // Cerramos el BottomSheet al finalizar
-                                                      }
-                                                    },
-                                                  ),
-                                                  ListTile(
-                                                    title: Text('Solo tú'),
-                                                    leading: Icon(Icons.lock),
-                                                    trailing: Container(
-                                                      width: 24,
-                                                      height: 24,
-                                                      decoration: BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        border: Border.all(color: Color(0xFF6D5BFF), width: 2),
-                                                      ),
-                                                      child: isPrivate
-                                                          ? Container(
-                                                        decoration: BoxDecoration(
-                                                          shape: BoxShape.circle,
-                                                          color: Color(0xFF6D5BFF),
-                                                        ),
-                                                      )
-                                                          : null,
-                                                    ),
-                                                    onTap: () async {
-                                                      // Si el valor actual es el mismo que el nuevo, no hacemos nada
-                                                      if (isPrivate == true) {
-                                                        return;
-                                                      }
-
-                                                      try {
-                                                        final response = await http.put(
-                                                          Uri.parse('http://10.0.2.2:8000/quickrecap/activity/update/${activity.id}'),
-                                                          headers: <String, String>{
-                                                            'Content-Type': 'application/json; charset=UTF-8',
-                                                          },
-                                                          body: jsonEncode(<String, dynamic>{
-                                                            'private': true, // El valor "true" corresponde a "Solo tú"
-                                                          }),
-                                                        );
-
-                                                        if (response.statusCode == 200) {
-                                                          print("cambie a Solo yo");
-                                                        } else {
-                                                          // Si la respuesta no es exitosa, mostramos un mensaje
-                                                          ScaffoldMessenger.of(context).showSnackBar(
-                                                            SnackBar(
-                                                              content: Text('No pudimos cambiar la privacidad de esta actividad'),
-                                                              backgroundColor: Color(0xffFFCFD0),
-                                                              behavior: SnackBarBehavior.floating,
-                                                            ),
-                                                          );
-                                                        }
-                                                      } catch (e) {
-                                                        ScaffoldMessenger.of(context).showSnackBar(
-                                                          SnackBar(
-                                                            content: Text('Error de conexión: $e'),
-                                                            backgroundColor: Color(0xffFFCFD0),
-                                                            behavior: SnackBarBehavior.floating,
-                                                          ),
-                                                        );
-                                                      } finally {
-                                                        }
-                                                    },
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
+                                            );
+                                          },
                                         );
                                       },
                                     );
