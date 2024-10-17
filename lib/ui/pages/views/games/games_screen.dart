@@ -374,6 +374,8 @@ class _GamesScreenState extends State<GamesScreen> {
       itemCount: filteredActivities.length,
       itemBuilder: (context, index) {
         final activity = filteredActivities[index];
+        bool isFavorite = activity.favorite; // Tomar el valor del objeto directamente
+
         return Container(
           height: 65,
           child: Row(
@@ -396,11 +398,55 @@ class _GamesScreenState extends State<GamesScreen> {
               ),
               SizedBox(width: 10),
               GestureDetector(
-                onTap: () => _showOptionsBottomSheet(context, activity),
+                onTap: () async {
+                  setState(() {
+                    isLoading = true;
+                  });
+
+                  try {
+                    final response = await http.put(
+                      Uri.parse('http://10.0.2.2:8000/quickrecap/activity/update/${activity.id}'),
+                      headers: <String, String>{
+                        'Content-Type': 'application/json; charset=UTF-8',
+                      },
+                      body: jsonEncode(<String, dynamic>{
+                        'favorito': !isFavorite,
+                      }),
+                    );
+
+                    if (response.statusCode == 200) {
+                      setState(() {
+                        activity.favorite = !isFavorite; // Actualizar el valor en el objeto
+                        getFilteredActivities(); // Recargar actividades filtradas
+                      });
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('No pudimos agregar esta actividad a tus favoritos'),
+                          backgroundColor: Color(0xffFFCFD0),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Error de conexión: $e'),
+                        backgroundColor: Color(0xffFFCFD0),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
+                  } finally {
+                    setState(() {
+                      isLoading = false;
+                    });
+                  }
+                },
                 child: Icon(
                   Icons.bookmark,
-                  color: kYellow,
-                  size: 25,
+                  color: activity.favorite ? Color(0xffffd100) : Color(
+                      0xffa2a2a2), // Usar activity.favorite
+                  size: 30, // Aumentar el tamaño del icono
                 ),
               ),
             ],
@@ -408,9 +454,11 @@ class _GamesScreenState extends State<GamesScreen> {
         );
       },
     );
+
   }
 
   Widget _buildHistoryActivityList(int currentTabIndex, BuildContext context) {
+
     if (isLoading) {
       return Center(child: CircularProgressIndicator());
     }
@@ -419,12 +467,13 @@ class _GamesScreenState extends State<GamesScreen> {
       return Center(child: Text(error!, style: TextStyle(color: Colors.red)));
     }
 
-    List<dynamic> filteredActivities = getFilteredActivities();
+    List<dynamic> historyActivities = getFilteredActivities();
 
-    if (filteredActivities.isEmpty) {
+    // Verificamos si no hay actividades en el historial
+    if (historyActivities.isEmpty) {
       return Center(
         child: Text(
-          'No hay actividades disponibles',
+          'No hay actividades en el historial',
           style: TextStyle(
             color: kGrey2,
             fontSize: 16.sp,
@@ -436,18 +485,16 @@ class _GamesScreenState extends State<GamesScreen> {
 
     return ListView.builder(
       padding: EdgeInsets.symmetric(horizontal: 30.w),
-      itemCount: filteredActivities.length,
+      itemCount: historyActivities.length,
       itemBuilder: (context, index) {
-        final activity = filteredActivities[index];
+        final activity = historyActivities[index];
+
+        bool isFavorite = activity.favorite;
         return Container(
-          height: 65,
+          padding: EdgeInsets.symmetric(vertical: 10), // Separación vertical
+          height: 65, // Altura fija (puedes ajustarla según sea necesario)
           child: Row(
             children: [
-              Icon(
-                Icons.play_circle_fill_outlined,
-                color: kPrimaryLight,
-                size: 40,
-              ),
               SizedBox(width: 12),
               Expanded(
                 child: Text(
@@ -473,7 +520,7 @@ class _GamesScreenState extends State<GamesScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        '${activity['puntuacion_maxima'] ?? '0'}/${activity['numero_preguntas'] ?? '0'}',
+                        activity.maxScore.toString()+"/"+activity.numberOfQuestions.toString(),
                         style: TextStyle(
                           color: kPrimaryLight,
                           fontWeight: FontWeight.bold,
@@ -491,9 +538,29 @@ class _GamesScreenState extends State<GamesScreen> {
     );
   }
 
+
+  void _removeActivityById(int activityId) {
+    setState(() {
+      allActivities.removeWhere((activity) => activity.id == activityId);
+      // Since getFilteredActivities() depends on allActivities, it will automatically update
+    });
+  }
+
+  void _addFavoriteActivityById(int activityId) {
+    setState(() {
+      final activity = allActivities.firstWhere(
+            (activity) => activity.id == activityId,
+        orElse: () => throw Exception('Activity not found'),
+      );
+
+      activity.favorite = true; // Cambiamos favorite porque ya no es final
+    });
+  }
+
+
   void _showOptionsBottomSheet(BuildContext context, Activity activity) {
-    String currentState = activity.private ? 'Privado' : 'Público';
     bool isFavorite = activity.favorite;
+    bool isPrivate = activity.private;
 
     showModalBottomSheet(
       context: context,
@@ -567,6 +634,8 @@ class _GamesScreenState extends State<GamesScreen> {
                                       if (response.statusCode == 200) {
                                         setState(() {
                                           isFavorite = !isFavorite;
+                                          _addFavoriteActivityById(activity.id);
+                                          getFilteredActivities();
                                         });
                                       } else {
                                         ScaffoldMessenger.of(context).showSnackBar(
@@ -635,16 +704,178 @@ class _GamesScreenState extends State<GamesScreen> {
 
                               // Segundo item (Ajustes de privacidad)
                               Expanded(
-                                flex: 40, // Ocupa el 45% del ancho
+                                flex: 40,
                                 child: GestureDetector(
                                   onTap: () {
+                                    // Cierra el bottom sheet actual antes de abrir el nuevo
+                                    Navigator.of(context).pop();
+
+                                    // Después de cerrar el bottom sheet, abre uno nuevo
                                     showModalBottomSheet(
                                       context: context,
-                                      builder: (context) {
-                                        return Container(
-                                          height: 200,
-                                          child: Center(
-                                            child: Text('Ajustes de privacidad'),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+                                      ),
+                                      builder: (BuildContext context) {
+                                        return Padding(
+                                          padding: EdgeInsets.all(20),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.end,
+                                                children: [
+                                                  IconButton(
+                                                    icon: Icon(Icons.close),
+                                                    onPressed: () => Navigator.pop(context),
+                                                  ),
+                                                ],
+                                              ),
+                                              Text(
+                                                'Ajustes de privacidad',
+                                                style: TextStyle(
+                                                  color: Color(0XFF212121),
+                                                  fontFamily: 'Poppins',
+                                                  fontSize: 24,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                              SizedBox(height: 15),
+                                              Text(
+                                                '¿Quién puede ver tu actividad?',
+                                                style: TextStyle(
+                                                  color: Color(0XFF757575),
+                                                  fontFamily: 'Poppins',
+                                                  fontSize: 16,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              SizedBox(height: 20),
+                                              Column(
+                                                children: [
+                                                  ListTile(
+                                                    title: Text('Todo el mundo'),
+                                                    leading: Icon(Icons.public),
+                                                    trailing: Container(
+                                                      width: 24,
+                                                      height: 24,
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        border: Border.all(color: Color(0xFF6D5BFF), width: 2),
+                                                      ),
+                                                      child: !isPrivate
+                                                          ? Container(
+                                                        decoration: BoxDecoration(
+                                                          shape: BoxShape.circle,
+                                                          color: Color(0xFF6D5BFF),
+                                                        ),
+                                                      )
+                                                          : null,
+                                                    ),
+                                                    onTap: () async {
+                                                      // Si el valor actual es el mismo que el nuevo, no hacemos nada
+                                                      if (isPrivate == false) {// Si es el mismo valor, cerramos el BottomSheet
+                                                        return;
+                                                      }
+
+                                                      try {
+                                                        final response = await http.put(
+                                                          Uri.parse('http://10.0.2.2:8000/quickrecap/activity/update/${activity.id}'),
+                                                          headers: <String, String>{
+                                                            'Content-Type': 'application/json; charset=UTF-8',
+                                                          },
+                                                          body: jsonEncode(<String, dynamic>{
+                                                            'private': false, // El valor "false" corresponde a "Todo el mundo"
+                                                          }),
+                                                        );
+
+                                                        if (response.statusCode == 200) {
+                                                          print("cambie a Todo el mundo");
+                                                        } else {
+                                                          // Si la respuesta no es exitosa, mostramos un mensaje
+                                                          ScaffoldMessenger.of(context).showSnackBar(
+                                                            SnackBar(
+                                                              content: Text('No pudimos cambiar la privacidad de esta actividad'),
+                                                              backgroundColor: Color(0xffFFCFD0),
+                                                              behavior: SnackBarBehavior.floating,
+                                                            ),
+                                                          );
+                                                        }
+                                                      } catch (e) {
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                          SnackBar(
+                                                            content: Text('Error de conexión: $e'),
+                                                            backgroundColor: Color(0xffFFCFD0),
+                                                            behavior: SnackBarBehavior.floating,
+                                                          ),
+                                                        );
+                                                      } finally { // Cerramos el BottomSheet al finalizar
+                                                      }
+                                                    },
+                                                  ),
+                                                  ListTile(
+                                                    title: Text('Solo tú'),
+                                                    leading: Icon(Icons.lock),
+                                                    trailing: Container(
+                                                      width: 24,
+                                                      height: 24,
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        border: Border.all(color: Color(0xFF6D5BFF), width: 2),
+                                                      ),
+                                                      child: isPrivate
+                                                          ? Container(
+                                                        decoration: BoxDecoration(
+                                                          shape: BoxShape.circle,
+                                                          color: Color(0xFF6D5BFF),
+                                                        ),
+                                                      )
+                                                          : null,
+                                                    ),
+                                                    onTap: () async {
+                                                      // Si el valor actual es el mismo que el nuevo, no hacemos nada
+                                                      if (isPrivate == true) {
+                                                        return;
+                                                      }
+
+                                                      try {
+                                                        final response = await http.put(
+                                                          Uri.parse('http://10.0.2.2:8000/quickrecap/activity/update/${activity.id}'),
+                                                          headers: <String, String>{
+                                                            'Content-Type': 'application/json; charset=UTF-8',
+                                                          },
+                                                          body: jsonEncode(<String, dynamic>{
+                                                            'private': true, // El valor "true" corresponde a "Solo tú"
+                                                          }),
+                                                        );
+
+                                                        if (response.statusCode == 200) {
+                                                          print("cambie a Solo yo");
+                                                        } else {
+                                                          // Si la respuesta no es exitosa, mostramos un mensaje
+                                                          ScaffoldMessenger.of(context).showSnackBar(
+                                                            SnackBar(
+                                                              content: Text('No pudimos cambiar la privacidad de esta actividad'),
+                                                              backgroundColor: Color(0xffFFCFD0),
+                                                              behavior: SnackBarBehavior.floating,
+                                                            ),
+                                                          );
+                                                        }
+                                                      } catch (e) {
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                          SnackBar(
+                                                            content: Text('Error de conexión: $e'),
+                                                            backgroundColor: Color(0xffFFCFD0),
+                                                            behavior: SnackBarBehavior.floating,
+                                                          ),
+                                                        );
+                                                      } finally {
+                                                        }
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
                                           ),
                                         );
                                       },
@@ -681,6 +912,8 @@ class _GamesScreenState extends State<GamesScreen> {
                                   ),
                                 ),
                               ),
+
+
                             ],
                           ),
                         ),
@@ -752,83 +985,112 @@ class _GamesScreenState extends State<GamesScreen> {
                                 borderRadius: BorderRadius.circular(15),
                               ),
                               elevation: 0,
+                              minimumSize: Size(100, 60), // Especifica width y height
+                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Añade padding si es necesario
                             ),
-                            child: Text('Eliminar Actividad',
-                                style: TextStyle(
-                                    color: kWhite,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w600
-                                )),
+                            child: Text(
+                              'Eliminar Actividad',
+                              style: TextStyle(
+                                color: kWhite,
+                                fontFamily: 'Poppins',
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
                             onPressed: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (BuildContext context) {
-                                    return AlertDialog(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(15),
-                                      ),
-                                      title: Text('Confirmar eliminación',
-                                          style: TextStyle(color: kDark, fontFamily: 'Poppins', fontSize: 24, fontWeight: FontWeight.w600)),
-                                      content: Text(
-                                          '¿Desea eliminar la actividad "${activity.name}"?', style: TextStyle(color: kDark, fontFamily: 'Poppins', fontSize: 16),),
-                                      actions: [
-                                        TextButton(
-                                          child: Text('Cancelar',
-                                              style:
-                                                  TextStyle(color: kGrey)),
-                                          onPressed: () {
-                                            Navigator.of(context)
-                                                .pop(); // Cierra el diálogo
-                                          },
-                                        ),
-                                        ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.red,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
+                              // Cierra el diálogo actual antes de abrir el BottomSheet
+                              Navigator.of(context).pop();
+                              showModalBottomSheet(
+                                context: context,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+                                ),
+                                builder: (BuildContext context) {
+                                  return Padding(
+                                    padding: EdgeInsets.all(20),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          'Confirmar eliminación',
+                                          style: TextStyle(
+                                            color: kDark,
+                                            fontFamily: 'Poppins',
+                                            fontSize: 24,
+                                            fontWeight: FontWeight.w600,
                                           ),
-                                          child: Text('Confirmar',
-                                              style: TextStyle(color: kWhite)),
-                                          onPressed: () async {
-                                            Navigator.of(context)
-                                                .pop(); // Cierra el diálogo
-                                            try {
-                                              final response =
-                                                  await http.delete(
-                                                Uri.parse(
-                                                    'http://10.0.2.2:8000/quickrecap/activity/delete/${activity.id}'),
-                                                headers: <String, String>{
-                                                  'Content-Type':
-                                                      'application/json; charset=UTF-8',
+                                        ),
+                                        SizedBox(height: 15),
+                                        Text(
+                                          '¿Desea eliminar la actividad "${activity.name}"?',
+                                          style: TextStyle(
+                                            color: kDark,
+                                            fontFamily: 'Poppins',
+                                            fontSize: 16,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                        SizedBox(height: 20),
+                                        Column(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            SizedBox(
+                                              width: double.infinity, // Hace que el botón ocupe todo el ancho
+                                              child: ElevatedButton(
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: Colors.red,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(10),
+                                                  ),
+                                                  padding: EdgeInsets.symmetric(vertical: 15),
+                                                ),
+                                                child: Text(
+                                                  'Eliminar',
+                                                  style: TextStyle(color: kWhite),
+                                                ),
+                                                onPressed: () async {
+                                                  Navigator.of(context).pop(); // Cierra el BottomSheet de confirmación
+                                                  try {
+                                                    final response = await http.delete(
+                                                      Uri.parse('http://10.0.2.2:8000/quickrecap/activity/delete/${activity.id}'),
+                                                      headers: <String, String>{
+                                                        'Content-Type': 'application/json; charset=UTF-8',
+                                                      },
+                                                    );
+                                                    if (response.statusCode == 204) {
+                                                      _removeActivityById(activity.id);
+                                                    }
+                                                  } catch (e) {
+                                                    ScaffoldMessenger.of(context).showSnackBar(
+                                                      SnackBar(content: Text('Error de conexión: $e')),
+                                                    );
+                                                  }
                                                 },
-                                              );
-
-                                              if (response.statusCode == 204) {
-                                                ScaffoldMessenger.of(context)
-                                                    .showSnackBar(
-                                                  SnackBar(
-                                                      content: Text(
-                                                          'Actividad borrada con éxito')),
-                                                );
-                                                Navigator.pop(
-                                                    context); // Cierra el bottom sheet
-                                                _fetchActivities(0);
-                                              }
-                                            } catch (e) {
-                                              ScaffoldMessenger.of(context)
-                                                  .showSnackBar(
-                                                SnackBar(
-                                                    content: Text(
-                                                        'Error de conexión: $e')),
-                                              );
-                                            }
-                                          },
+                                              ),
+                                            ),
+                                            SizedBox(height: 10), // Espacio entre los botones
+                                            SizedBox(
+                                              width: double.infinity, // Hace que el botón ocupe todo el ancho
+                                              child: TextButton(
+                                                child: Text(
+                                                  'Cancelar',
+                                                  style: TextStyle(color: kGrey),
+                                                ),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop(); // Cierra el BottomSheet
+                                                },
+                                                style: TextButton.styleFrom(
+                                                  padding: EdgeInsets.symmetric(vertical: 15),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
-                                    );
-                                  });
+                                    ),
+                                  );
+                                },
+                              );
                             },
                           ),
                         ),

@@ -5,9 +5,9 @@ class Activity {
   final int numberOfQuestions;
   final int timesPlayed;
   final int maxScore;
-  final bool favorite;
+  bool favorite;
   final bool completed;
-  final bool private;
+  bool private;
   final bool rated;
   final String name;
   final int flashcardId;
