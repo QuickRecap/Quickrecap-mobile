@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickrecap/ui/constants/constants.dart';
@@ -18,10 +21,12 @@ class _GamesScreenState extends State<GamesScreen> {
   String? userId;
   List<Activity> activities = [];
   bool isLoading = false;
+  bool isDialogLoading = false;
   String? error;
   String _currentValue = 'Todos';
   String searchQuery = '';
   List<Activity> allActivities = []; // Lista para almacenar todas las actividades
+  String? isChangingPrivacyFor;
 
   @override
   void initState() {
@@ -83,7 +88,8 @@ class _GamesScreenState extends State<GamesScreen> {
 
   Future<void> _updateActivityPrivacy(Activity activity, bool privateValue) async {
     try {
-      final response = await http.put(
+      final response = await http
+          .put(
         Uri.parse('http://10.0.2.2:8000/quickrecap/activity/update/${activity.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
@@ -91,7 +97,8 @@ class _GamesScreenState extends State<GamesScreen> {
         body: jsonEncode(<String, dynamic>{
           'private': privateValue,
         }),
-      );
+      )
+          .timeout(Duration(seconds: 10)); // Configura el timeout aquí
 
       if (response.statusCode == 200) {
         setState(() {
@@ -102,22 +109,53 @@ class _GamesScreenState extends State<GamesScreen> {
           }
         });
       } else {
+        print('No pudimos cambiar la privacidad de esta actividad');
         _showErrorSnackBar('No pudimos cambiar la privacidad de esta actividad');
       }
+    } on TimeoutException catch (_) {
+      print('No pudimos cambiar la privacidad de esta actividad');
+      _showErrorSnackBar('La solicitud tardó demasiado, por favor intente de nuevo.');
+    } on SocketException catch (_) {
+      print('No pudimos cambiar la privacidad de esta actividad');
+      _showErrorSnackBar('Error de conexión. Verifique su conexión a internet.');
     } catch (e) {
-      _showErrorSnackBar('Error de conexión: $e');
+      print('No pudimos cambiar la privacidad de esta actividad');
+      _showErrorSnackBar('Ocurrió un error inesperado: $e');
     }
   }
 
+
   void _showErrorSnackBar(String message) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Color(0xffFFCFD0),
-        behavior: SnackBarBehavior.floating,
+    final overlay = Overlay.of(context);
+    final overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        bottom: 50.0,
+        left: 10.0,
+        right: 10.0,
+        child: Material(
+          color: Colors.transparent,
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+            decoration: BoxDecoration(
+              color: Color(0xff2d2d2d),
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            child: Text(
+              message,
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+        ),
       ),
     );
+
+    // Inserta la entrada en el overlay
+    overlay?.insert(overlayEntry);
+
+    // Ocultar el overlay después de 3 segundos
+    Future.delayed(Duration(seconds: 3), () {
+      overlayEntry.remove();
+    });
   }
 
   List<Activity> getFilteredActivities() {
@@ -599,6 +637,7 @@ class _GamesScreenState extends State<GamesScreen> {
 
   void _showOptionsBottomSheet(BuildContext context, Activity activity) {
     bool isFavorite = activity.favorite;
+    isDialogLoading=false;
 
         showModalBottomSheet(
       context: context,
@@ -801,9 +840,19 @@ class _GamesScreenState extends State<GamesScreen> {
                                                           height: 24,
                                                           decoration: BoxDecoration(
                                                             shape: BoxShape.circle,
-                                                            border: Border.all(color: Color(0xFF6D5BFF), width: 2),
+                                                            border: Border.all(color: Color(
+                                                                0xFFCEC6FF), width: 2),
                                                           ),
-                                                          child: !activity.private
+                                                          child: isDialogLoading && isChangingPrivacyFor == 'public'
+                                                              ? SizedBox(
+                                                            width: 16,
+                                                            height: 16,
+                                                            child: CircularProgressIndicator(
+                                                              strokeWidth: 2,
+                                                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6D5BFF)),
+                                                            ),
+                                                          )
+                                                              : !activity.private
                                                               ? Container(
                                                             decoration: BoxDecoration(
                                                               shape: BoxShape.circle,
@@ -814,8 +863,15 @@ class _GamesScreenState extends State<GamesScreen> {
                                                         ),
                                                         onTap: () async {
                                                           if (activity.private == true) {
+                                                            setModalState(() {
+                                                              isDialogLoading = true;
+                                                              isChangingPrivacyFor = 'public'; // Indicar que se está cambiando a público
+                                                            });
                                                             await _updateActivityPrivacy(activity, false);
-                                                            setModalState(() {}); // Actualiza el BottomSheet después del cambio
+                                                            setModalState(() {
+                                                              isDialogLoading = false;
+                                                              isChangingPrivacyFor = null; // Restablecer el estado
+                                                            });
                                                           }
                                                         },
                                                       ),
@@ -827,9 +883,18 @@ class _GamesScreenState extends State<GamesScreen> {
                                                           height: 24,
                                                           decoration: BoxDecoration(
                                                             shape: BoxShape.circle,
-                                                            border: Border.all(color: Color(0xFF6D5BFF), width: 2),
+                                                            border: Border.all(color: Color(0xFFCEC6FF), width: 2),
                                                           ),
-                                                          child: activity.private
+                                                          child: isDialogLoading && isChangingPrivacyFor == 'private'
+                                                              ? SizedBox(
+                                                            width: 16,
+                                                            height: 16,
+                                                            child: CircularProgressIndicator(
+                                                              strokeWidth: 2,
+                                                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6D5BFF)),
+                                                            ),
+                                                          )
+                                                              : activity.private
                                                               ? Container(
                                                             decoration: BoxDecoration(
                                                               shape: BoxShape.circle,
@@ -840,8 +905,15 @@ class _GamesScreenState extends State<GamesScreen> {
                                                         ),
                                                         onTap: () async {
                                                           if (activity.private == false) {
+                                                            setModalState(() {
+                                                              isDialogLoading = true;
+                                                              isChangingPrivacyFor = 'private'; // Indicar que se está cambiando a privado
+                                                            });
                                                             await _updateActivityPrivacy(activity, true);
-                                                            setModalState(() {}); // Actualiza el BottomSheet después del cambio
+                                                            setModalState(() {
+                                                              isDialogLoading = false;
+                                                              isChangingPrivacyFor = null; // Restablecer el estado
+                                                            });
                                                           }
                                                         },
                                                       ),
