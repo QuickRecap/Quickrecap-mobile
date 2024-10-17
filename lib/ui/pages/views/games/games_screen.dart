@@ -203,7 +203,8 @@ class _GamesScreenState extends State<GamesScreen> {
                               style: TextStyle(
                                 color: kWhite,
                                 fontSize: 26.sp,
-                                fontWeight: FontWeight.bold,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                             IconButton(
@@ -227,7 +228,7 @@ class _GamesScreenState extends State<GamesScreen> {
                             borderRadius: BorderRadius.circular(20.r),
                           ),
                           child: TextField(
-                            style: TextStyle(color: Colors.black),
+                            style: TextStyle(color: Colors.black,fontFamily: 'Poppins',),
                             decoration: InputDecoration(
                               hintText: 'Buscar',
                               border: InputBorder.none,
@@ -306,6 +307,7 @@ class _GamesScreenState extends State<GamesScreen> {
                                   dropdownColor: Colors.white,
                                   style: TextStyle(
                                       color: kDark,
+                                      fontFamily: 'Poppins',
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w500),
                                   items: <String>[
@@ -375,6 +377,7 @@ class _GamesScreenState extends State<GamesScreen> {
           style: TextStyle(
             color: kGrey2,
             fontSize: 16.sp,
+            fontFamily: 'Poppins',
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -401,7 +404,8 @@ class _GamesScreenState extends State<GamesScreen> {
                   activity.name,
                   style: TextStyle(
                     color: kGrey2,
-                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
                     fontSize: 16,
                   ),
                 ),
@@ -440,6 +444,7 @@ class _GamesScreenState extends State<GamesScreen> {
           style: TextStyle(
             color: kGrey2,
             fontSize: 16.sp,
+            fontFamily: 'Poppins',
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -468,7 +473,8 @@ class _GamesScreenState extends State<GamesScreen> {
                   activity.name,
                   style: TextStyle(
                     color: kGrey2,
-                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
                     fontSize: 16,
                   ),
                 ),
@@ -554,6 +560,7 @@ class _GamesScreenState extends State<GamesScreen> {
           style: TextStyle(
             color: kGrey2,
             fontSize: 16.sp,
+            fontFamily: 'Poppins',
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -578,7 +585,8 @@ class _GamesScreenState extends State<GamesScreen> {
                   activity.name,
                   style: TextStyle(
                     color: kGrey2,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Poppins',
                     fontSize: 16,
                   ),
                 ),
@@ -600,7 +608,8 @@ class _GamesScreenState extends State<GamesScreen> {
                         activity.maxScore.toString()+"/"+activity.numberOfQuestions.toString(),
                         style: TextStyle(
                           color: kPrimaryLight,
-                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w600,
                           fontSize: 16,
                         ),
                       ),
@@ -670,8 +679,9 @@ class _GamesScreenState extends State<GamesScreen> {
                           'Configuracion de la actividad',
                           style: TextStyle(
                             color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            fontFamily: 'Poppins',
+                            fontSize: 20,
                           ),
                         ),
                         SizedBox(width: 48),
@@ -778,7 +788,6 @@ class _GamesScreenState extends State<GamesScreen> {
                                 ),
                               ),
                               SizedBox(width: 20), // Espacio entre los elementos
-
                               // Segundo item (Ajustes de privacidad)
                               Expanded(
                                 flex: 40,
@@ -786,7 +795,6 @@ class _GamesScreenState extends State<GamesScreen> {
                                   onTap: () {
                                     // Cierra el bottom sheet actual antes de abrir el nuevo
                                     Navigator.of(context).pop();
-
                                     // Después de cerrar el bottom sheet, abre uno nuevo
                                     showModalBottomSheet(
                                       context: context,
@@ -801,23 +809,30 @@ class _GamesScreenState extends State<GamesScreen> {
                                               child: Column(
                                                 mainAxisSize: MainAxisSize.min,
                                                 children: [
-                                                  Row(
-                                                    mainAxisAlignment: MainAxisAlignment.end,
+                                                  Stack(
                                                     children: [
-                                                      IconButton(
-                                                        icon: Icon(Icons.close),
-                                                        onPressed: () => Navigator.pop(context),
+                                                      Align(
+                                                        alignment: Alignment.centerLeft, // Alinear el icono a la izquierda
+                                                        child: IconButton(
+                                                          icon: Icon(Icons.close),
+                                                          onPressed: () => Navigator.pop(context),
+                                                        ),
+                                                      ),
+                                                      Center(
+                                                        child: Padding(
+                                                          padding: const EdgeInsets.only(top: 10), // Ajusta este valor según necesites
+                                                          child: Text(
+                                                            'Ajustes de privacidad',
+                                                            style: TextStyle(
+                                                              color: Color(0XFF212121),
+                                                              fontFamily: 'Poppins',
+                                                              fontSize: 20,
+                                                              fontWeight: FontWeight.w600,
+                                                            ),
+                                                          ),
+                                                        ),
                                                       ),
                                                     ],
-                                                  ),
-                                                  Text(
-                                                    'Ajustes de privacidad',
-                                                    style: TextStyle(
-                                                      color: Color(0XFF212121),
-                                                      fontFamily: 'Poppins',
-                                                      fontSize: 24,
-                                                      fontWeight: FontWeight.w600,
-                                                    ),
                                                   ),
                                                   SizedBox(height: 15),
                                                   Text(
