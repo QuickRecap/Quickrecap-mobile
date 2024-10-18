@@ -446,6 +446,8 @@ class _PlayGapsState extends State<PlayGaps> {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 16),
+              SizedBox(height: 30),
+              SizedBox(height: 16),
             ],
           ),
         ),

@@ -5,8 +5,7 @@ import 'package:quickrecap/domain/entities/gaps_activity.dart';
 import 'custom_input.dart';
 import 'custom_select_input.dart';
 import '../../../../providers/gaps_provider.dart';
-import '../../../../../domain/entities/quiz_activity.dart';
-import '../../activities/quiz/play_quiz_activity.dart';
+import '../../activities/gaps/play_gaps.dart';
 
 class CreateGapsDialog extends StatefulWidget {
   final TextEditingController activityNameController;
@@ -341,12 +340,12 @@ class _CreateGapsDialogState extends State<CreateGapsDialog> {
                     onPressed: () {
                       if (_isSuccess && gapsActivity != null) {
                         // Navegamos a PlayQuizActivity, pasando la instancia de quizActivity
-                        /*Navigator.push(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => PlayQuizActivity(quizActivity: gapsActivity!), // Usamos el operador ! para indicar que no es nulo
+                            builder: (context) => PlayGaps(gapsActivity: gapsActivity!), // Usamos el operador ! para indicar que no es nulo
                           ),
-                        );*/
+                        );
                       }
                       else {
                         setState(() {
