@@ -4,6 +4,7 @@ import '../../../../domain/entities/pdf.dart';
 import '../../../../ui/pages/views/activities/quiz/results_quiz.dart';
 import 'widgets/create_quiz_dialog.dart';
 import 'widgets/create_flashcard_dialog.dart';
+import 'widgets/create_gaps_dialog.dart';
 import '../../../../domain/entities/activity_review.dart';
 
 class CreateScreen extends StatefulWidget {
@@ -156,6 +157,17 @@ class _CreateScreenState extends State<CreateScreen> {
     );
   }
 
+  void _showGapsConfigDialog(BuildContext context) {
+    CreateGapsDialog.show(
+      context,
+      activityNameController: activityNameController,
+      activityTypeController: activityTypeController,
+      activityTimeController: activityTimeController,
+      activityQuantityController: activityQuantityController,
+      selectedPdf: widget.selectedPdf,
+    );
+  }
+
   void _showFlashcardDialog(BuildContext context) {
     CreateFlashcardDialog.show(
       context,
@@ -191,6 +203,7 @@ class _CreateScreenState extends State<CreateScreen> {
             _showFlashcardDialog(context);
             break;
           case 'Gaps':
+            _showGapsConfigDialog(context);
             break;
           case 'Linkers':
           // Deja en blanco para estos casos

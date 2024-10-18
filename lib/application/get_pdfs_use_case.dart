@@ -1,4 +1,4 @@
-import 'package:quickrecap/domain/repositories/pdf_repository.dart';
+import '../domain/repositories/pdf_repository.dart';
 import '../domain/entities/pdf.dart';
 
 class GetPdfsUseCase {

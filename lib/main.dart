@@ -14,9 +14,11 @@ import 'application/save_pdf_use_case.dart';
 import 'application/register_use_case.dart';
 import 'application/password_use_case.dart';
 import 'application/support_use_case.dart';
+import 'application/get_activities_for_user_use_case.dart';
 import 'application/create_quiz_use_case.dart';
+import 'application/create_gaps_use_case.dart';
 import 'application/create_flashcard_use_case.dart';
-import 'application/get_pdfs_use_case.dart.dart';
+import 'application/get_pdfs_use_case.dart';
 import 'application/rating_activity_use_case.dart';
 import 'application/edit_profile_use_case.dart';
 import 'application/add_user_points_use_case.dart';
@@ -35,11 +37,13 @@ import 'ui/providers/upload_pdf_provider.dart';
 import 'ui/providers/register_provider.dart';
 import 'ui/providers/support_provider.dart';
 import 'ui/providers/quiz_provider.dart';
+import 'ui/providers/gaps_provider.dart';
 import 'ui/providers/flashcard_provider.dart';
 import 'ui/providers/rate_activity_provider.dart';
 import 'ui/providers/edit_profile_provider.dart';
 import 'ui/providers/password_provider.dart';
 import 'ui/providers/add_user_points_provider.dart';
+import 'ui/providers/get_activities_for_user_provider.dart';
 import 'ui/providers/get_pdfs_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -85,6 +89,9 @@ void main() async {
           create: (_) => QuizProvider(CreateQuizUseCase(ActivityRepositoryImpl(activityApi))),
         ),
         ChangeNotifierProvider(
+          create: (_) => GapsProvider(CreateGapsUseCase(ActivityRepositoryImpl(activityApi))),
+        ),
+        ChangeNotifierProvider(
           create: (_) => RateActivityProvider(RatingActivityUseCase(ActivityRepositoryImpl(activityApi))),
         ),
         ChangeNotifierProvider(
@@ -92,6 +99,9 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => AddUserPointsProvider(AddUserPointsUseCase(UserRepositoryImpl(userApi))),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => GetActivitiesForUserProvider(GetActivitiesForUserUseCase(ActivityRepositoryImpl(activityApi))),
         ),
       ],
       child: const MyApp(),

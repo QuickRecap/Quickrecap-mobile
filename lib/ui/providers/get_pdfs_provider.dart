@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import '../../application/get_pdfs_use_case.dart.dart';
+import '../../application/get_pdfs_use_case.dart';
 import '../../domain/entities/pdf.dart';
 
 class GetPdfsProvider extends ChangeNotifier {

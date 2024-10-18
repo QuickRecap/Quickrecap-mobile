@@ -1,14 +1,13 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickrecap/ui/constants/constants.dart';
-import '../../../../data/repositories/local_storage_service.dart';
-import '../../../../domain/entities/user.dart';
 import '../../../../domain/entities/activity.dart';
+import '../../../providers/get_activities_for_user_provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:provider/provider.dart';
 
 class GamesScreen extends StatefulWidget {
   const GamesScreen({super.key});
@@ -31,56 +30,29 @@ class _GamesScreenState extends State<GamesScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchUserId().then((_) {
-      _fetchActivities(0);
-    });
-  }
-
-  Future<void> _fetchUserId() async {
-    LocalStorageService localStorageService = LocalStorageService();
-    User? user = await localStorageService.getCurrentUser();
-
-    if (user != null) {
-      setState(() {
-        userId = user.id;
-      });
-    } else {
-      print('No se encontró el usuario.');
-    }
+    _fetchActivities(0);
   }
 
   Future<void> _fetchActivities(int tabIndex) async {
-    if (userId == null) return;
-
     setState(() {
       isLoading = true;
       error = null;
     });
 
-    String url = 'http://10.0.2.2:8000/quickrecap/activity/search/$userId';
-
-    if (tabIndex == 1) {
-      url += '?favorito=true';
-    }
-
     try {
-      final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
-        final List<dynamic> decodedData = json.decode(response.body);
+      // Llamada a la función de la API
+      final getActivitiesForUserProvider = Provider.of<GetActivitiesForUserProvider>(context, listen: false);
+      List<Activity>? activityList = await getActivitiesForUserProvider.getActivityListByUserId(tabIndex);
+      if (activityList != null) {
         setState(() {
-          allActivities = decodedData.map((json) => Activity.fromJson(json)).toList();
-          activities = List<Activity>.from(allActivities); // Ensure type safety
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          error = 'Error al cargar las actividades';
+          allActivities = activityList;
+          activities = List<Activity>.from(allActivities); // Aseguramos la seguridad del tipo
           isLoading = false;
         });
       }
     } catch (e) {
       setState(() {
-        error = 'Error de conexión: $e';
+        error = e.toString();
         isLoading = false;
       });
     }
