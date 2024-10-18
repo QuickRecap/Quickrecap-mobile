@@ -20,12 +20,47 @@ class _PlayGapsState extends State<PlayGaps> {
   int _remainingTime = 0;
   int _elapsedTime = 0;
   Timer? _timer;
+  List<String> draggableWords = [];
+  List<String> answerSlots = [];
+  List<String> correctAnswers = [];
 
   @override
   void initState() {
     super.initState();
     _remainingTime = widget.gapsActivity.timer;
     _startTimer();
+    _initializeGapExercise();
+  }
+
+  String calculateBlankSpace(List<String> options) {
+    // Encuentra la longitud de la palabra más larga
+    int maxLength = options.fold(0, (max, word) => word.length > max ? word.length : max);
+
+    // Agrega un poco de espacio extra para mejor presentación
+    int totalSpace = maxLength + 10;
+
+    // Crea una cadena de espacios invisibles
+    return '‎ ' * totalSpace;
+  }
+
+  void _initializeGapExercise() {
+    Gaps currentGap = widget.gapsActivity.gaps![_currentIndex];
+    List<String> textParts = currentGap.textWithGaps.split('&');
+
+    // Obtén todas las opciones correctas
+    List<String> allOptions = currentGap.answers.expand((answer) => answer.correctOptions).toList();
+
+    // Calcula el espacio en blanco basado en la palabra más larga
+    String blankSpace = calculateBlankSpace(allOptions);
+
+    answerSlots = List.generate(textParts.length - 1, (index) => blankSpace);
+
+    draggableWords = allOptions;
+    draggableWords.shuffle(); // Mezclar las palabras para que no estén en orden
+
+    correctAnswers = List.generate(currentGap.answers.length, (index) =>
+    currentGap.answers.firstWhere((answer) => answer.position == index).correctOptions[0]
+    );
   }
 
   void _startTimer() {
@@ -99,23 +134,40 @@ class _PlayGapsState extends State<PlayGaps> {
         _currentIndex++;
         _remainingTime = widget.gapsActivity.timer;
       });
+      _initializeGapExercise();
       _startTimer();
-    }else{
+    } else {
+      // Finalizar la actividad
       ActivityReview activityReview = ActivityReview(
-        activityId: 10,
+        activityId: widget.gapsActivity.id,
         activityType: "Gaps",
-        totalSeconds: _elapsedTime, // Enviar el tiempo transcurrido
+        totalSeconds: _elapsedTime,
         score: _score,
         questions: widget.gapsActivity.gaps!.length,
         correctAnswers: (_score / 100).toInt(),
       );
-      /*Navigator.push(
-      );*/
+      // Navegar a la pantalla de resultados
+      // Navigator.push(...);
     }
   }
 
   void _checkAnswer() {
+    bool allCorrect = true;
+    for (int i = 0; i < correctAnswers.length; i++) {
+      if (answerSlots[i] != correctAnswers[i]) {
+        allCorrect = false;
+        break;
+      }
+    }
 
+    if (allCorrect) {
+      setState(() {
+        _score += 100;
+      });
+      _showAnswerDialog(context, correct: true);
+    } else {
+      _showAnswerDialog(context, correct: false);
+    }
   }
 
   void _resetQuiz() {
@@ -126,6 +178,7 @@ class _PlayGapsState extends State<PlayGaps> {
       _score = 0;
     });
     _startTimer();
+    _initializeGapExercise();
   }
 
   void _showAnswerDialog(BuildContext context, {required bool correct}) {
@@ -349,9 +402,73 @@ class _PlayGapsState extends State<PlayGaps> {
     super.dispose();
   }
 
+  Widget _buildDraggableWord(String word) {
+    return Draggable<String>(
+      data: word,
+      child: Container(
+        padding: EdgeInsets.all(8),
+        margin: EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              spreadRadius: 1,
+              blurRadius: 2,
+              offset: Offset(0, 1),
+            ),
+          ],
+        ),
+        child: Text(word, style: TextStyle(fontFamily: 'Poppins',
+            color: Color(0xff212121))),
+      ),
+      feedback: Material(
+        child: Container(
+          padding: EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.8),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(word, style: TextStyle(
+              fontFamily: 'Poppins',
+            color: Color(0xff212121)
+          )),
+        ),
+      ),
+      childWhenDragging: Container(),
+    );
+  }
+
+  Widget _buildDragTarget(int index) {
+    return DragTarget<String>(
+      builder: (context, candidateData, rejectedData) {
+        return Container(
+          constraints: BoxConstraints(minWidth: 120), // Ancho mínimo
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            answerSlots[index],
+            style: TextStyle(fontFamily: 'Poppins', color: Color(0xff212121)),
+            textAlign: TextAlign.center,
+          ),
+        );
+      },
+      onAccept: (word) {
+        setState(() {
+          answerSlots[index] = word;
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Gaps currentGap = widget.gapsActivity.gaps![_currentIndex];
+    List<String> textParts = currentGap.textWithGaps.split('&');
 
     return Scaffold(
       backgroundColor: Color(0xFFF6F8FC),
@@ -446,8 +563,42 @@ class _PlayGapsState extends State<PlayGaps> {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 16),
+              // Draggable words
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: draggableWords.map((word) => _buildDraggableWord(word)).toList(),
+              ),
+
               SizedBox(height: 30),
-              SizedBox(height: 16),
+
+              // Texto con huecos
+              RichText(
+                text: TextSpan(
+                  style: TextStyle(fontSize: 16, color: Colors.black, fontFamily: 'Poppins'),
+                  children: List.generate(textParts.length * 2 - 1, (index) {
+                    if (index.isEven) {
+                      return TextSpan(text: textParts[index ~/ 2]);
+                    } else {
+                      return WidgetSpan(
+                        child: IntrinsicWidth(
+                          child: _buildDragTarget(index ~/ 2),
+                        ),
+                      );
+                    }
+                  }),
+                ),
+              ),
+              SizedBox(height: 30),
+
+              ElevatedButton(
+                child: Text('Continuar', style: TextStyle(fontFamily: 'Poppins')),
+                onPressed: _checkAnswer,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF6D5BFF),
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                ),
+              ),
             ],
           ),
         ),
