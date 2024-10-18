@@ -21,7 +21,7 @@ class _PlayGapsState extends State<PlayGaps> {
   int _elapsedTime = 0;
   Timer? _timer;
   List<String> draggableWords = [];
-  List<String> answerSlots = [];
+  List<String?> answerSlots = [];
   List<String> correctAnswers = [];
 
   @override
@@ -53,7 +53,7 @@ class _PlayGapsState extends State<PlayGaps> {
     // Calcula el espacio en blanco basado en la palabra más larga
     String blankSpace = calculateBlankSpace(allOptions);
 
-    answerSlots = List.generate(textParts.length - 1, (index) => blankSpace);
+    answerSlots = List.generate(textParts.length - 1, (index) => null);
 
     draggableWords = allOptions;
     draggableWords.shuffle(); // Mezclar las palabras para que no estén en orden
@@ -185,7 +185,7 @@ class _PlayGapsState extends State<PlayGaps> {
     _timer?.cancel();
     String message = correct ? "¡Buen Trabajo!" : "Oops, Tu respuesta no es correcta";
     String subMessage = "No te preocupes, sigue intentandolo";
-    String additionalMessage = correct ? "Excelente, continúa con la siguiente pregunta" : "";
+    String additionalMessage = correct ? "Excelente, continúa con la siguiente oracion" : "";
     Color backgroundColor = correct ? Color(0xFFBDFFC2) : Color(0xFFFFCFD0);
     Color textColor = correct ? Color(0xFF00C853) : Color(0xFFF44337);
     Color buttonTextColor = correct ? Color(0xFF00C853) : Color(0xFFF44337);
@@ -420,8 +420,11 @@ class _PlayGapsState extends State<PlayGaps> {
             ),
           ],
         ),
-        child: Text(word, style: TextStyle(fontFamily: 'Poppins',
-            color: Color(0xff212121))),
+        child: Text(word, style: TextStyle(
+            fontFamily: 'Poppins',
+            color: Color(0xff212121),
+            fontSize: 18,
+        )),
       ),
       feedback: Material(
         child: Container(
@@ -432,7 +435,7 @@ class _PlayGapsState extends State<PlayGaps> {
           ),
           child: Text(word, style: TextStyle(
               fontFamily: 'Poppins',
-            color: Color(0xff212121)
+              color: Color(0xff212121),
           )),
         ),
       ),
@@ -443,23 +446,35 @@ class _PlayGapsState extends State<PlayGaps> {
   Widget _buildDragTarget(int index) {
     return DragTarget<String>(
       builder: (context, candidateData, rejectedData) {
-        return Container(
-          constraints: BoxConstraints(minWidth: 120), // Ancho mínimo
-          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            color: Colors.grey[200],
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            answerSlots[index],
-            style: TextStyle(fontFamily: 'Poppins', color: Color(0xff212121)),
-            textAlign: TextAlign.center,
+        return GestureDetector(
+          onTap: () {
+            if (answerSlots[index] != null) {
+              setState(() {
+                draggableWords.add(answerSlots[index]!);
+                answerSlots[index] = null;
+              });
+            }
+          },
+          child: Container(
+            constraints: BoxConstraints(minWidth: 120),
+            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              color: answerSlots[index] != null ? Colors.white : Colors.grey[200],
+              borderRadius: BorderRadius.circular(8),
+              border: answerSlots[index] != null ? Border.all(color: Color(0xFF6D5BFF)) : null,
+            ),
+            child: Text(
+              answerSlots[index] ?? '',
+              style: TextStyle(fontFamily: 'Poppins', color: Color(0xff212121), fontSize: 18),
+              textAlign: TextAlign.center,
+            ),
           ),
         );
       },
       onAccept: (word) {
         setState(() {
           answerSlots[index] = word;
+          draggableWords.remove(word);
         });
       },
     );
@@ -532,7 +547,7 @@ class _PlayGapsState extends State<PlayGaps> {
               Row(
                 children: [
                   Text(
-                    "Pregunta ${_currentIndex + 1}",
+                    "Oracion ${_currentIndex + 1}",
                     style: TextStyle(
                       fontSize: 20,
                       fontFamily: 'Poppins',
@@ -547,16 +562,13 @@ class _PlayGapsState extends State<PlayGaps> {
                   ),
                 ],
               ),
-              SizedBox(height: 16),
-              Center(
-              ),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               Text(
                 _remainingTime > 0 ? "00:${_remainingTime.toString().padLeft(
                     2, '0')}" : "00:00",
                 style: TextStyle(
                   fontFamily: 'Poppins',
-                  fontSize: 27,
+                  fontSize: 40,
                   fontWeight: FontWeight.w600,
                   color: Color(0xff6D5BFF),
                 ),
@@ -564,35 +576,61 @@ class _PlayGapsState extends State<PlayGaps> {
               ),
               SizedBox(height: 16),
               // Draggable words
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: draggableWords.map((word) => _buildDraggableWord(word)).toList(),
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Color(0xFFF1F1F1), // Color de fondo
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                  ),
+                ),
+                constraints: BoxConstraints(
+                  minHeight: 70, // Ajusta este valor al tamaño mínimo deseado
+                ),
+                child: SingleChildScrollView(
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: draggableWords.map((word) => _buildDraggableWord(word)).toList(),
+                  ),
+                ),
               ),
-
-              SizedBox(height: 30),
-
-              // Texto con huecos
-              RichText(
-                text: TextSpan(
-                  style: TextStyle(fontSize: 16, color: Colors.black, fontFamily: 'Poppins'),
-                  children: List.generate(textParts.length * 2 - 1, (index) {
-                    if (index.isEven) {
-                      return TextSpan(text: textParts[index ~/ 2]);
-                    } else {
-                      return WidgetSpan(
-                        child: IntrinsicWidth(
-                          child: _buildDragTarget(index ~/ 2),
-                        ),
-                      );
-                    }
-                  }),
+              Container(
+                padding: EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white, // Color de fondo
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(15),
+                    bottomRight: Radius.circular(15),
+                  ),
+                ),
+                child: RichText(
+                  text: TextSpan(
+                    style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'Poppins',height: 1.9,),
+                    children: List.generate(textParts.length * 2 - 1, (index) {
+                      if (index.isEven) {
+                        return TextSpan(text: textParts[index ~/ 2]);
+                      } else {
+                        return WidgetSpan(
+                          child: IntrinsicWidth(
+                            child: _buildDragTarget(index ~/ 2),
+                          ),
+                        );
+                      }
+                    }),
+                  ),
                 ),
               ),
               SizedBox(height: 30),
 
               ElevatedButton(
-                child: Text('Continuar', style: TextStyle(fontFamily: 'Poppins')),
+                child: Text('Continuar', style: TextStyle(
+                    fontFamily: 'Poppins',
+                  color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                  fontSize: 20
+                )),
                 onPressed: _checkAnswer,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color(0xFF6D5BFF),

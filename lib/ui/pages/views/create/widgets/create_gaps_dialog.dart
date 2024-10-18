@@ -161,7 +161,7 @@ class _CreateGapsDialogState extends State<CreateGapsDialog> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Tiempo por pregunta: ',
+                      'Tiempo por oracion: ',
                       style: TextStyle(
                         color: Color(0xff585858),
                         fontSize: 14.sp,
@@ -192,7 +192,7 @@ class _CreateGapsDialogState extends State<CreateGapsDialog> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Numero de preguntas: ',
+                      'Numero de oraciones: ',
                       style: TextStyle(
                         color: Color(0xff585858),
                         fontSize: 14.sp,
@@ -204,7 +204,7 @@ class _CreateGapsDialogState extends State<CreateGapsDialog> {
                   const SizedBox(height: 10),
                   CustomSelectInput(
                     label: "Selecciona una opción",
-                    suffix: " preguntas",
+                    suffix: " oraciones",
                     value: widget.activityQuantityController.text.isEmpty ? null : widget.activityQuantityController.text,
                     options: ["15", "10", "8", "5"],
                     onChanged: (String? newValue) {
