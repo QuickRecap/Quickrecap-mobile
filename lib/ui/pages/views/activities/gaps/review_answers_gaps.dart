@@ -106,13 +106,16 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
       constraints: BoxConstraints(minWidth: 120),
       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: hasAnswer ? (isCorrect ? Colors.green[100] : Colors.red[100]) : Colors.white,
+        color: hasAnswer ? (isCorrect ? Color(0xffD7FBD9) : Color(0xffFFCFD0)) : Colors.white,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: hasAnswer ? (isCorrect ? Colors.green : Colors.red) : Color(0xFF6D5BFF)),
+        border: Border.all(color: hasAnswer ? (isCorrect ? Color(0xff00FF13) : Color(0xffFF0004)) : Color(0xFF6D5BFF)),
       ),
       child: Text(
         hasAnswer ? answerSlots[index]! : '',
-        style: TextStyle(fontFamily: 'Poppins', color: Color(0xff212121), fontSize: 18),
+        style: TextStyle(
+            fontFamily: 'Poppins',
+            color: hasAnswer ? (isCorrect ? Color(0xff00C70F) : Color(0xffFF0004)) : Color(0xff212121),
+            fontSize: 18),
         textAlign: TextAlign.center,
       ),
     );

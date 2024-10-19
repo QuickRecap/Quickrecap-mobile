@@ -103,15 +103,26 @@ class _PlayGapsState extends State<PlayGaps> {
             child: Column(
               mainAxisSize: MainAxisSize.min, // Ocupa el mínimo espacio necesario
               children: [
+                SizedBox(height: 13),
                 Text(
                   "Tiempo Agotado",
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 27,
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.w600,
                     color: Color(0xff212121), // Color del texto
                   ),
                   textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "¡Oops! Se acabó el tiempo...",
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 21,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xff727272),
+                  ),
                 ),
                 SizedBox(height: 20),
                 ElevatedButton(
@@ -121,9 +132,19 @@ class _PlayGapsState extends State<PlayGaps> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFF6D5BFF), // Color del botón
+                    padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0), // Padding del botón
                   ),
-                  child: Text("Continuar", style: TextStyle(fontFamily: 'Poppins',fontWeight: FontWeight.w500, color: Colors.white),),
+                  child: Text(
+                    "Continuar",
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
+                SizedBox(height: 20),
               ],
             ),
           ),
@@ -561,110 +582,135 @@ class _PlayGapsState extends State<PlayGaps> {
           ],
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(30.0, 1.0, 30.0, 16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  Text(
-                    "Oracion ${_currentIndex + 1}",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w500,
-                      color: Color(0xFF212121),
-                    ),
-                  ),
-                  Spacer(),
-                  IconButton(
-                    icon: Icon(Icons.pause, color: Color(0xFF212121)),
-                    onPressed: _pauseQuiz,
-                  ),
-                ],
-              ),
-              SizedBox(height: 10),
-              Text(
-                _remainingTime > 0 ? "00:${_remainingTime.toString().padLeft(
-                    2, '0')}" : "00:00",
-                style: TextStyle(
-                  fontFamily: 'Poppins',
-                  fontSize: 40,
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xff6D5BFF),
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 16),
-              // Draggable words
-              Container(
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Color(0xFFF1F1F1), // Color de fondo
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                ),
-                constraints: BoxConstraints(
-                  minHeight: 70, // Ajusta este valor al tamaño mínimo deseado
-                ),
-                child: SingleChildScrollView(
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: draggableWords.map((word) => _buildDraggableWord(word)).toList(),
-                  ),
-                ),
-              ),
-              Container(
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.white, // Color de fondo
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(15),
-                    bottomRight: Radius.circular(15),
-                  ),
-                ),
-                child: RichText(
-                  text: TextSpan(
-                    style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'Poppins',height: 1.9,),
-                    children: List.generate(textParts.length * 2 - 1, (index) {
-                      if (index.isEven) {
-                        return TextSpan(text: textParts[index ~/ 2]);
-                      } else {
-                        return WidgetSpan(
-                          child: IntrinsicWidth(
-                            child: _buildDragTarget(index ~/ 2),
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(30.0, 1.0, 30.0, 16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          "Oracion ${_currentIndex + 1}",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w500,
+                            color: Color(0xFF212121),
                           ),
-                        );
-                      }
-                    }),
-                  ),
+                        ),
+                        Spacer(),
+                        IconButton(
+                          icon: Icon(Icons.pause, color: Color(0xFF212121)),
+                          onPressed: _pauseQuiz,
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      _remainingTime > 0
+                          ? "00:${_remainingTime.toString().padLeft(2, '0')}"
+                          : "00:00",
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 40,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xff6D5BFF),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 16),
+                    // Contenedor con las palabras arrastrables
+                    Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Color(0xFFF1F1F1),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(20),
+                          topRight: Radius.circular(20),
+                        ),
+                      ),
+                      constraints: BoxConstraints(
+                        minHeight: 70,
+                      ),
+                      child: SingleChildScrollView(
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: draggableWords
+                              .map((word) => _buildDraggableWord(word))
+                              .toList(),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(15),
+                          bottomRight: Radius.circular(15),
+                        ),
+                      ),
+                      child: RichText(
+                        text: TextSpan(
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.black,
+                            fontFamily: 'Poppins',
+                            height: 1.9,
+                          ),
+                          children: List.generate(textParts.length * 2 - 1, (index) {
+                            if (index.isEven) {
+                              return TextSpan(text: textParts[index ~/ 2]);
+                            } else {
+                              return WidgetSpan(
+                                child: IntrinsicWidth(
+                                  child: _buildDragTarget(index ~/ 2),
+                                ),
+                              );
+                            }
+                          }),
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(left: 30.0, right: 30.0, bottom: 50.0, top: 50),
+                      child: SizedBox(
+                        width: 200.0, // Ancho deseado para el botón
+                        child: ElevatedButton(
+                          child: Text(
+                            'Enviar',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 23,
+                            ),
+                          ),
+                          onPressed: draggableWords.length == 0 ? () => _checkAnswer() : null,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF6D5BFF),
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(height: 30),
 
-              ElevatedButton(
-                child: Text('Continuar', style: TextStyle(
-                    fontFamily: 'Poppins',
-                  color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                  fontSize: 20
-                )),
-                onPressed: _checkAnswer,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF6D5BFF),
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                ),
               ),
-            ],
+            ),
           ),
-        ),
-      ),
+
+        ],
+      )
+
     );
   }
+
 
 }

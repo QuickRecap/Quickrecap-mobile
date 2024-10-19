@@ -71,15 +71,26 @@ class _PlayQuizState extends State<PlayQuiz> {
             child: Column(
               mainAxisSize: MainAxisSize.min, // Ocupa el mínimo espacio necesario
               children: [
+                SizedBox(height: 13),
                 Text(
                   "Tiempo Agotado",
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 27,
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.w600,
                     color: Color(0xff212121), // Color del texto
                   ),
                   textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 10),
+                Text(
+                  "¡Oops! Se acabó el tiempo...",
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 21,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xff727272),
+                  ),
                 ),
                 SizedBox(height: 20),
                 ElevatedButton(
@@ -88,10 +99,20 @@ class _PlayQuizState extends State<PlayQuiz> {
                     _nextQuiz(); // Ejecuta la siguiente acción
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: _primaryColor, // Color del botón
+                    backgroundColor: Color(0xFF6D5BFF), // Color del botón
+                    padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0), // Padding del botón
                   ),
-                  child: Text("Continuar", style: TextStyle(fontFamily: 'Poppins',fontWeight: FontWeight.w500, color: Colors.white),),
+                  child: Text(
+                    "Continuar",
+                    style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
+                SizedBox(height: 20),
               ],
             ),
           ),
