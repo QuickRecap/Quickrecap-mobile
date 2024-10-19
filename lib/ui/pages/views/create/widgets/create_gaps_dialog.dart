@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:quickrecap/domain/entities/gaps_activity.dart';
+import '../../activities/gaps/play_gaps_activity.dart';
 import 'custom_input.dart';
 import 'custom_select_input.dart';
 import '../../../../providers/gaps_provider.dart';
-import '../../activities/gaps/play_gaps.dart';
 
 class CreateGapsDialog extends StatefulWidget {
   final TextEditingController activityNameController;
@@ -343,7 +343,7 @@ class _CreateGapsDialogState extends State<CreateGapsDialog> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => PlayGaps(gapsActivity: gapsActivity!), // Usamos el operador ! para indicar que no es nulo
+                            builder: (context) => PlayGapsActivity(gapsActivity: gapsActivity!), // Usamos el operador ! para indicar que no es nulo
                           ),
                         );
                       }

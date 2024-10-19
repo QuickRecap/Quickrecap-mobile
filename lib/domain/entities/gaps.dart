@@ -2,11 +2,13 @@ class Gaps {
   String completeText;
   String textWithGaps;
   List<Answer> answers;
+  List<Answer>? selectAnswers;
 
   Gaps({
     required this.completeText,
     required this.textWithGaps,
     required this.answers,
+    this.selectAnswers,
   });
 
   // Método para crear una instancia de Gaps desde un JSON

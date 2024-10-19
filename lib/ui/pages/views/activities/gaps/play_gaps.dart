@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import '../../../../../domain/entities/gaps.dart';
 import '../../../../../domain/entities/gaps_activity.dart';
-import '../../../../pages/views/activities/quiz/results_quiz.dart';
+import '../../../../pages/views/activities/gaps/results_gaps.dart';
 import '../../../../../domain/entities/activity_review.dart';
 
 class PlayGaps extends StatefulWidget {
@@ -146,19 +146,37 @@ class _PlayGapsState extends State<PlayGaps> {
         questions: widget.gapsActivity.gaps!.length,
         correctAnswers: (_score / 100).toInt(),
       );
-      // Navegar a la pantalla de resultados
-      // Navigator.push(...);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ResultsGaps(
+            activityReview: activityReview,
+            gapsActivity: widget.gapsActivity,
+          ), // Usamos el operador ! para indicar que no es nulo
+        ),
+      );
     }
   }
 
   void _checkAnswer() {
     bool allCorrect = true;
+    List<Answer> selectedAnswers= [];
+
     for (int i = 0; i < correctAnswers.length; i++) {
+
+      if(answerSlots[i]!=null){
+        List<String> correctOptionsItem = [];
+        correctOptionsItem.add(answerSlots[i].toString());
+        Answer selectedAnswersItem= Answer(position: i, correctOptions: correctOptionsItem);
+        selectedAnswers.add(selectedAnswersItem);
+      }
+
       if (answerSlots[i] != correctAnswers[i]) {
         allCorrect = false;
-        break;
       }
     }
+
+    widget.gapsActivity.gaps![_currentIndex].selectAnswers=selectedAnswers;
 
     if (allCorrect) {
       setState(() {
@@ -170,12 +188,13 @@ class _PlayGapsState extends State<PlayGaps> {
     }
   }
 
-  void _resetQuiz() {
+  void _resetGaps() {
     setState(() {
       _currentIndex = 0;
       _remainingTime = widget.gapsActivity.timer;
       _elapsedTime = 0; // Reinicia el tiempo transcurrido
       _score = 0;
+      widget.gapsActivity.gaps![_currentIndex].selectAnswers=[];
     });
     _startTimer();
     _initializeGapExercise();
@@ -368,7 +387,7 @@ class _PlayGapsState extends State<PlayGaps> {
                       InkWell(
                         onTap: () {
                           Navigator.pop(context);
-                          _resetQuiz();
+                          _resetGaps();
                         },
                         child: Container(
                           width: 64,
