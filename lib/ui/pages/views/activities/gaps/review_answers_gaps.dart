@@ -30,6 +30,7 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
     if (_currentIndex < widget.gapsActivity.gaps!.length - 1) {
       setState(() {
         _currentIndex++;
+        _initializeGapExercise();
       });
     } else {
       Navigator.pop(context);
@@ -40,18 +41,14 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
     if (_currentIndex > 0) {
       setState(() {
         _currentIndex--;
+        _initializeGapExercise();
       });
     }
   }
 
   String calculateBlankSpace(List<String> options) {
-    // Encuentra la longitud de la palabra más larga
     int maxLength = options.fold(0, (max, word) => word.length > max ? word.length : max);
-
-    // Agrega un poco de espacio extra para mejor presentación
     int totalSpace = maxLength + 10;
-
-    // Crea una cadena de espacios invisibles
     return '‎ ' * totalSpace;
   }
 
@@ -59,102 +56,65 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
     Gaps currentGap = widget.gapsActivity.gaps![_currentIndex];
     List<String> textParts = currentGap.textWithGaps.split('&');
 
-    // Obtén todas las opciones correctas
-    List<String> allOptions = currentGap.answers.expand((answer) => answer.correctOptions).toList();
-
-    // Calcula el espacio en blanco basado en la palabra más larga
-    String blankSpace = calculateBlankSpace(allOptions);
-
-    answerSlots = List.generate(textParts.length - 1, (index) => null);
-
-    draggableWords = allOptions;
+    // Obtener todas las opciones correctas
+    draggableWords = currentGap.answers.expand((answer) => answer.correctOptions).toList();
     draggableWords.shuffle(); // Mezclar las palabras para que no estén en orden
 
-    correctAnswers = List.generate(currentGap.answers.length, (index) =>
-    currentGap.answers.firstWhere((answer) => answer.position == index).correctOptions[0]
-    );
-  }
+    // Inicializar answerSlots con las respuestas correctas
+    answerSlots = List.generate(currentGap.answers.length, (index) {
+      return index < currentGap.selectAnswers!.length
+          ? currentGap.selectAnswers![index].correctOptions[0]
+          : null;
+    });
 
-  @override
-  void dispose() {
-    super.dispose();
+    // Inicializar answerSlots con las respuestas correctas
+    correctAnswers = List.generate(currentGap.answers.length, (index) {
+      return currentGap.answers.firstWhere((answer) => answer.position == index).correctOptions[0];
+    });
+
   }
 
   Widget _buildDraggableWord(String word) {
-    return Draggable<String>(
-      data: word,
-      child: Container(
-        padding: EdgeInsets.all(8),
-        margin: EdgeInsets.all(4),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              spreadRadius: 1,
-              blurRadius: 2,
-              offset: Offset(0, 1),
-            ),
-          ],
-        ),
-        child: Text(word, style: TextStyle(
-          fontFamily: 'Poppins',
-          color: Color(0xff212121),
-          fontSize: 18,
-        )),
-      ),
-      feedback: Material(
-        child: Container(
-          padding: EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.8),
-            borderRadius: BorderRadius.circular(8),
+    return Container(
+      padding: EdgeInsets.all(8),
+      margin: EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 1,
+            blurRadius: 2,
+            offset: Offset(0, 1),
           ),
-          child: Text(word, style: TextStyle(
-            fontFamily: 'Poppins',
-            color: Color(0xff212121),
-          )),
-        ),
+        ],
       ),
-      childWhenDragging: Container(),
+      child: Text(word, style: TextStyle(
+        fontFamily: 'Poppins',
+        color: Color(0xff212121),
+        fontSize: 18,
+      )),
     );
   }
 
-  Widget _buildDragTarget(int index) {
-    return DragTarget<String>(
-      builder: (context, candidateData, rejectedData) {
-        return GestureDetector(
-          onTap: () {
-            if (answerSlots[index] != null) {
-              setState(() {
-                draggableWords.add(answerSlots[index]!);
-                answerSlots[index] = null;
-              });
-            }
-          },
-          child: Container(
-            constraints: BoxConstraints(minWidth: 120),
-            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: answerSlots[index] != null ? Colors.white : Colors.grey[200],
-              borderRadius: BorderRadius.circular(8),
-              border: answerSlots[index] != null ? Border.all(color: Color(0xFF6D5BFF)) : null,
-            ),
-            child: Text(
-              answerSlots[index] ?? '',
-              style: TextStyle(fontFamily: 'Poppins', color: Color(0xff212121), fontSize: 18),
-              textAlign: TextAlign.center,
-            ),
-          ),
-        );
-      },
-      onAccept: (word) {
-        setState(() {
-          answerSlots[index] = word;
-          draggableWords.remove(word);
-        });
-      },
+  Widget _buildAnswerSlot(int index) {
+    bool hasAnswer = index < answerSlots.length && answerSlots[index] != null;
+    bool isCorrect = hasAnswer && answerSlots[index] == correctAnswers[index];
+
+    return Container(
+      constraints: BoxConstraints(minWidth: 120),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: hasAnswer ? (isCorrect ? Colors.green[100] : Colors.red[100]) : Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: hasAnswer ? (isCorrect ? Colors.green : Colors.red) : Color(0xFF6D5BFF)),
+      ),
+      child: Text(
+        hasAnswer ? answerSlots[index]! : '',
+        style: TextStyle(fontFamily: 'Poppins', color: Color(0xff212121), fontSize: 18),
+        textAlign: TextAlign.center,
+      ),
     );
   }
 
@@ -225,7 +185,7 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
               Row(
                 children: [
                   Text(
-                    "Oracion ${_currentIndex + 1}",
+                    "Oración ${_currentIndex + 1}",
                     style: TextStyle(
                       fontSize: 20,
                       fontFamily: 'Poppins',
@@ -235,19 +195,19 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
                   ),
                 ],
               ),
-              SizedBox(height: 10),
+              SizedBox(height: 30),
               // Draggable words
               Container(
                 padding: EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Color(0xFFF1F1F1), // Color de fondo
+                  color: Color(0xFFF1F1F1),
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(20),
                     topRight: Radius.circular(20),
                   ),
                 ),
                 constraints: BoxConstraints(
-                  minHeight: 70, // Ajusta este valor al tamaño mínimo deseado
+                  minHeight: 70,
                 ),
                 child: SingleChildScrollView(
                   child: Wrap(
@@ -260,7 +220,7 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
               Container(
                 padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white, // Color de fondo
+                  color: Colors.white,
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(15),
                     bottomRight: Radius.circular(15),
@@ -268,14 +228,14 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
                 ),
                 child: RichText(
                   text: TextSpan(
-                    style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'Poppins',height: 1.9,),
+                    style: TextStyle(fontSize: 18, color: Colors.black, fontFamily: 'Poppins', height: 1.9,),
                     children: List.generate(textParts.length * 2 - 1, (index) {
                       if (index.isEven) {
                         return TextSpan(text: textParts[index ~/ 2]);
                       } else {
                         return WidgetSpan(
                           child: IntrinsicWidth(
-                            child: _buildDragTarget(index ~/ 2),
+                            child: _buildAnswerSlot(index ~/ 2),
                           ),
                         );
                       }
@@ -283,8 +243,6 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
                   ),
                 ),
               ),
-              SizedBox(height: 30),
-
               SizedBox(height: 30),
               Row(
                 children: [
@@ -295,7 +253,7 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
                       padding: EdgeInsets.symmetric(vertical: 16, horizontal: 40),
                       disabledBackgroundColor: Colors.grey[300],
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(17), // Ajusta el valor según tus necesidades
+                        borderRadius: BorderRadius.circular(17),
                       ),
                     ),
                     child: Text(
@@ -316,7 +274,7 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
                       padding: EdgeInsets.symmetric(vertical: 16, horizontal: 40),
                       disabledBackgroundColor: Colors.grey[300],
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(17), // Ajusta el valor según tus necesidades
+                        borderRadius: BorderRadius.circular(17),
                       ),
                     ),
                     child: Text(
@@ -338,5 +296,4 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
       ),
     );
   }
-
 }

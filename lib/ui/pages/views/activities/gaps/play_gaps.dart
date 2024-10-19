@@ -21,7 +21,7 @@ class _PlayGapsState extends State<PlayGaps> {
   int _elapsedTime = 0;
   Timer? _timer;
   List<String> draggableWords = [];
-  List<String?> answerSlots = [];
+  List<Answer?> answerSlots = [];
   List<String> correctAnswers = [];
 
   @override
@@ -53,7 +53,11 @@ class _PlayGapsState extends State<PlayGaps> {
     // Calcula el espacio en blanco basado en la palabra más larga
     String blankSpace = calculateBlankSpace(allOptions);
 
-    answerSlots = List.generate(textParts.length - 1, (index) => null);
+    // Inicializa answerSlots con la posición correcta de cada hueco
+    answerSlots = List.generate(
+      textParts.length - 1,
+          (index) => null,
+    );
 
     draggableWords = allOptions;
     draggableWords.shuffle(); // Mezclar las palabras para que no estén en orden
@@ -160,23 +164,23 @@ class _PlayGapsState extends State<PlayGaps> {
 
   void _checkAnswer() {
     bool allCorrect = true;
-    List<Answer> selectedAnswers= [];
+    List<Answer> selectedAnswers = [];
 
-    for (int i = 0; i < correctAnswers.length; i++) {
+    for (int i = 0; i < answerSlots.length; i++) {
+      if (answerSlots[i] != null) {
+        selectedAnswers.add(answerSlots[i]!);
 
-      if(answerSlots[i]!=null){
-        List<String> correctOptionsItem = [];
-        correctOptionsItem.add(answerSlots[i].toString());
-        Answer selectedAnswersItem= Answer(position: i, correctOptions: correctOptionsItem);
-        selectedAnswers.add(selectedAnswersItem);
-      }
-
-      if (answerSlots[i] != correctAnswers[i]) {
+        // Comprobar si la respuesta es correcta
+        if (answerSlots[i]!.correctOptions[0] != correctAnswers[i]) {
+          allCorrect = false;
+        }
+      } else {
+        // Si hay un hueco vacío, la respuesta no puede ser correcta
         allCorrect = false;
       }
     }
 
-    widget.gapsActivity.gaps![_currentIndex].selectAnswers=selectedAnswers;
+    widget.gapsActivity.gaps![_currentIndex].selectAnswers = selectedAnswers;
 
     if (allCorrect) {
       setState(() {
@@ -469,7 +473,7 @@ class _PlayGapsState extends State<PlayGaps> {
           onTap: () {
             if (answerSlots[index] != null) {
               setState(() {
-                draggableWords.add(answerSlots[index]!);
+                draggableWords.add(answerSlots[index]!.correctOptions[0]);
                 answerSlots[index] = null;
               });
             }
@@ -483,7 +487,7 @@ class _PlayGapsState extends State<PlayGaps> {
               border: answerSlots[index] != null ? Border.all(color: Color(0xFF6D5BFF)) : null,
             ),
             child: Text(
-              answerSlots[index] ?? '',
+              answerSlots[index]?.correctOptions[0] ?? '',
               style: TextStyle(fontFamily: 'Poppins', color: Color(0xff212121), fontSize: 18),
               textAlign: TextAlign.center,
             ),
@@ -492,7 +496,7 @@ class _PlayGapsState extends State<PlayGaps> {
       },
       onAccept: (word) {
         setState(() {
-          answerSlots[index] = word;
+          answerSlots[index] = Answer(position: index, correctOptions: [word]);
           draggableWords.remove(word);
         });
       },
