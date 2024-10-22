@@ -1,12 +1,14 @@
 class Gaps {
   String completeText;
   String textWithGaps;
+  List<String> incorrectAnswers;
   List<Answer> answers;
   List<Answer>? selectAnswers;
 
   Gaps({
     required this.completeText,
     required this.textWithGaps,
+    required this.incorrectAnswers,
     required this.answers,
     this.selectAnswers,
   });
@@ -16,6 +18,7 @@ class Gaps {
     return Gaps(
       completeText: json['texto_completo'],
       textWithGaps: json['texto_con_huecos'],
+      incorrectAnswers: List<String>.from(json['incorrectas'] ?? []),
       answers: List<Answer>.from(json['respuestas'].map((answer) => Answer.fromJson(answer))),
     );
   }

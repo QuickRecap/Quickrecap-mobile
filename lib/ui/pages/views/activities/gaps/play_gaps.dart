@@ -50,6 +50,11 @@ class _PlayGapsState extends State<PlayGaps> {
     // Obtén todas las opciones correctas
     List<String> allOptions = currentGap.answers.expand((answer) => answer.correctOptions).toList();
 
+    // Añade las opciones incorrectas a la lista de opciones disponibles
+    if (currentGap.incorrectAnswers != null && currentGap.incorrectAnswers!.isNotEmpty) {
+      allOptions.addAll(currentGap.incorrectAnswers!);
+    }
+
     // Calcula el espacio en blanco basado en la palabra más larga
     String blankSpace = calculateBlankSpace(allOptions);
 
@@ -691,7 +696,8 @@ class _PlayGapsState extends State<PlayGaps> {
                               fontSize: 23,
                             ),
                           ),
-                          onPressed: draggableWords.length == 0 ? () => _checkAnswer() : null,
+                          // Validamos que todos los espacios estén llenos verificando que no haya nulls en answerSlots
+                          onPressed: !answerSlots.contains(null) ? () => _checkAnswer() : null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xFF6D5BFF),
                             padding: EdgeInsets.symmetric(vertical: 12),

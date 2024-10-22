@@ -19,6 +19,8 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
   List<String> draggableWords = [];
   List<String?> answerSlots = [];
   List<String> correctAnswers = [];
+  bool isShowingCorrectAnswers = false;
+  late List<String?> userAnswers;  // Lista para las respuestas seleccionadas por el usuario
 
   @override
   void initState() {
@@ -58,20 +60,46 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
 
     // Obtener todas las opciones correctas
     draggableWords = currentGap.answers.expand((answer) => answer.correctOptions).toList();
-    draggableWords.shuffle(); // Mezclar las palabras para que no estén en orden
 
-    // Inicializar answerSlots con las respuestas correctas
-    answerSlots = List.generate(currentGap.answers.length, (index) {
-      return index < currentGap.selectAnswers!.length
+    // Agregar las opciones incorrectas si existen
+    if (currentGap.incorrectAnswers != null && currentGap.incorrectAnswers!.isNotEmpty) {
+      draggableWords.addAll(currentGap.incorrectAnswers!);
+    }
+
+    draggableWords.shuffle(); // Mezclar todas las palabras (correctas e incorrectas)
+
+    // Inicializar answerSlots con las respuestas marcadas
+    userAnswers = List.generate(currentGap.answers.length, (index) {
+      return currentGap.selectAnswers != null && index < currentGap.selectAnswers!.length
           ? currentGap.selectAnswers![index].correctOptions[0]
           : null;
     });
+    answerSlots = List.from(userAnswers);
 
-    // Inicializar answerSlots con las respuestas correctas
+    // Inicializar correctAnswers con las respuestas correctas
     correctAnswers = List.generate(currentGap.answers.length, (index) {
       return currentGap.answers.firstWhere((answer) => answer.position == index).correctOptions[0];
     });
+  }
 
+  // Función para alternar entre mostrar respuestas correctas o seleccionadas
+  // Función para alternar entre mostrar respuestas correctas o seleccionadas
+  void toggleShowCorrectAnswers() {
+    Gaps currentGap = widget.gapsActivity.gaps![_currentIndex];
+    setState(() {
+      isShowingCorrectAnswers = !isShowingCorrectAnswers;
+      if (isShowingCorrectAnswers) {
+        // Mostrar las respuestas correctas
+        answerSlots = List.generate(currentGap.answers.length, (index) {
+          return currentGap.answers != null && index < currentGap.answers!.length
+              ? currentGap.answers![index].correctOptions[0]
+              : null;
+        });
+      } else {
+        // Mostrar las respuestas seleccionadas por el usuario
+        answerSlots = List.from(userAnswers);
+      }
+    });
   }
 
   Widget _buildDraggableWord(String word) {
@@ -195,6 +223,14 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
                       fontWeight: FontWeight.w500,
                       color: Color(0xFF212121),
                     ),
+                  ),
+                  Spacer(),
+                  IconButton(
+                    icon: Icon(
+                      isShowingCorrectAnswers ? Icons.remove_red_eye_outlined : Icons.remove_red_eye,
+                      color: Color(0xFF212121),
+                    ),
+                    onPressed: toggleShowCorrectAnswers,
                   ),
                 ],
               ),
