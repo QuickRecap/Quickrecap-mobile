@@ -32,6 +32,7 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
     if (_currentIndex < widget.gapsActivity.gaps!.length - 1) {
       setState(() {
         _currentIndex++;
+        isShowingCorrectAnswers = false;
         _initializeGapExercise();
       });
     } else {

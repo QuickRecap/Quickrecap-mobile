@@ -16,6 +16,7 @@ import 'application/password_use_case.dart';
 import 'application/support_use_case.dart';
 import 'application/get_activities_for_user_use_case.dart';
 import 'application/create_quiz_use_case.dart';
+import 'application/create_linkers_use_case.dart';
 import 'application/create_gaps_use_case.dart';
 import 'application/create_flashcard_use_case.dart';
 import 'application/get_pdfs_use_case.dart';
@@ -38,6 +39,7 @@ import 'ui/providers/register_provider.dart';
 import 'ui/providers/support_provider.dart';
 import 'ui/providers/quiz_provider.dart';
 import 'ui/providers/gaps_provider.dart';
+import 'ui/providers/linkers_provider.dart';
 import 'ui/providers/flashcard_provider.dart';
 import 'ui/providers/rate_activity_provider.dart';
 import 'ui/providers/edit_profile_provider.dart';
@@ -96,6 +98,9 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => FlashcardProvider(CreateFlashcardUseCase(ActivityRepositoryImpl(activityApi))),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => LinkersProvider(CreateLinkersUseCase(ActivityRepositoryImpl(activityApi))),
         ),
         ChangeNotifierProvider(
           create: (_) => AddUserPointsProvider(AddUserPointsUseCase(UserRepositoryImpl(userApi))),

@@ -4,6 +4,7 @@ import '../../../../domain/entities/pdf.dart';
 import '../../../../ui/pages/views/activities/quiz/results_quiz.dart';
 import 'widgets/create_quiz_dialog.dart';
 import 'widgets/create_flashcard_dialog.dart';
+import 'widgets/create_linkers_dialog.dart';
 import 'widgets/create_gaps_dialog.dart';
 import '../../../../domain/entities/activity_review.dart';
 
@@ -168,6 +169,17 @@ class _CreateScreenState extends State<CreateScreen> {
     );
   }
 
+  void _showLinkersConfigDialog(BuildContext context) {
+    CreateLinkersDialog.show(
+      context,
+      activityNameController: activityNameController,
+      activityTypeController: activityTypeController,
+      activityTimeController: activityTimeController,
+      activityQuantityController: activityQuantityController,
+      selectedPdf: widget.selectedPdf,
+    );
+  }
+
   void _showFlashcardDialog(BuildContext context) {
     CreateFlashcardDialog.show(
       context,
@@ -206,7 +218,7 @@ class _CreateScreenState extends State<CreateScreen> {
             _showGapsConfigDialog(context);
             break;
           case 'Linkers':
-          // Deja en blanco para estos casos
+            _showLinkersConfigDialog(context);
             break;
           default:
           // Opcional: Manejar otros casos o errores

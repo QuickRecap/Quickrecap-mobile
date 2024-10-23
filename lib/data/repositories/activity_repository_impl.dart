@@ -1,5 +1,6 @@
 import 'package:quickrecap/domain/entities/activity.dart';
 import 'package:quickrecap/domain/entities/flashcard.dart';
+import 'package:quickrecap/domain/entities/linkers_activity.dart';
 import 'package:quickrecap/domain/entities/gaps_activity.dart';
 import 'package:quickrecap/domain/entities/quiz_activity.dart';
 import 'package:quickrecap/domain/entities/flashcard_activity.dart';
@@ -20,6 +21,11 @@ class ActivityRepositoryImpl implements ActivityRepository{
   @override
   Future<QuizActivity?> createQuiz(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
     return await activityApi.createQuiz(activityName, activityTimer, activityQuantity, pdfUrl);
+  }
+
+  @override
+  Future<LinkersActivity?> createLinkers(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
+    return await activityApi.createLinkers(activityName, activityTimer, activityQuantity, pdfUrl);
   }
 
   @override
