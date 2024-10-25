@@ -11,10 +11,10 @@ class PlayLinkers extends StatefulWidget {
   PlayLinkers({required this.linkersActivity});
 
   @override
-  _PlayGapsState createState() => _PlayGapsState();
+  _PlayLinkersState createState() => _PlayLinkersState();
 }
 
-class _PlayGapsState extends State<PlayLinkers> {
+class _PlayLinkersState extends State<PlayLinkers> {
   int _currentIndex = 0;
   int _score = 0;
   int _remainingTime = 0;
@@ -442,8 +442,7 @@ class _PlayGapsState extends State<PlayLinkers> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 13.0, vertical: 4.0),
+                padding: const EdgeInsets.symmetric(horizontal: 13.0, vertical: 4.0),
                 decoration: BoxDecoration(
                   color: Color(0xff6D5BFF),
                   borderRadius: BorderRadius.circular(12.0),
@@ -465,15 +464,15 @@ class _PlayGapsState extends State<PlayLinkers> {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.fromLTRB(30.0, 1.0, 30.0, 16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 30.0),
+                      child: Row(
                         children: [
                           Text(
-                            "Oracion ${_currentIndex + 1}",
+                            "Pregunta ${_currentIndex + 1}",
                             style: TextStyle(
                               fontSize: 20,
                               fontFamily: 'Poppins',
@@ -488,53 +487,187 @@ class _PlayGapsState extends State<PlayLinkers> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 10),
-                      Text(
-                        _remainingTime > 0
-                            ? "00:${_remainingTime.toString().padLeft(2, '0')}"
-                            : "00:00",
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      _remainingTime > 0
+                          ? "00:${_remainingTime.toString().padLeft(2, '0')}"
+                          : "00:00",
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 40,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xff6D5BFF),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: 30),
+                    // Contenedor de las columnas sin padding horizontal
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Columna de palabras (izquierda)
+                        Expanded(
+                          child: Column(
+                            children: currentLinker.linkerItems.map((item) {
+                              return Container(
+                                width: double.infinity,
+                                margin: EdgeInsets.only(bottom: 15),
+                                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Color(0xFF6D5BFF), width: 1),
+                                  borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(15),
+                                    bottomRight: Radius.circular(15),
+                                  ),
+                                  color: Colors.white,
+                                ),
+                                child: Text(
+                                  item.wordItem.content,
+                                  style: TextStyle(
+                                    fontFamily: 'Poppins',
+                                    fontSize: 16,
+                                    color: Color(0xFF212121),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                        // Columna de definiciones (derecha)
+                        Expanded(
+                          child: Column(
+                            children: currentLinker.linkerItems.map((item) {
+                              return GestureDetector(
+                                onLongPress: () => _showDefinitionDialog(item.definitionItem.content),
+                                child: Container(
+                                  width: double.infinity,
+                                  margin: EdgeInsets.only(bottom: 15),
+                                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(color: Color(0xFF6D5BFF), width: 1),
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: Radius.circular(15),
+                                      bottomLeft: Radius.circular(15),
+                                    ),
+                                    color: Colors.white,
+                                  ),
+                                  child: Text(
+                                    "...",
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: 16,
+                                      color: Color(0xFF212121),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 30),
+                    Center(
+                      child: Text(
+                        "Pulsa los items para conectar",
                         style: TextStyle(
                           fontFamily: 'Poppins',
-                          fontSize: 40,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xff6D5BFF),
+                          fontSize: 16,
+                          color: Color(0xFF727272),
                         ),
-                        textAlign: TextAlign.center,
                       ),
-                      SizedBox(height: 16),
-                      Padding(
-                        padding: EdgeInsets.only(left: 30.0, right: 30.0, bottom: 50.0, top: 50),
-                        child: SizedBox(
-                          width: 200.0, // Ancho deseado para el botón
-                          child: ElevatedButton(
-                            child: Text(
-                              'Enviar',
-                              style: TextStyle(
-                                fontFamily: 'Poppins',
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 23,
-                              ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(30.0),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          child: Text(
+                            'Continuar',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 23,
                             ),
-                            // Validamos que todos los espacios estén llenos verificando que no haya nulls en answerSlots
-                            onPressed:()=>{},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF6D5BFF),
-                              padding: EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          onPressed: _checkAnswer,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF6D5BFF),
+                            padding: EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
                             ),
                           ),
                         ),
                       ),
-                    ],
-                  ),
-
+                    ),
+                  ],
                 ),
               ),
             ),
-
           ],
         )
+    );
+  }
 
+// Método para mostrar el diálogo con la definición completa
+  void _showDefinitionDialog(String definition) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Definición A',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF212121),
+                ),
+              ),
+              SizedBox(height: 10),
+              Text(
+                definition,
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 16,
+                  color: Color(0xFF212121),
+                ),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(
+                  'Cerrar',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF6D5BFF),
+                  minimumSize: Size(double.infinity, 45),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 

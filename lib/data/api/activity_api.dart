@@ -147,7 +147,10 @@ class ActivityApi {
 
         List<Linkers> linkers = (data['linkers'] as List)
             .asMap()
-            .map((index, linkersJson) => MapEntry(index, Linkers.fromJson(linkersJson, index)))
+            .map((index, linkersJson) => MapEntry(
+          index,
+          Linkers.fromJson(linkersJson, index),
+        ))
             .values
             .toList();
 
