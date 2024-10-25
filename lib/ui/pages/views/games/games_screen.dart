@@ -96,7 +96,6 @@ class _GamesScreenState extends State<GamesScreen> {
     }
   }
 
-
   void _showErrorSnackBar(String message) {
     final overlay = Overlay.of(context);
     final overlayEntry = OverlayEntry(
@@ -596,7 +595,6 @@ class _GamesScreenState extends State<GamesScreen> {
     );
   }
 
-
   void _removeActivityById(int activityId) {
     setState(() {
       allActivities.removeWhere((activity) => activity.id == activityId);
@@ -614,7 +612,6 @@ class _GamesScreenState extends State<GamesScreen> {
       activity.favorite = true; // Cambiamos favorite porque ya no es final
     });
   }
-
 
   void _showOptionsBottomSheet(BuildContext context, Activity activity) {
     bool isFavorite = activity.favorite;
