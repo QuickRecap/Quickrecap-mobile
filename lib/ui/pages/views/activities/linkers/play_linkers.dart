@@ -565,33 +565,38 @@ class LinePainter extends CustomPainter {
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
-    // Calculamos el espacio total disponible y la altura de cada contenedor
-    final containerHeight = 70.0; // Altura del contenedor + margen inferior (35)
-    final containerWidth = size.width * 0.35; // 35% del ancho total
-    final gap = size.width * 0.3; // 30% del ancho para el espacio entre contenedores
+    // Ajustamos las medidas para coincidir con el layout
+    final containerHeight = 100.0; // Altura total incluyendo el margen
+    final containerActualHeight = 70.0; // Altura real del contenedor
+    final containerWidth = size.width * 0.35;
+    final gap = size.width * 0.3;
 
-    // Calculamos los puntos de inicio y fin
-    final startY = (containerHeight * startIndex) + (containerHeight / 2) + 20; // Añadimos offset vertical
-    final endY = (containerHeight * endIndex) + (containerHeight / 2) + 20; // Añadimos offset vertical
+    // Calculamos la posición Y considerando el margen superior inicial y la altura del contenedor
+    final startY = (startIndex * containerHeight) + (containerActualHeight / 2);
+    final endY = (endIndex * containerHeight) + (containerActualHeight / 2);
 
-    // Punto de inicio (desde el borde derecho del contenedor izquierdo)
+    // Definimos los puntos de inicio y fin
     final startPoint = Offset(containerWidth, startY);
-    
-    // Punto final (desde el borde izquierdo del contenedor derecho)
     final endPoint = Offset(size.width - containerWidth, endY);
 
     // Dibujamos la línea
     final path = Path();
     path.moveTo(startPoint.dx, startPoint.dy);
-    
-    // Creamos una curva suave entre los puntos
-    final controlPoint1 = Offset(startPoint.dx + gap / 3, startPoint.dy);
-    final controlPoint2 = Offset(endPoint.dx - gap / 3, endY);
-    
+
+    // Puntos de control para la curva
+    final controlPoint1 = Offset(
+        startPoint.dx + gap * 0.5,
+        startY
+    );
+    final controlPoint2 = Offset(
+        endPoint.dx - gap * 0.5,
+        endY
+    );
+
     path.cubicTo(
-      controlPoint1.dx, controlPoint1.dy,
-      controlPoint2.dx, controlPoint2.dy,
-      endPoint.dx, endPoint.dy
+        controlPoint1.dx, controlPoint1.dy,
+        controlPoint2.dx, controlPoint2.dy,
+        endPoint.dx, endPoint.dy
     );
 
     canvas.drawPath(path, paint);
