@@ -565,33 +565,33 @@ class LinePainter extends CustomPainter {
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
 
-    // Constantes de layout
-    final containerHeight = 65.0; // Altura del contenedor + margen inferior (30 + 35)
-    final containerWidth = size.width * 0.35; // Ancho del contenedor (35% del ancho total)
-    final horizontalGap = 70.0; // Espacio entre columnas
-    final leftPadding = 20.0; // Padding izquierdo
-    final rightPadding = 20.0; // Padding derecho
+    // Calculamos el espacio total disponible y la altura de cada contenedor
+    final containerHeight = 70.0; // Altura del contenedor + margen inferior (35)
+    final containerWidth = size.width * 0.35; // 35% del ancho total
+    final gap = size.width * 0.3; // 30% del ancho para el espacio entre contenedores
 
-    // Calcular las coordenadas de inicio (columna izquierda)
-    final startX = leftPadding + containerWidth;
-    final startY = (containerHeight * startIndex) + (containerHeight / 2);
+    // Calculamos los puntos de inicio y fin
+    final startY = (containerHeight * startIndex) + (containerHeight / 2) + 20; // Añadimos offset vertical
+    final endY = (containerHeight * endIndex) + (containerHeight / 2) + 20; // Añadimos offset vertical
 
-    // Calcular las coordenadas de fin (columna derecha)
-    final endX = size.width - rightPadding - containerWidth;
-    final endY = (containerHeight * endIndex) + (containerHeight / 2);
+    // Punto de inicio (desde el borde derecho del contenedor izquierdo)
+    final startPoint = Offset(containerWidth, startY);
+    
+    // Punto final (desde el borde izquierdo del contenedor derecho)
+    final endPoint = Offset(size.width - containerWidth, endY);
 
-    // Dibujar la línea con una curva suave
+    // Dibujamos la línea
     final path = Path();
-    path.moveTo(startX, startY);
-
-    // Puntos de control para la curva Bezier
-    final controlPoint1X = startX + horizontalGap / 3;
-    final controlPoint2X = endX - horizontalGap / 3;
-
+    path.moveTo(startPoint.dx, startPoint.dy);
+    
+    // Creamos una curva suave entre los puntos
+    final controlPoint1 = Offset(startPoint.dx + gap / 3, startPoint.dy);
+    final controlPoint2 = Offset(endPoint.dx - gap / 3, endY);
+    
     path.cubicTo(
-      controlPoint1X, startY,
-      controlPoint2X, endY,
-      endX, endY,
+      controlPoint1.dx, controlPoint1.dy,
+      controlPoint2.dx, controlPoint2.dy,
+      endPoint.dx, endPoint.dy
     );
 
     canvas.drawPath(path, paint);

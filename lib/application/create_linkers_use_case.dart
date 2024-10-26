@@ -1,6 +1,5 @@
 import '../domain/entities/linkers_activity.dart';
 import '../domain/repositories/activity_repository.dart';
-import '../domain/entities/linkers_activity.dart';
 
 class CreateLinkersUseCase {
   final ActivityRepository activityRepository;

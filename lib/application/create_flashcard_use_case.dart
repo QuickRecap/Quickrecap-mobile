@@ -1,6 +1,5 @@
 import '../domain/entities/flashcard_activity.dart';
 import '../domain/repositories/activity_repository.dart';
-import '../domain/entities/flashcard.dart';
 
 class CreateFlashcardUseCase {
   final ActivityRepository activityRepository;

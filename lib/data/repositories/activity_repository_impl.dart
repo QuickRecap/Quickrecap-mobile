@@ -1,5 +1,4 @@
 import 'package:quickrecap/domain/entities/activity.dart';
-import 'package:quickrecap/domain/entities/flashcard.dart';
 import 'package:quickrecap/domain/entities/linkers_activity.dart';
 import 'package:quickrecap/domain/entities/gaps_activity.dart';
 import 'package:quickrecap/domain/entities/quiz_activity.dart';

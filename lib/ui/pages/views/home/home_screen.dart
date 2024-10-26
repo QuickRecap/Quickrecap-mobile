@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:quickrecap/data/api/home_api.dart';
+import 'package:quickrecap/domain/entities/home.dart';
 import 'package:quickrecap/ui/constants/constants.dart';
 import 'package:quickrecap/ui/common/custom_container.dart';
+import 'package:quickrecap/ui/controllers/tab_index_controller.dart';
+import 'package:quickrecap/ui/pages/entrypoint.dart';
+import 'package:quickrecap/ui/pages/views/create/create_screen.dart';
+import 'package:quickrecap/ui/pages/views/home/all_activities_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,6 +19,24 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final HomeApi _homeService = HomeApi();
+  HomeStats? _stats;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    try {
+      final stats = await _homeService.getHomeStats();
+      setState(() {
+        _stats = stats;
+      });
+    } catch (e) {}
+  }
+
   final List<Map<String, String>> topActivities = [
     {'name': 'Quiz de Derecho Penal', 'play_count': '99'},
     {'name': 'Gaps de Derecho Procesal', 'play_count': '76'},
@@ -30,7 +56,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Stack(
         children: [
           Container(
-            height: 230.h,
+            height: 225.h,
             decoration: BoxDecoration(
               color: kPrimary,
               image: DecorationImage(
@@ -46,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 15.h),
+                    SizedBox(height: 25.h),
                     // Header with avatar and greeting
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -123,23 +149,24 @@ class _HomeScreenState extends State<HomeScreen> {
                               _buildStatItem(
                                 title: "Actividades",
                                 icon: Icons.sports_esports,
-                                value: "125",
+                                value:
+                                    _stats?.totalActividades.toString() ?? "0",
                               ),
                               _buildStatItem(
                                 title: "PDF's",
                                 icon: Icons.description,
-                                value: "72",
+                                value: _stats?.totalArchivos.toString() ?? "0",
                               ),
                               _buildStatItem(
                                 title: "Usuarios",
                                 icon: Icons.person,
-                                value: "100",
+                                value: _stats?.totalUsuarios.toString() ?? "0",
                               ),
                             ],
                           ),
                           SizedBox(height: 15.h),
                           Text(
-                            "Empieza a crear tus propias actividades!",
+                            "Empieza ahora a crear tus propias actividades!",
                             style: TextStyle(
                               fontSize: 15.sp,
                               color: kGrey2,
@@ -147,11 +174,12 @@ class _HomeScreenState extends State<HomeScreen> {
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          SizedBox(height: 10.h),
                           Align(
                             alignment: Alignment.centerRight,
                             child: ElevatedButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Get.find<TabIndexController>().tabIndex = 2;
+                              },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: kPrimary,
                                 padding: EdgeInsets.symmetric(
@@ -189,7 +217,15 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         GestureDetector(
-                          onTap: () {},
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const AllActivitiesScreen(),
+                              ),
+                            );
+                          },
                           child: Row(
                             children: [
                               Text(
@@ -317,34 +353,36 @@ class _HomeScreenState extends State<HomeScreen> {
     required IconData icon,
     required String value,
   }) {
-    return Column(
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 14.sp,
-            color: kGrey2,
-            fontFamily: 'Poppins',
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        SizedBox(height: 7.h),
-        Row(
-          children: [
-            Icon(icon, color: kPrimary, size: 24.sp),
-            SizedBox(width: 5.w),
-            Text(
-              value,
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: kGrey2,
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.w500,
-              ),
+    return Container(
+      child: Column(
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: kGrey2,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w500,
             ),
-          ],
-        ),
-      ],
+          ),
+          SizedBox(height: 7.h),
+          Row(
+            children: [
+              Icon(icon, color: kPrimary, size: 24.sp),
+              SizedBox(width: 5.w),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: kGrey2,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -358,14 +396,6 @@ class _HomeScreenState extends State<HomeScreen> {
       decoration: BoxDecoration(
         color: kWhite,
         borderRadius: BorderRadius.circular(15.r),
-        boxShadow: [
-          BoxShadow(
-            color: kDark.withOpacity(0.1),
-            spreadRadius: 1,
-            blurRadius: 5,
-            offset: Offset(0, 2),
-          ),
-        ],
       ),
       child: Padding(
         padding: EdgeInsets.symmetric(
@@ -375,16 +405,15 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Icon(
               icon,
-              size: 32.sp, // Reducimos ligeramente el tamaño del icono
+              size: 32.sp,
               color: kDark,
             ),
-            SizedBox(
-                height: 6.h), // Reducimos el espacio entre el icono y el texto
+            SizedBox(height: 6.h),
             Text(
               name,
               style: TextStyle(
                 color: kGrey2,
-                fontSize: 13.sp, // Ajustamos ligeramente el tamaño del texto
+                fontSize: 13.sp,
                 fontFamily: 'Poppins',
                 fontWeight: FontWeight.w500,
               ),

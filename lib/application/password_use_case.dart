@@ -1,4 +1,3 @@
-import '../domain/entities/user.dart';
 import '../domain/repositories/user_repository.dart';
 
 class PasswordUseCase {
