@@ -32,19 +32,25 @@ class _PlayLinkersState extends State<PlayLinkers> {
     super.initState();
     _remainingTime = widget.linkersActivity.timer;
     _startTimer();
-    _initializeGapExercise();
+    _initializeLinkerExercise();
     // Inicializar las conexiones vacías
     connections = [];
   }
 
-  // Método para manejar la selección de words
+  // Método modificado para manejar la selección de words
   void _handleWordSelection(int index) {
     setState(() {
-      if (selectedWordIndex == index) {
-        // Si se selecciona la misma word, deseleccionar
-        selectedWordIndex = null;
-        // Si tiene una conexión, eliminarla
+      // Verificar si el word está conectado
+      final existingConnection = connections.firstWhere(
+            (connection) => connection['wordIndex'] == index,
+        orElse: () => {},
+      );
+
+      if (existingConnection.isNotEmpty) {
+        // Si está conectado, eliminar la conexión
         connections.removeWhere((connection) => connection['wordIndex'] == index);
+        selectedWordIndex = null;
+        selectedDefinitionIndex = null;
       } else {
         if (selectedDefinitionIndex != null) {
           // Si hay una definición seleccionada, crear conexión
@@ -60,14 +66,20 @@ class _PlayLinkersState extends State<PlayLinkers> {
     });
   }
 
-  // Método para manejar la selección de definitions
+  // Método modificado para manejar la selección de definitions
   void _handleDefinitionSelection(int index) {
     setState(() {
-      if (selectedDefinitionIndex == index) {
-        // Si se selecciona la misma definition, deseleccionar
-        selectedDefinitionIndex = null;
-        // Si tiene una conexión, eliminarla
+      // Verificar si la definition está conectada
+      final existingConnection = connections.firstWhere(
+            (connection) => connection['definitionIndex'] == index,
+        orElse: () => {},
+      );
+
+      if (existingConnection.isNotEmpty) {
+        // Si está conectada, eliminar la conexión
         connections.removeWhere((connection) => connection['definitionIndex'] == index);
+        selectedWordIndex = null;
+        selectedDefinitionIndex = null;
       } else {
         if (selectedWordIndex != null) {
           // Si hay una word seleccionada, crear conexión
@@ -98,8 +110,13 @@ class _PlayLinkersState extends State<PlayLinkers> {
     });
   }
 
-  void _initializeGapExercise() {
-
+  void _initializeLinkerExercise() {
+    // Limpiar las conexiones al inicializar
+    setState(() {
+      connections = [];
+      selectedWordIndex = null;
+      selectedDefinitionIndex = null;
+    });
   }
 
   void _startTimer() {
@@ -125,8 +142,12 @@ class _PlayLinkersState extends State<PlayLinkers> {
       setState(() {
         _currentIndex++;
         _remainingTime = widget.linkersActivity.timer;
+        // Limpiar las conexiones al pasar al siguiente ejercicio
+        connections = [];
+        selectedWordIndex = null;
+        selectedDefinitionIndex = null;
       });
-      _initializeGapExercise();
+      _initializeLinkerExercise();
       _startTimer();
     } else {
       // Finalizar la actividad
@@ -144,7 +165,7 @@ class _PlayLinkersState extends State<PlayLinkers> {
           builder: (context) => ResultsGaps(
             activityReview: activityReview,
             gapsActivity: widget.linkersActivity,
-          ), // Usamos el operador ! para indicar que no es nulo
+          ),
         ),
       );*/
     }
@@ -180,7 +201,7 @@ class _PlayLinkersState extends State<PlayLinkers> {
       _score = 0;
     });
     _startTimer();
-    _initializeGapExercise();
+    _initializeLinkerExercise();
   }
 
   void _pauseQuiz() {
@@ -562,7 +583,7 @@ class LinePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = color
-      ..strokeWidth = 2
+      ..strokeWidth = 2.5
       ..style = PaintingStyle.stroke;
 
     // Ajustamos las medidas para coincidir con el layout

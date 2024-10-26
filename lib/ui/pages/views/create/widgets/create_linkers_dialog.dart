@@ -177,7 +177,7 @@ class _CreateLinkersDialogState extends State<CreateLinkersDialog> {
                     label: "Selecciona una opción",
                     suffix: " segundos",
                     value: widget.activityTimeController.text.isEmpty ? null : widget.activityTimeController.text,
-                    options: ["30", "20", "10", "5", "3"],
+                    options: ["60", "40", "30", "20", "10"],
                     onChanged: (String? newValue) {
                       setState(() {
                         widget.activityTimeController.text = newValue ?? '';
@@ -194,7 +194,7 @@ class _CreateLinkersDialogState extends State<CreateLinkersDialog> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Numero de oraciones: ',
+                      'Numero de linkers: ',
                       style: TextStyle(
                         color: Color(0xff585858),
                         fontSize: 14.sp,
@@ -206,9 +206,9 @@ class _CreateLinkersDialogState extends State<CreateLinkersDialog> {
                   const SizedBox(height: 10),
                   CustomSelectInput(
                     label: "Selecciona una opción",
-                    suffix: " oraciones",
+                    suffix: " linkers",
                     value: widget.activityQuantityController.text.isEmpty ? null : widget.activityQuantityController.text,
-                    options: ["15", "10", "8", "5"],
+                    options: ["6", "5", "4", "3"],
                     onChanged: (String? newValue) {
                       setState(() {
                         widget.activityQuantityController.text = newValue ?? '';
