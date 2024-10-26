@@ -1,8 +1,10 @@
 class Linkers {
   List<LinkerItem> linkerItems;
+  List<LinkerItem> selectedLinkerItems;
 
   Linkers({
     required this.linkerItems,
+    this.selectedLinkerItems = const [],
   });
 
   factory Linkers.fromJson(Map<String, dynamic> json, int index) {

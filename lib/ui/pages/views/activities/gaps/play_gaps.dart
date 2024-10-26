@@ -4,6 +4,9 @@ import '../../../../../domain/entities/gaps.dart';
 import '../../../../../domain/entities/gaps_activity.dart';
 import '../../../../pages/views/activities/gaps/results_gaps.dart';
 import '../../../../../domain/entities/activity_review.dart';
+import '../widgets/timeout_dialog.dart';
+import '../widgets/pause_dialog.dart';
+import '../widgets/show_answer_dialog.dart';
 
 class PlayGaps extends StatefulWidget {
   final GapsActivity gapsActivity;
@@ -82,83 +85,15 @@ class _PlayGapsState extends State<PlayGaps> {
         });
       } else {
         _timer?.cancel();
-        _showTimeUpDialog();
+        // Reemplazar _showTimeUpDialog() con:
+        final timeoutDialog = TimeoutDialog(onContinue: _nextGap);
+        timeoutDialog.show(context);
       }
     });
   }
 
-  void _showTimeUpDialog() {
-    showModalBottomSheet(
-      context: context,
-      isDismissible: false, // No permite cerrar el modal tocando fuera
-      enableDrag: false, // No permite arrastrar para cerrar
-      backgroundColor: Colors.transparent, // Hace el fondo del modal transparente
-      builder: (BuildContext context) {
-        return WillPopScope(
-          onWillPop: () async => false, // Deshabilita el botón de atrás
-          child: Container(
-            width: MediaQuery.of(context).size.width, // Ocupa todo el ancho de la pantalla
-            padding: EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: Colors.white, // Color de fondo blanco
-              borderRadius: BorderRadius.vertical(
-                top: Radius.circular(15), // Bordes redondeados solo en la parte superior
-              ),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min, // Ocupa el mínimo espacio necesario
-              children: [
-                SizedBox(height: 13),
-                Text(
-                  "Tiempo Agotado",
-                  style: TextStyle(
-                    fontSize: 27,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xff212121), // Color del texto
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 10),
-                Text(
-                  "¡Oops! Se acabó el tiempo...",
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 21,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xff727272),
-                  ),
-                ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Cierra el modal
-                    _nextGap(); // Ejecuta la siguiente acción
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF6D5BFF), // Color del botón
-                    padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 24.0), // Padding del botón
-                  ),
-                  child: Text(
-                    "Continuar",
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                SizedBox(height: 20),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
   void _nextGap() {
+    _timer?.cancel();
     if (_currentIndex < widget.gapsActivity.gaps!.length - 1) {
       setState(() {
         _currentIndex++;
@@ -189,6 +124,7 @@ class _PlayGapsState extends State<PlayGaps> {
   }
 
   void _checkAnswer() {
+    _timer?.cancel();
     bool allCorrect = true;
     List<Answer> selectedAnswers = [];
 
@@ -212,9 +148,17 @@ class _PlayGapsState extends State<PlayGaps> {
       setState(() {
         _score += 100;
       });
-      _showAnswerDialog(context, correct: true);
+      showAnswerDialog(
+        context,
+        correct: true,
+        onContinue: _nextGap,
+      );
     } else {
-      _showAnswerDialog(context, correct: false);
+      showAnswerDialog(
+        context,
+        correct: false,
+        onContinue: _nextGap,
+      );
     }
   }
 
@@ -230,219 +174,14 @@ class _PlayGapsState extends State<PlayGaps> {
     _initializeGapExercise();
   }
 
-  void _showAnswerDialog(BuildContext context, {required bool correct}) {
-    _timer?.cancel();
-    String message = correct ? "¡Buen Trabajo!" : "Oops, Tu respuesta no es correcta";
-    String subMessage = "No te preocupes, sigue intentandolo";
-    String additionalMessage = correct ? "Excelente, continúa con la siguiente oracion" : "";
-    Color backgroundColor = correct ? Color(0xFFBDFFC2) : Color(0xFFFFCFD0);
-    Color textColor = correct ? Color(0xFF00C853) : Color(0xFFF44337);
-    Color buttonTextColor = correct ? Color(0xFF00C853) : Color(0xFFF44337);
-
-    showModalBottomSheet(
-      context: context,
-      isDismissible: false,
-      enableDrag: false,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return WillPopScope(
-          onWillPop: () async => false,
-          child: Container(
-            width: MediaQuery.of(context).size.width,  // Siempre ocupará todo el ancho
-            padding: EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(height: 10),
-                Text(
-                  message,
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    color: textColor,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                SizedBox(height: 10),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (correct) // Mostrar solo si la respuesta es correcta
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12), // Padding dentro del container
-                        decoration: BoxDecoration(
-                          color: Colors.white, // Fondo blanco
-                          borderRadius: BorderRadius.circular(20), // Bordes redondeados
-                        ),
-                        child: Text(
-                          "+100 puntos",
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 17,
-                            fontWeight: FontWeight.w500,
-                            color: Color(0xFF00C853), // Color del texto para la respuesta correcta
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ),
-                    SizedBox(height: 10),
-                    if (!correct) // Espacio entre los textos
-                      Text(
-                        subMessage,
-                        style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 17,
-                          fontWeight: FontWeight.w500,
-                          color: textColor,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                  ],
-                ),
-                if (additionalMessage.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      additionalMessage,
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Color(0xff00C853),  // El texto de este mensaje es negro según el mockup
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _nextGap();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15), // Ajuste de tamaño del botón
-                    textStyle: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color: buttonTextColor,
-                    ),
-                  ),
-                  child: Text(
-                    "Continuar",
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 18,
-                      color: buttonTextColor,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 
   void _pauseQuiz() {
     _timer?.cancel();
-    _showPauseDialog();
-  }
-
-  void _showPauseDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false, // El diálogo no se cierra al tocar fuera
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Colors.transparent, // Fondo transparente
-          child: Container(
-            padding: EdgeInsets.all(3), // Espacio para el borde
-            decoration: BoxDecoration(
-              color: Colors.white, // No se necesita color de fondo aquí
-              borderRadius: BorderRadius.circular(20), // Borde redondeado externo
-              border: Border.all(color: Color(0xFF6D5BFF), width: 3), // Borde de color
-            ),
-            child: Container(
-              width: 200,
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white, // Fondo blanco para el contenido del diálogo
-                borderRadius: BorderRadius.circular(20), // Borde redondeado interno
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    "Pausa",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF212121),
-                      fontFamily: 'Poppins',
-                    ),
-                  ),
-                  SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                          _startTimer();
-                        },
-                        child: Container(
-                          width: 64,
-                          height: 64,
-                          decoration: BoxDecoration(
-                            color: Color(0xFF6D5BFF),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.play_arrow,
-                            color: Colors.white,
-                            size: 32,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 32),
-                      InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                          _resetGaps();
-                        },
-                        child: Container(
-                          width: 64,
-                          height: 64,
-                          decoration: BoxDecoration(
-                            color: Color(0xFF6D5BFF),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.refresh,
-                            color: Colors.white,
-                            size: 32,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 15),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+    final pauseDialog = PauseDialog(
+      onResume: _startTimer,
+      onReset: _resetGaps,
     );
+    pauseDialog.show(context);
   }
 
   @override
