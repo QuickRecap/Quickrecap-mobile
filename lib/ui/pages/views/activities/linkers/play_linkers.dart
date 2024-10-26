@@ -408,6 +408,13 @@ class _PlayLinkersState extends State<PlayLinkers> {
   @override
   Widget build(BuildContext context) {
     Linkers currentLinker = widget.linkersActivity.linkers![_currentIndex];
+
+    // Calculamos la altura para dos líneas de texto
+    final double containerHeight = (TextStyle(
+      fontFamily: 'Poppins',
+      fontSize: 20,
+    ).fontSize! * 1.2 * 2) + 16; // 2 líneas * altura de línea + padding vertical
+
     return Scaffold(
         backgroundColor: Color(0xFFF6F8FC),
         appBar: AppBar(
@@ -488,7 +495,7 @@ class _PlayLinkersState extends State<PlayLinkers> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 30),
                     Text(
                       _remainingTime > 0
                           ? "00:${_remainingTime.toString().padLeft(2, '0')}"
@@ -508,61 +515,86 @@ class _PlayLinkersState extends State<PlayLinkers> {
                       children: [
                         // Columna de palabras (izquierda)
                         Expanded(
-                          child: Column(
-                            children: currentLinker.linkerItems.map((item) {
-                              return Container(
-                                width: double.infinity,
-                                margin: EdgeInsets.only(bottom: 15),
-                                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: Color(0xFF6D5BFF), width: 1),
-                                  borderRadius: BorderRadius.only(
-                                    topRight: Radius.circular(15),
-                                    bottomRight: Radius.circular(15),
+                          child: Padding(
+                            padding: EdgeInsets.only(left: 20),
+                            child: Column(
+                              children: currentLinker.linkerItems.map((item) {
+                                return GestureDetector(
+                                  onLongPress: () => _showContentDialog(item.wordItem.content, 'Palabra'),
+                                  child: Container(
+                                    width: MediaQuery.of(context).size.width * 0.35,
+                                    height: containerHeight, // Altura fija para dos líneas
+                                    margin: EdgeInsets.only(bottom: 35),
+                                    padding: EdgeInsets.symmetric(horizontal: 12),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Color(0xFF6D5BFF), width: 1),
+                                      borderRadius: BorderRadius.only(
+                                        topRight: Radius.circular(15),
+                                        bottomRight: Radius.circular(15),
+                                      ),
+                                      color: Colors.white,
+                                    ),
+                                    // Usamos Center para alineación vertical
+                                    child: Center(
+                                      child: Text(
+                                        item.wordItem.content,
+                                        style: TextStyle(
+                                          fontFamily: 'Poppins',
+                                          fontSize: 17,
+                                          color: Color(0xFF212121),
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
                                   ),
-                                  color: Colors.white,
-                                ),
-                                child: Text(
-                                  item.wordItem.content,
-                                  style: TextStyle(
-                                    fontFamily: 'Poppins',
-                                    fontSize: 16,
-                                    color: Color(0xFF212121),
-                                  ),
-                                ),
-                              );
-                            }).toList(),
+                                );
+                              }).toList(),
+                            ),
                           ),
                         ),
+                        // Espacio entre columnas
+                        SizedBox(width: 70),
                         // Columna de definiciones (derecha)
                         Expanded(
-                          child: Column(
-                            children: currentLinker.linkerItems.map((item) {
-                              return GestureDetector(
-                                onLongPress: () => _showDefinitionDialog(item.definitionItem.content),
-                                child: Container(
-                                  width: double.infinity,
-                                  margin: EdgeInsets.only(bottom: 15),
-                                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: Color(0xFF6D5BFF), width: 1),
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(15),
-                                      bottomLeft: Radius.circular(15),
+                          child: Padding(
+                            padding: EdgeInsets.only(right: 20),
+                            child: Column(
+                              children: currentLinker.linkerItems.map((item) {
+                                return GestureDetector(
+                                  onLongPress: () => _showContentDialog(item.definitionItem.content, 'Definición'),
+                                  child: Container(
+                                    width: MediaQuery.of(context).size.width * 0.35,
+                                    height: containerHeight, // Altura fija para dos líneas
+                                    margin: EdgeInsets.only(bottom: 35),
+                                    padding: EdgeInsets.symmetric(horizontal: 12),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(color: Color(0xFF6D5BFF), width: 1),
+                                      borderRadius: BorderRadius.only(
+                                        topLeft: Radius.circular(15),
+                                        bottomLeft: Radius.circular(15),
+                                      ),
+                                      color: Colors.white,
                                     ),
-                                    color: Colors.white,
-                                  ),
-                                  child: Text(
-                                    "...",
-                                    style: TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontSize: 16,
-                                      color: Color(0xFF212121),
+                                    // Usamos Center para alineación vertical
+                                    child: Center(
+                                      child: Text(
+                                        item.definitionItem.content,
+                                        style: TextStyle(
+                                          fontFamily: 'Poppins',
+                                          fontSize: 17,
+                                          color: Color(0xFF212121),
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              );
-                            }).toList(),
+                                );
+                              }).toList(),
+                            ),
                           ),
                         ),
                       ],
@@ -612,8 +644,7 @@ class _PlayLinkersState extends State<PlayLinkers> {
     );
   }
 
-// Método para mostrar el diálogo con la definición completa
-  void _showDefinitionDialog(String definition) {
+  void _showContentDialog(String content, String type) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -628,7 +659,7 @@ class _PlayLinkersState extends State<PlayLinkers> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Definición A',
+                type,
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 18,
@@ -638,7 +669,7 @@ class _PlayLinkersState extends State<PlayLinkers> {
               ),
               SizedBox(height: 10),
               Text(
-                definition,
+                content,
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 16,
