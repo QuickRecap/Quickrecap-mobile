@@ -41,9 +41,9 @@ class Activity {
       favorite: json['favourite'],
       completed: json['completado'],
       private: json['privado'],
-      rated: json['rated'],
+      rated: true,
       name: json['nombre'],
-      flashcardId: json['flashcard_id'],
+      flashcardId: json['flashcard_id'] ?? 0,
       userId: json['usuario'],
     );
   }

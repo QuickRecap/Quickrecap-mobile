@@ -1,6 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickrecap/ui/constants/constants.dart';
+import 'package:quickrecap/domain/entities/activity.dart';
+import 'package:http/http.dart' as http;
 
 class AllActivitiesScreen extends StatefulWidget {
   const AllActivitiesScreen({Key? key}) : super(key: key);
@@ -12,25 +16,47 @@ class AllActivitiesScreen extends StatefulWidget {
 class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
   String _currentValue = 'Todos';
   String searchQuery = '';
+  List<Activity> activities = [];
 
-  // Ejemplo de lista de actividades
-  final List<Map<String, dynamic>> activities = [
-    {'name': 'Actividad 1', 'play_count': 125},
-    {'name': 'Actividad 2', 'play_count': 89},
-    {'name': 'Actividad 3', 'play_count': 234},
-    // Añade más actividades según necesites
-  ];
 
-  List<Map<String, dynamic>> getFilteredActivities() {
+  @override
+  void initState() {
+    super.initState();
+    fetchActivities();
+  }
+
+  Future<void> fetchActivities() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:8000/quickrecap/activity/research'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        setState(() {
+          activities = jsonData.map((data) => Activity.fromJson(data)).toList();
+        });
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching activities: $e');
+    }
+  }
+
+  List<Activity> getFilteredActivities() {
     if (searchQuery.isEmpty && _currentValue == 'Todos') {
       return activities;
     }
 
     return activities.where((activity) {
       bool matchesSearch =
-          activity['name']!.toLowerCase().contains(searchQuery.toLowerCase());
+          activity.name.toLowerCase().contains(searchQuery.toLowerCase());
       bool matchesFilter =
-          _currentValue == 'Todos' || activity['type'] == _currentValue;
+          _currentValue == 'Todos' || activity.activityType == _currentValue;
       return matchesSearch && matchesFilter;
     }).toList();
   }
@@ -60,7 +86,7 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
                 // Barra superior con flecha de regreso y título
                 Padding(
                   padding:
-                      EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
+                      EdgeInsets.only(top: 20, bottom: 10, left: 10, right: 10),
                   child: Row(
                     children: [
                       IconButton(
@@ -118,14 +144,14 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
                       borderRadius: BorderRadius.circular(20.r),
                       boxShadow: [
                         BoxShadow(
-                          color: kDark.withOpacity(0.1),
+                          color: kDark.withOpacity(0.2),
                           spreadRadius: 1,
                           blurRadius: 10,
-                          offset: Offset(0, 2),
+                          offset: Offset(0, -2),
                         ),
                       ],
                     ),
-                    margin: EdgeInsets.all(15),
+                    margin: EdgeInsets.all(20),
                     child: Column(
                       children: [
                         // Contador y filtro
@@ -161,7 +187,7 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
                                   'Todos',
                                   'Quiz',
                                   'Flashcards',
-                                  'Gap',
+                                  'Gaps',
                                   'Linkers'
                                 ].map<DropdownMenuItem<String>>((String value) {
                                   return DropdownMenuItem<String>(
@@ -184,14 +210,11 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
                           ),
                         ),
 
-                        // Divisor
-                        Divider(height: 1, color: kDark.withOpacity(0.1)),
-
                         // Lista de actividades
                         Expanded(
                           child: ListView.builder(
                             padding: EdgeInsets.symmetric(
-                                horizontal: 20.w, vertical: 10.h),
+                                horizontal: 20.w, vertical: 1.h),
                             itemCount: getFilteredActivities().length,
                             itemBuilder: (context, index) {
                               final activity = getFilteredActivities()[index];
@@ -221,7 +244,7 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
                                     SizedBox(width: 12.w),
                                     Expanded(
                                       child: Text(
-                                        activity['name']!,
+                                        activity.name,
                                         style: TextStyle(
                                           color: kGrey2,
                                           fontFamily: 'Poppins',
@@ -239,7 +262,7 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
                                         ),
                                         SizedBox(width: 5.w),
                                         Text(
-                                          activity['play_count'].toString(),
+                                          activity.timesPlayed.toString(),
                                           style: TextStyle(
                                             color: kGrey2,
                                             fontFamily: 'Poppins',
