@@ -1,36 +1,25 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
 import '../../../../../domain/entities/linkers.dart';
 import '../../../../../domain/entities/linkers_activity.dart';
-import 'results_linkers.dart';
-import '../../../../../domain/entities/activity_review.dart';
-import '../widgets/timeout_dialog.dart';
-import '../widgets/pause_dialog.dart';
-import '../widgets/show_answer_dialog.dart';
 
-class PlayLinkers extends StatefulWidget {
+class ReviewAnswersLinkers extends StatefulWidget {
   final LinkersActivity linkersActivity;
 
-  PlayLinkers({required this.linkersActivity});
+  ReviewAnswersLinkers({required this.linkersActivity});
 
   @override
-  _PlayLinkersState createState() => _PlayLinkersState();
+  _ReviewAnswersLinkersState createState() => _ReviewAnswersLinkersState();
 }
 
-class _PlayLinkersState extends State<PlayLinkers> {
+class _ReviewAnswersLinkersState extends State<ReviewAnswersLinkers> {
   int _currentIndex = 0;
-  int _score = 0;
-  int _remainingTime = 0;
-  int _elapsedTime = 0;
-  Timer? _timer;
+  bool isShowingCorrectAnswers = false;
   int? selectedWordIndex;
   int? selectedDefinitionIndex;
 
   @override
   void initState() {
     super.initState();
-    _remainingTime = widget.linkersActivity.timer;
-    _startTimer();
     _initializeLinkerExercise();
     // Inicializar las conexiones vacías
     widget.linkersActivity.linkers!.forEach((linker) {
@@ -98,6 +87,40 @@ class _PlayLinkersState extends State<PlayLinkers> {
     });
   }
 
+  void _nextLinker() {
+    if (_currentIndex < widget.linkersActivity.linkers!.length - 1) {
+      setState(() {
+        _currentIndex++;
+        isShowingCorrectAnswers = false;
+        _initializeLinkerExercise();
+      });
+    } else {
+      Navigator.pop(context);
+    }
+  }
+
+  void _previousLinker() {
+    if (_currentIndex > 0) {
+      setState(() {
+        _currentIndex--;
+        _initializeLinkerExercise();
+      });
+    }
+  }
+
+  void toggleShowCorrectAnswers() {
+    Linkers currentLinker = widget.linkersActivity.linkers![_currentIndex];
+    setState(() {
+      isShowingCorrectAnswers = !isShowingCorrectAnswers;
+      if (isShowingCorrectAnswers) {
+        // Mostrar las respuestas correctas
+
+      } else {
+        // Mostrar las respuestas seleccionadas por el usuario
+      }
+    });
+  }
+
   // Método para crear conexiones
   void _createConnection(int wordIndex, int definitionIndex) {
     var currentLinker = widget.linkersActivity.linkers![_currentIndex];
@@ -130,125 +153,6 @@ class _PlayLinkersState extends State<PlayLinkers> {
       selectedWordIndex = null;
       selectedDefinitionIndex = null;
     });
-  }
-
-  void _startTimer() {
-    _timer?.cancel();
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (_remainingTime > 0) {
-        setState(() {
-          _remainingTime--;
-          _elapsedTime++; // Incrementa el tiempo transcurrido solo si el temporizador está en marcha
-        });
-      } else {
-        _timer?.cancel();
-        // Reemplazar _showTimeUpDialog() con:
-        final timeoutDialog = TimeoutDialog(onContinue: _nextLinker);
-        timeoutDialog.show(context);
-      }
-    });
-  }
-
-  void _nextLinker() {
-    _timer?.cancel();
-    if (_currentIndex < widget.linkersActivity.linkers!.length - 1) {
-      setState(() {
-        _currentIndex++;
-        _remainingTime = widget.linkersActivity.timer;
-        // Asegurarnos de que selectedLinkerItems esté inicializado para el siguiente ejercicio
-        if (widget.linkersActivity.linkers![_currentIndex].selectedLinkerItems == null) {
-          widget.linkersActivity.linkers![_currentIndex].selectedLinkerItems = [];
-        }
-        selectedWordIndex = null;
-        selectedDefinitionIndex = null;
-      });
-      _initializeLinkerExercise();
-      _startTimer();
-    } else {
-      // Finalizar la actividad
-      ActivityReview activityReview = ActivityReview(
-        activityId: widget.linkersActivity.id,
-        activityType: "Linkers",
-        totalSeconds: _elapsedTime,
-        score: _score,
-        questions: widget.linkersActivity.linkers!.length,
-        correctAnswers: (_score / 100).toInt(),
-      );
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ResultsLinkers(
-            activityReview: activityReview,
-            linkersActivity: widget.linkersActivity,
-          ), // Usamos el operador ! para indicar que no es nulo
-        ),
-      );
-    }
-  }
-
-  void _checkAnswer() {
-    _timer?.cancel();
-    var currentLinker = widget.linkersActivity.linkers![_currentIndex];
-    bool allCorrect = true;
-
-    if (currentLinker.selectedLinkerItems?.length != currentLinker.linkerItems.length) {
-      allCorrect = false;
-    } else {
-      for (var selectedItem in currentLinker.selectedLinkerItems!) {
-        // Buscamos la definición original que corresponde a la palabra seleccionada
-        var originalDefinitionPosition = selectedItem.wordItem.position;
-
-        // La respuesta es correcta si la definición seleccionada tiene la misma posición
-        // que la posición original de la palabra
-        bool isCorrect = selectedItem.definitionItem.position == originalDefinitionPosition;
-
-        print("Validación de Conexión:");
-        print("Word: ${selectedItem.wordItem.content} (Pos: ${selectedItem.wordItem.position})");
-        print("Selected Definition Position: ${selectedItem.definitionItem.position}");
-        print("Expected Definition Position: $originalDefinitionPosition");
-
-        if (!isCorrect) {
-          allCorrect = false;
-        }
-      }
-    }
-
-    if (allCorrect) {
-      setState(() {
-        _score += 100;
-      });
-      showAnswerDialog(
-        context,
-        correct: true,
-        onContinue: _nextLinker,
-      );
-    } else {
-      showAnswerDialog(
-        context,
-        correct: false,
-        onContinue: _nextLinker,
-      );
-    }
-  }
-
-  void _resetLinkers() {
-    setState(() {
-      _currentIndex = 0;
-      _remainingTime = widget.linkersActivity.timer;
-      _elapsedTime = 0; // Reinicia el tiempo transcurrido
-      _score = 0;
-    });
-    _startTimer();
-    _initializeLinkerExercise();
-  }
-
-  void _pauseQuiz() {
-    _timer?.cancel();
-    final pauseDialog = PauseDialog(
-      onResume: _startTimer,
-      onReset: _resetLinkers,
-    );
-    pauseDialog.show(context);
   }
 
   void _showContentDialog(String content, String type) {
@@ -311,7 +215,6 @@ class _PlayLinkersState extends State<PlayLinkers> {
 
   @override
   void dispose() {
-    _timer?.cancel();
     super.dispose();
   }
 
@@ -401,38 +304,16 @@ class _PlayLinkersState extends State<PlayLinkers> {
                               ),
                               Spacer(),
                               IconButton(
-                                icon: Icon(Icons.pause, color: Color(0xFF212121)),
-                                onPressed: _pauseQuiz,
+                                icon: Icon(
+                                  isShowingCorrectAnswers ? Icons.remove_red_eye_outlined : Icons.remove_red_eye,
+                                  color: Color(0xFF212121),
+                                ),
+                                onPressed: toggleShowCorrectAnswers,
                               ),
                             ],
                           ),
                         ),
                         SizedBox(height: 30),
-                        Text(
-                          _remainingTime > 0
-                              ? "00:${_remainingTime.toString().padLeft(2, '0')}"
-                              : "00:00",
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 40,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xff6D5BFF),
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        SizedBox(height: 30),
-                        Center(
-                          child: Text(
-                            "Pulsa los items para conectar",
-                            style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 16,
-                              color: Color(0xFF727272),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 30),
-
                         // Contenedor de las columnas con Stack para las líneas
                         Stack(
                           children: [
@@ -583,31 +464,56 @@ class _PlayLinkersState extends State<PlayLinkers> {
                             ),
                           ),
                         ),
+                        SizedBox(height: 30),
                         Padding(
-                          padding: EdgeInsets.all(30.0),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              child: Text(
-                                'Continuar',
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 23,
+                          padding: EdgeInsets.all(16.0), // Ajusta el valor según tus necesidades
+                          child: Row(
+                            children: [
+                              ElevatedButton(
+                                onPressed: _previousLinker,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xff7464FC),
+                                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 40),
+                                  disabledBackgroundColor: Colors.grey[300],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(17),
+                                  ),
+                                ),
+                                child: Text(
+                                  "Anterior",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
-                              onPressed: _checkAnswer,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF6D5BFF),
-                                padding: EdgeInsets.symmetric(vertical: 12),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                              Spacer(),
+                              ElevatedButton(
+                                onPressed: _nextLinker,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xff7464FC),
+                                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 40),
+                                  disabledBackgroundColor: Colors.grey[300],
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(17),
+                                  ),
+                                ),
+                                child: Text(
+                                  _currentIndex < widget.linkersActivity.linkers!.length - 1 ? "Siguiente" : "Salir",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontFamily: 'Poppins',
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
+                        SizedBox(height: 16),
                       ],
                     ),
                   ),

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:quickrecap/domain/entities/linkers_activity.dart';
 //import '../../activities/gaps/play_linkers_activity.dart';
 //import '../../activities/gaps/play_linkers.dart';
-import '../../activities/linkers/play_linkers.dart';
+import '../../activities/linkers/play_linkers_activity.dart';
 import 'custom_input.dart';
 import 'custom_select_input.dart';
 import '../../../../providers/linkers_provider.dart';
@@ -345,7 +345,7 @@ class _CreateLinkersDialogState extends State<CreateLinkersDialog> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => PlayLinkers(linkersActivity: linkersActivity!), // Usamos el operador ! para indicar que no es nulo
+                            builder: (context) => PlayLinkersActivity(linkersActivity: linkersActivity!), // Usamos el operador ! para indicar que no es nulo
                           ),
                         );
                       }

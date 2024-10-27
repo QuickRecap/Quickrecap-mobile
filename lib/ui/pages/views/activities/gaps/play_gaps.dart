@@ -174,7 +174,6 @@ class _PlayGapsState extends State<PlayGaps> {
     _initializeGapExercise();
   }
 
-
   void _pauseQuiz() {
     _timer?.cancel();
     final pauseDialog = PauseDialog(

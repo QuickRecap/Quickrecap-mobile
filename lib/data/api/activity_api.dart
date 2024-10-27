@@ -250,7 +250,7 @@ class ActivityApi {
 
     // Si el tabIndex es 1, agregamos el parámetro 'favorito'
     if (tabIndex == 1) {
-      baseUrl += '?favorito=true';
+      baseUrl = '?favorito=true';
     }
 
     try {

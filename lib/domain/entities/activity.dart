@@ -38,7 +38,7 @@ class Activity {
       numberOfQuestions: json['numero_preguntas'],
       timesPlayed: json['veces_jugado'],
       maxScore: json['puntuacion_maxima'],
-      favorite: json['favorito'],
+      favorite: json['favourite'],
       completed: json['completado'],
       private: json['privado'],
       rated: json['rated'],
