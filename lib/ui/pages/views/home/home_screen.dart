@@ -10,6 +10,7 @@ import 'package:quickrecap/ui/controllers/tab_index_controller.dart';
 import 'package:quickrecap/ui/pages/entrypoint.dart';
 import 'package:quickrecap/ui/pages/views/create/create_screen.dart';
 import 'package:quickrecap/ui/pages/views/home/all_activities_screen.dart';
+import 'package:quickrecap/ui/pages/views/home/category_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -43,10 +44,10 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   final List<Map<String, dynamic>> categories = [
-    {'name': 'Quiz', 'icon': Icons.quiz},
-    {'name': 'Gaps', 'icon': Icons.space_bar},
-    {'name': 'Flashcards', 'icon': Icons.style},
-    {'name': 'Linkers', 'icon': Icons.link},
+    {'name': 'Quiz', 'icon': Icons.quiz, 'activityType': 'Quiz'},
+    {'name': 'Gaps', 'icon': Icons.space_bar, 'activityType': 'Gaps'},
+    {'name': 'Flashcards', 'icon': Icons.style, 'activityType': 'Flashcards'},
+    {'name': 'Linkers', 'icon': Icons.link, 'activityType': 'Linkers'},
   ];
 
   @override
@@ -327,11 +328,24 @@ class _HomeScreenState extends State<HomeScreen> {
                           scrollDirection: Axis.horizontal,
                           itemCount: categories.length,
                           itemBuilder: (context, index) {
-                            return Padding(
-                              padding: EdgeInsets.only(right: 15.w),
-                              child: _buildCategoryCard(
-                                icon: categories[index]['icon'],
-                                name: categories[index]['name'],
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CategoryScreen(
+                                      title: categories[index]['name'],
+                                      activityType: categories[index]['name'],
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Padding(
+                                padding: EdgeInsets.only(right: 15.w),
+                                child: _buildCategoryCard(
+                                  icon: categories[index]['icon'],
+                                  name: categories[index]['name'],
+                                ),
                               ),
                             );
                           },
