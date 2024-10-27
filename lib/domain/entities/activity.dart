@@ -38,12 +38,12 @@ class Activity {
       numberOfQuestions: json['numero_preguntas'],
       timesPlayed: json['veces_jugado'],
       maxScore: json['puntuacion_maxima'],
-      favorite: json['favorito'],
+      favorite: json['favourite'],
       completed: json['completado'],
       private: json['privado'],
-      rated: json['rated'],
+      rated: true,
       name: json['nombre'],
-      flashcardId: json['flashcard_id'],
+      flashcardId: json['flashcard_id'] ?? 0,
       userId: json['usuario'],
     );
   }

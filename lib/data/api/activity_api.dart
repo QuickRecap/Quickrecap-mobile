@@ -237,7 +237,7 @@ class ActivityApi {
       },
     );
 
-    // Consider both 200 OK and 201 Created as success
+    // Consider both 200 OK and 201 Created as successw
     return response.statusCode == 200 || response.statusCode == 201;
   }
 
@@ -268,5 +268,4 @@ class ActivityApi {
     }
 
   }
-
 }
