@@ -16,75 +16,17 @@ class _ReviewAnswersLinkersState extends State<ReviewAnswersLinkers> {
   bool isShowingCorrectAnswers = false;
   int? selectedWordIndex;
   int? selectedDefinitionIndex;
+  // Variable para almacenar las conexiones que se muestran actualmente
+  List<LinkerItem>? _displayedConnections;
 
   @override
   void initState() {
     super.initState();
+    // Inicializamos con las conexiones del usuario
+    _displayedConnections = List.from(
+        widget.linkersActivity.linkers![_currentIndex].selectedLinkerItems ?? []
+    );
     _initializeLinkerExercise();
-    // Inicializar las conexiones vacías
-    widget.linkersActivity.linkers!.forEach((linker) {
-      if (linker.selectedLinkerItems == null) {
-        linker.selectedLinkerItems = [];
-      }
-    });
-  }
-
-  // Método modificado para manejar la selección de words
-  void _handleWordSelection(int index) {
-    setState(() {
-      var currentLinker = widget.linkersActivity.linkers![_currentIndex];
-      // Verificar si el word está conectado
-      final existingItemIndex = currentLinker.selectedLinkerItems?.indexWhere(
-              (item) => item.wordItem.position == currentLinker.linkerItems[index].wordItem.position
-      ) ?? -1;
-
-      if (existingItemIndex != -1) {
-        // Si está conectado, eliminar la conexión
-        currentLinker.selectedLinkerItems?.removeAt(existingItemIndex);
-        selectedWordIndex = null;
-        selectedDefinitionIndex = null;
-      } else {
-        if (selectedDefinitionIndex != null) {
-          // Si hay una definición seleccionada, crear conexión
-          _createConnection(index, selectedDefinitionIndex!);
-          selectedWordIndex = null;
-          selectedDefinitionIndex = null;
-        } else {
-          // Seleccionar word
-          selectedWordIndex = index;
-          selectedDefinitionIndex = null;
-        }
-      }
-    });
-  }
-
-  // Método modificado para manejar la selección de definitions
-  void _handleDefinitionSelection(int index) {
-    setState(() {
-      var currentLinker = widget.linkersActivity.linkers![_currentIndex];
-      // Verificar si la definition está conectada
-      final existingItemIndex = currentLinker.selectedLinkerItems?.indexWhere(
-              (item) => item.definitionItem.position == currentLinker.linkerItems[index].definitionItem.position
-      ) ?? -1;
-
-      if (existingItemIndex != -1) {
-        // Si está conectada, eliminar la conexión
-        currentLinker.selectedLinkerItems?.removeAt(existingItemIndex);
-        selectedWordIndex = null;
-        selectedDefinitionIndex = null;
-      } else {
-        if (selectedWordIndex != null) {
-          // Si hay una word seleccionada, crear conexión
-          _createConnection(selectedWordIndex!, index);
-          selectedWordIndex = null;
-          selectedDefinitionIndex = null;
-        } else {
-          // Seleccionar definition
-          selectedDefinitionIndex = index;
-          selectedWordIndex = null;
-        }
-      }
-    });
   }
 
   void _nextLinker() {
@@ -112,11 +54,31 @@ class _ReviewAnswersLinkersState extends State<ReviewAnswersLinkers> {
     Linkers currentLinker = widget.linkersActivity.linkers![_currentIndex];
     setState(() {
       isShowingCorrectAnswers = !isShowingCorrectAnswers;
-      if (isShowingCorrectAnswers) {
-        // Mostrar las respuestas correctas
 
+      if (isShowingCorrectAnswers) {
+        // Mostrar las respuestas correctas en _displayedConnections
+        _displayedConnections?.clear();
+
+        // Generar las conexiones correctas basadas en posiciones coincidentes
+        for (var linkerItem in currentLinker.linkerItems) {
+          int wordPosition = linkerItem.wordItem.position!;
+
+          var matchingDefinition = currentLinker.linkerItems
+              .firstWhere((item) => item.definitionItem.position == wordPosition)
+              .definitionItem;
+
+          var correctConnection = LinkerItem(
+              wordItem: linkerItem.wordItem,
+              definitionItem: matchingDefinition
+          );
+
+          _displayedConnections?.add(correctConnection);
+        }
       } else {
-        // Mostrar las respuestas seleccionadas por el usuario
+        // Restaurar las conexiones del usuario
+        _displayedConnections = List.from(
+            currentLinker.selectedLinkerItems ?? []
+        );
       }
     });
   }
@@ -146,12 +108,15 @@ class _ReviewAnswersLinkersState extends State<ReviewAnswersLinkers> {
   }
 
   void _initializeLinkerExercise() {
-    // Limpiar las conexiones al inicializar
+    // Limpiar las selecciones actuales
+    selectedWordIndex = null;
+    selectedDefinitionIndex = null;
+
     setState(() {
-      // Limpiar las conexiones al inicializar
-      widget.linkersActivity.linkers![_currentIndex].selectedLinkerItems=[];
-      selectedWordIndex = null;
-      selectedDefinitionIndex = null;
+      // Usamos _displayedConnections en lugar de modificar directamente selectedLinkerItems
+      _displayedConnections = List.from(
+          widget.linkersActivity.linkers![_currentIndex].selectedLinkerItems ?? []
+      );
     });
   }
 
@@ -318,8 +283,7 @@ class _ReviewAnswersLinkersState extends State<ReviewAnswersLinkers> {
                         Stack(
                           children: [
                             // Primero dibujamos las líneas de conexión
-                            ...currentLinker.selectedLinkerItems!.map((linkerItem) {
-                              // Encontrar los índices correspondientes en el array de linkerItems
+                            ..._displayedConnections!.map((linkerItem) {
                               int wordIndex = currentLinker.linkerItems.indexWhere(
                                     (item) => item.wordItem.position == linkerItem.wordItem.position,
                               );
@@ -358,7 +322,6 @@ class _ReviewAnswersLinkersState extends State<ReviewAnswersLinkers> {
                                         );
 
                                         return GestureDetector(
-                                          onTap: () => _handleWordSelection(index),
                                           onLongPress: () => _showContentDialog(item.wordItem.content, 'Palabra'),
                                           child: Container(
                                             width: MediaQuery.of(context).size.width * 0.35,
@@ -411,7 +374,6 @@ class _ReviewAnswersLinkersState extends State<ReviewAnswersLinkers> {
                                         );
 
                                         return GestureDetector(
-                                          onTap: () => _handleDefinitionSelection(index),
                                           onLongPress: () => _showContentDialog(item.definitionItem.content, 'Definición'),
                                           child: Container(
                                             width: MediaQuery.of(context).size.width * 0.35,
