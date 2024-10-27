@@ -202,11 +202,6 @@ class _PlayLinkersState extends State<PlayLinkers> {
         // que la posición original de la palabra
         bool isCorrect = selectedItem.definitionItem.position == originalDefinitionPosition;
 
-        print("Validación de Conexión:");
-        print("Word: ${selectedItem.wordItem.content} (Pos: ${selectedItem.wordItem.position})");
-        print("Selected Definition Position: ${selectedItem.definitionItem.position}");
-        print("Expected Definition Position: $originalDefinitionPosition");
-
         if (!isCorrect) {
           allCorrect = false;
         }
@@ -249,6 +244,12 @@ class _PlayLinkersState extends State<PlayLinkers> {
       onReset: _resetLinkers,
     );
     pauseDialog.show(context);
+  }
+
+  bool _areAllItemsConnected() {
+    var currentLinker = widget.linkersActivity.linkers![_currentIndex];
+    // Verifica si el número de conexiones es igual al número de items
+    return currentLinker.selectedLinkerItems?.length == currentLinker.linkerItems.length;
   }
 
   void _showContentDialog(String content, String type) {
@@ -597,9 +598,11 @@ class _PlayLinkersState extends State<PlayLinkers> {
                                   fontSize: 23,
                                 ),
                               ),
-                              onPressed: _checkAnswer,
+                              onPressed: _areAllItemsConnected() ? _checkAnswer : null,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Color(0xFF6D5BFF),
+                                backgroundColor: _areAllItemsConnected()
+                                    ? Color(0xFF6D5BFF)
+                                    : Color(0xFF6D5BFF).withOpacity(0.5),
                                 padding: EdgeInsets.symmetric(vertical: 12),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),

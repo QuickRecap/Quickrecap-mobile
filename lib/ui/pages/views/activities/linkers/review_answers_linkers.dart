@@ -83,28 +83,99 @@ class _ReviewAnswersLinkersState extends State<ReviewAnswersLinkers> {
     });
   }
 
-  // Método para crear conexiones
-  void _createConnection(int wordIndex, int definitionIndex) {
-    var currentLinker = widget.linkersActivity.linkers![_currentIndex];
+  Color _getConnectionColor(LinkerItem connection) {
+    if (isShowingCorrectAnswers) {
+      return Color(0xFF4CAF50); // Verde para mostrar las respuestas correctas
+    }
 
-    // Crear un nuevo LinkerItem que conecte los elementos seleccionados por el usuario
-    var selectedWord = currentLinker.linkerItems[wordIndex].wordItem;
-    var selectedDefinition = currentLinker.linkerItems[definitionIndex].definitionItem;
+    // La respuesta es correcta si la posición de la palabra coincide
+    // con la posición de la definición
+    bool isCorrect = connection.wordItem.position == connection.definitionItem.position;
 
-    // Eliminar conexiones previas que involucren cualquiera de los elementos
-    currentLinker.selectedLinkerItems?.removeWhere((item) =>
-    item.wordItem.position == selectedWord.position ||
-        item.definitionItem.position == selectedDefinition.position
-    );
+    return isCorrect ? Color(0xFF4CAF50) : Color(0xFFFF5252); // Verde si es correcta, rojo si es incorrecta
+  }
 
-    // Crear un nuevo LinkerItem con la conexión seleccionada por el usuario
-    var newConnection = LinkerItem(
-        wordItem: selectedWord,
-        definitionItem: selectedDefinition
-    );
+  Color _getItemColor(bool isWord, dynamic item) {
+    if (isShowingCorrectAnswers) {
+      return Color(0xFFE8F5E9);
+    }
 
-    // Agregar la nueva conexión
-    currentLinker.selectedLinkerItems?.add(newConnection);
+    // Buscar si el item está en alguna conexión
+    LinkerItem? connection;
+    try {
+      connection = _displayedConnections?.firstWhere(
+            (conn) => isWord
+            ? conn.wordItem.position == item.wordItem.position
+            : conn.definitionItem.position == item.definitionItem.position,
+      );
+    } catch (e) {
+      return Colors.white; // No está conectado
+    }
+
+    if (connection == null) {
+      return Colors.white;
+    }
+
+    // Verificar si la conexión es correcta
+    bool isCorrect = isWord
+        ? connection.wordItem.position == connection.definitionItem.position
+        : connection.definitionItem.position == connection.wordItem.position;
+
+    return isCorrect ? Color(0xFFE8F5E9) : Color(0xFFFFEBEE);
+  }
+
+  Color _getTextColor(bool isWord, dynamic item) {
+    if (isShowingCorrectAnswers) {
+      return Color(0xFF4CAF50);
+    }
+
+    LinkerItem? connection;
+    try {
+      connection = _displayedConnections?.firstWhere(
+            (conn) => isWord
+            ? conn.wordItem.position == item.wordItem.position
+            : conn.definitionItem.position == item.definitionItem.position,
+      );
+    } catch (e) {
+      return Color(0xFF212121); // No está conectado
+    }
+
+    if (connection == null) {
+      return Color(0xFF212121);
+    }
+
+    bool isCorrect = isWord
+        ? connection.wordItem.position == connection.definitionItem.position
+        : connection.definitionItem.position == connection.wordItem.position;
+
+    return isCorrect ? Color(0xFF4CAF50) : Color(0xFFFF5252);
+  }
+
+  Color _getBorderColor(bool isWord, dynamic item) {
+    if (isShowingCorrectAnswers) {
+      return Color(0xFF4CAF50);
+    }
+
+    LinkerItem? connection;
+    try {
+      connection = _displayedConnections?.firstWhere(
+            (conn) => isWord
+            ? conn.wordItem.position == item.wordItem.position
+            : conn.definitionItem.position == item.definitionItem.position,
+      );
+    } catch (e) {
+      return Color(0xFF6D5BFF); // No está conectado
+    }
+
+    if (connection == null) {
+      return Color(0xFF212121);
+    }
+
+    bool isCorrect = isWord
+        ? connection.wordItem.position == connection.definitionItem.position
+        : connection.definitionItem.position == connection.wordItem.position;
+
+    return isCorrect ? Color(0xFF4CAF50) : Color(0xFFFF5252);
   }
 
   void _initializeLinkerExercise() {
@@ -295,7 +366,7 @@ class _ReviewAnswersLinkersState extends State<ReviewAnswersLinkers> {
                                 painter: LinePainter(
                                   startIndex: wordIndex,
                                   endIndex: definitionIndex,
-                                  color: Color(0xFF6D5BFF),
+                                  color: _getConnectionColor(_displayedConnections![_displayedConnections!.indexOf(linkerItem)]),
                                 ),
                                 size: Size(
                                   MediaQuery.of(context).size.width,
@@ -329,14 +400,15 @@ class _ReviewAnswersLinkersState extends State<ReviewAnswersLinkers> {
                                             margin: EdgeInsets.only(bottom: 35),
                                             padding: EdgeInsets.symmetric(horizontal: 12),
                                             decoration: BoxDecoration(
-                                              border: Border.all(color: Color(0xFF6D5BFF), width: 1),
+                                              border: Border.all(
+                                                  color: _getBorderColor(true, item),  // Color del borde según corrección
+                                                  width: 1
+                                              ),
                                               borderRadius: BorderRadius.only(
                                                 topRight: Radius.circular(15),
                                                 bottomRight: Radius.circular(15),
                                               ),
-                                              color: isSelected || isConnected
-                                                  ? Color(0xFF6D5BFF)
-                                                  : Colors.white,
+                                              color: _getItemColor(true, item),  // Color de fondo según corrección
                                             ),
                                             child: Center(
                                               child: Text(
@@ -344,9 +416,7 @@ class _ReviewAnswersLinkersState extends State<ReviewAnswersLinkers> {
                                                 style: TextStyle(
                                                   fontFamily: 'Poppins',
                                                   fontSize: 17,
-                                                  color: isSelected || isConnected
-                                                      ? Colors.white
-                                                      : Color(0xFF212121),
+                                                  color: _getTextColor(true, item),  // Color del texto según corrección
                                                 ),
                                                 maxLines: 2,
                                                 overflow: TextOverflow.ellipsis,
@@ -381,14 +451,15 @@ class _ReviewAnswersLinkersState extends State<ReviewAnswersLinkers> {
                                             margin: EdgeInsets.only(bottom: 35),
                                             padding: EdgeInsets.symmetric(horizontal: 12),
                                             decoration: BoxDecoration(
-                                              border: Border.all(color: Color(0xFF6D5BFF), width: 1),
+                                              border: Border.all(
+                                                  color: _getBorderColor(false, item),  // Color del borde según corrección
+                                                  width: 1
+                                              ),
                                               borderRadius: BorderRadius.only(
                                                 topLeft: Radius.circular(15),
                                                 bottomLeft: Radius.circular(15),
                                               ),
-                                              color: isSelected || isConnected
-                                                  ? Color(0xFF6D5BFF)
-                                                  : Colors.white,
+                                              color: _getItemColor(false, item),  // Color de fondo según corrección
                                             ),
                                             child: Center(
                                               child: Text(
@@ -396,9 +467,7 @@ class _ReviewAnswersLinkersState extends State<ReviewAnswersLinkers> {
                                                 style: TextStyle(
                                                   fontFamily: 'Poppins',
                                                   fontSize: 17,
-                                                  color: isSelected || isConnected
-                                                      ? Colors.white
-                                                      : Color(0xFF212121),
+                                                  color: _getTextColor(false, item),  // Color del texto según corrección
                                                 ),
                                                 maxLines: 2,
                                                 overflow: TextOverflow.ellipsis,
