@@ -1,18 +1,18 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:get/get_core/src/get_main.dart';
 import 'package:quickrecap/data/api/home_api.dart';
 import 'package:quickrecap/data/repositories/local_storage_service.dart';
+import 'package:quickrecap/domain/entities/activity.dart';
 import 'package:quickrecap/domain/entities/home.dart';
 import 'package:quickrecap/domain/entities/user.dart';
 import 'package:quickrecap/ui/constants/constants.dart';
-import 'package:quickrecap/ui/common/custom_container.dart';
 import 'package:quickrecap/ui/controllers/tab_index_controller.dart';
-import 'package:quickrecap/ui/pages/entrypoint.dart';
-import 'package:quickrecap/ui/pages/views/create/create_screen.dart';
 import 'package:quickrecap/ui/pages/views/home/all_activities_screen.dart';
 import 'package:quickrecap/ui/pages/views/home/category_screen.dart';
+import 'package:http/http.dart' as http;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -24,6 +24,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final HomeApi _homeService = HomeApi();
   HomeStats? _stats;
+  List<Activity> activities = [];
 
   LocalStorageService localStorageService = LocalStorageService();
 
@@ -31,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _loadStats();
+    fetchActivities();
   }
 
   Future<void> _loadStats() async {
@@ -42,10 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {}
   }
 
-  final List<Map<String, String>> topActivities = [
-    {'name': 'Quiz de Derecho Penal', 'play_count': '99'},
-    {'name': 'Gaps de Derecho Procesal', 'play_count': '76'},
-  ];
+  List<Map<String, String>> topActivities = [];
 
   final List<Map<String, dynamic>> categories = [
     {'name': 'Quiz', 'icon': Icons.quiz, 'activityType': 'Quiz'},
@@ -54,6 +53,38 @@ class _HomeScreenState extends State<HomeScreen> {
     {'name': 'Linkers', 'icon': Icons.link, 'activityType': 'Linkers'},
   ];
 
+  Future<void> fetchActivities() async {
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:8000/quickrecap/activity/research'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        setState(() {
+          // Tomamos solo los dos primeros elementos usando take(2)
+          activities =
+              jsonData.take(2).map((data) => Activity.fromJson(data)).toList();
+
+          // Convertimos las actividades al formato requerido para topActivities
+          topActivities = activities
+              .map((activity) => {
+                    'name': activity.name,
+                    'play_count': activity.timesPlayed.toString(),
+                  })
+              .toList();
+        });
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching activities: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Stack(
         children: [
           Container(
-            height: 225.h,
+            height: 200.h,
             decoration: BoxDecoration(
               color: kPrimary,
               image: DecorationImage(
@@ -137,7 +168,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             size: 30.sp,
                           ),
                           onPressed: () {
-                            Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+                            Navigator.pushNamedAndRemoveUntil(
+                                context, '/login', (route) => false);
                           },
                         )
                       ],
