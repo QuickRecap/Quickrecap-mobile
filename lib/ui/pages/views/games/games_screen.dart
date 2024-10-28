@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:quickrecap/data/repositories/local_storage_service.dart';
 import 'package:quickrecap/ui/constants/constants.dart';
 import '../../../../domain/entities/activity.dart';
 import '../../../providers/get_activities_for_user_provider.dart';
@@ -17,7 +18,7 @@ class GamesScreen extends StatefulWidget {
 }
 
 class _GamesScreenState extends State<GamesScreen> {
-  String? userId;
+  //String? userId;
   List<Activity> activities = [];
   bool isLoading = false;
   bool isDialogLoading = false;
@@ -26,6 +27,8 @@ class _GamesScreenState extends State<GamesScreen> {
   String searchQuery = '';
   List<Activity> allActivities = []; // Lista para almacenar todas las actividades
   String? isChangingPrivacyFor;
+
+  LocalStorageService localStorageService = LocalStorageService();
 
   @override
   void initState() {
@@ -458,13 +461,15 @@ class _GamesScreenState extends State<GamesScreen> {
                   });
 
                   try {
-                    final response = await http.put(
-                      Uri.parse('http://10.0.2.2:8000/quickrecap/activity/update/${activity.id}'),
+                    int userId = await localStorageService.getCurrentUserId();
+                    final response = await http.post(
+                      Uri.parse('http://10.0.2.2:8000/quickrecap/favorite/update/${activity.id}'),
                       headers: <String, String>{
                         'Content-Type': 'application/json; charset=UTF-8',
                       },
                       body: jsonEncode(<String, dynamic>{
                         'favorito': !isFavorite,
+                        'user': userId,
                       }),
                     );
 
@@ -677,13 +682,15 @@ class _GamesScreenState extends State<GamesScreen> {
                                     });
 
                                     try {
-                                      final response = await http.put(
-                                        Uri.parse('http://10.0.2.2:8000/quickrecap/activity/update/${activity.id}'),
+                                      int userId = await localStorageService.getCurrentUserId();
+                                      final response = await http.post(
+                                        Uri.parse('http://10.0.2.2:8000/quickrecap/favorite/update/${activity.id}'),
                                         headers: <String, String>{
                                           'Content-Type': 'application/json; charset=UTF-8',
                                         },
                                         body: jsonEncode(<String, dynamic>{
                                           'favorito': !isFavorite,
+                                          'user': userId,
                                         }),
                                       );
 

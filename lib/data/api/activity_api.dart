@@ -12,31 +12,34 @@ import '../../domain/entities/activity.dart';
 import '../repositories/local_storage_service.dart';
 
 class ActivityApi {
-  Future<QuizActivity?> createQuiz(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
+  Future<QuizActivity?> createQuiz(String activityName, int activityTimer,
+      int activityQuantity, String pdfUrl) async {
     // Obtener el userId desde el servicio de almacenamiento local
     LocalStorageService localStorageService = LocalStorageService();
     int userId = await localStorageService.getCurrentUserId();
 
-    final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/quickrecap/activity/create'),
-        body: jsonEncode({
-          'tipo_actividad': "Quiz",
-          'tiempo_por_pregunta': activityTimer,
-          'numero_preguntas': activityQuantity,
-          'nombre': activityName,
-          'pdf_url': pdfUrl,
-          'usuario': userId,
-        }),
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',  // Asegura UTF-8 en la cabecera
-        }
-    );
+    final response = await http
+        .post(Uri.parse('http://10.0.2.2:8000/quickrecap/activity/create'),
+            body: jsonEncode({
+              'tipo_actividad': "Quiz",
+              'tiempo_por_pregunta': activityTimer,
+              'numero_preguntas': activityQuantity,
+              'nombre': activityName,
+              'pdf_url': pdfUrl,
+              'usuario': userId,
+            }),
+            headers: {
+          'Content-Type':
+              'application/json; charset=UTF-8', // Asegura UTF-8 en la cabecera
+        });
 
     // Verificamos si el código de estado es 200 o 201
     if (response.statusCode == 200 || response.statusCode == 201) {
       final data = json.decode(utf8.decode(response.bodyBytes));
 
-      if (data['flashcards'] != null && data['quiz'] != null && data['quiz'] != null) {
+      if (data['flashcards'] != null &&
+          data['quiz'] != null &&
+          data['quiz'] != null) {
         List<Flashcard> flashcards = (data['flashcards'] as List)
             .map((flashcardJson) => Flashcard.fromJson(flashcardJson))
             .toList();
@@ -65,31 +68,34 @@ class ActivityApi {
     }
   }
 
-  Future<GapsActivity?> createGaps(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
+  Future<GapsActivity?> createGaps(String activityName, int activityTimer,
+      int activityQuantity, String pdfUrl) async {
     // Obtener el userId desde el servicio de almacenamiento local
     LocalStorageService localStorageService = LocalStorageService();
     int userId = await localStorageService.getCurrentUserId();
 
-    final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/quickrecap/activity/create'),
-        body: jsonEncode({
-          'tipo_actividad': "Gaps",
-          'tiempo_por_pregunta': activityTimer,
-          'numero_preguntas': activityQuantity,
-          'nombre': activityName,
-          'pdf_url': pdfUrl,
-          'usuario': userId,
-        }),
-        headers: {
-          'Content-Type': 'application/json; charset=UTF-8',  // Asegura UTF-8 en la cabecera
-        }
-    );
+    final response = await http
+        .post(Uri.parse('http://10.0.2.2:8000/quickrecap/activity/create'),
+            body: jsonEncode({
+              'tipo_actividad': "Gaps",
+              'tiempo_por_pregunta': activityTimer,
+              'numero_preguntas': activityQuantity,
+              'nombre': activityName,
+              'pdf_url': pdfUrl,
+              'usuario': userId,
+            }),
+            headers: {
+          'Content-Type':
+              'application/json; charset=UTF-8', // Asegura UTF-8 en la cabecera
+        });
 
     // Verificamos si el código de estado es 200 o 201
     if (response.statusCode == 200 || response.statusCode == 201) {
       final data = json.decode(utf8.decode(response.bodyBytes));
 
-      if (data['flashcards'] != null && data['gaps'] != null && data['activity'] != null) {
+      if (data['flashcards'] != null &&
+          data['gaps'] != null &&
+          data['activity'] != null) {
         List<Flashcard> flashcards = (data['flashcards'] as List)
             .map((flashcardJson) => Flashcard.fromJson(flashcardJson))
             .toList();
@@ -118,29 +124,31 @@ class ActivityApi {
     }
   }
 
-  Future<LinkersActivity?> createLinkers(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
+  Future<LinkersActivity?> createLinkers(String activityName, int activityTimer,
+      int activityQuantity, String pdfUrl) async {
     LocalStorageService localStorageService = LocalStorageService();
     int userId = await localStorageService.getCurrentUserId();
 
-    final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/quickrecap/activity/create'),
-        body: jsonEncode({
-          'tipo_actividad': "Linkers",
-          'tiempo_por_pregunta': activityTimer,
-          'numero_preguntas': activityQuantity,
-          'nombre': activityName,
-          'pdf_url': pdfUrl,
-          'usuario': userId,
-        }),
-        headers: {
+    final response = await http
+        .post(Uri.parse('http://10.0.2.2:8000/quickrecap/activity/create'),
+            body: jsonEncode({
+              'tipo_actividad': "Linkers",
+              'tiempo_por_pregunta': activityTimer,
+              'numero_preguntas': activityQuantity,
+              'nombre': activityName,
+              'pdf_url': pdfUrl,
+              'usuario': userId,
+            }),
+            headers: {
           'Content-Type': 'application/json; charset=UTF-8',
-        }
-    );
+        });
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       final data = json.decode(utf8.decode(response.bodyBytes));
 
-      if (data['flashcards'] != null && data['linkers'] != null && data['activity'] != null) {
+      if (data['flashcards'] != null &&
+          data['linkers'] != null &&
+          data['activity'] != null) {
         List<Flashcard> flashcards = (data['flashcards'] as List)
             .map((flashcardJson) => Flashcard.fromJson(flashcardJson))
             .toList();
@@ -148,9 +156,9 @@ class ActivityApi {
         List<Linkers> linkers = (data['linkers'] as List)
             .asMap()
             .map((index, linkersJson) => MapEntry(
-          index,
-          Linkers.fromJson(linkersJson, index),
-        ))
+                  index,
+                  Linkers.fromJson(linkersJson, index),
+                ))
             .values
             .toList();
 
@@ -172,7 +180,8 @@ class ActivityApi {
     }
   }
 
-  Future<FlashcardActivity?> createFlashCard(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
+  Future<FlashcardActivity?> createFlashCard(String activityName,
+      int activityTimer, int activityQuantity, String pdfUrl) async {
     // Obtener el userId desde el servicio de almacenamiento local
     LocalStorageService localStorageService = LocalStorageService();
     int userId = await localStorageService.getCurrentUserId();
@@ -188,7 +197,8 @@ class ActivityApi {
         'usuario': userId,
       }),
       headers: {
-        'Content-Type': 'application/json; charset=UTF-8',  // Asegura UTF-8 en la cabecera
+        'Content-Type':
+            'application/json; charset=UTF-8', // Asegura UTF-8 en la cabecera
       },
     );
 
@@ -207,8 +217,7 @@ class ActivityApi {
             name: data['activity']['nombre'],
             quantity: data['activity']['numero_preguntas'],
             timer: data['activity']['tiempo_pregunta'],
-            isRated: false
-        );
+            isRated: false);
       } else {
         // Si los campos flashcards o quiz no están en la respuesta
         return null;
@@ -220,7 +229,8 @@ class ActivityApi {
     }
   }
 
-  Future<bool> rateActivity(int activityId, int rating, String commentary) async{
+  Future<bool> rateActivity(
+      int activityId, int rating, String commentary) async {
     LocalStorageService localStorageService = LocalStorageService();
     int userId = await localStorageService.getCurrentUserId();
 
@@ -241,31 +251,28 @@ class ActivityApi {
     return response.statusCode == 200 || response.statusCode == 201;
   }
 
-  Future<List<Activity>> getActivityListByUserId(int tabIndex) async{
-
+  Future<List<Activity>> getActivityListByUserId(int tabIndex) async {
     LocalStorageService localStorageService = LocalStorageService();
     int userId = await localStorageService.getCurrentUserId();
 
-    String baseUrl  = 'http://10.0.2.2:8000/quickrecap/activity/search/$userId';
+    String baseUrl = 'http://10.0.2.2:8000/quickrecap/activity/search/$userId';
 
     // Si el tabIndex es 1, agregamos el parámetro 'favorito'
     if (tabIndex == 1) {
-      baseUrl = '?favorito=true';
+      baseUrl += '?favorito=true';
     }
 
     try {
       final response = await http.get(Uri.parse(baseUrl));
       if (response.statusCode == 200) {
-        final List<dynamic> decodedData = json.decode(response.body);
-
-        // Convertimos el JSON en una lista de actividades
-        return decodedData.map((json) => Activity.fromJson(json)).toList();
+        final Map<String, dynamic> jsonData = json.decode(response.body);
+        final List<dynamic> activitiesList = jsonData['activities'];
+        return activitiesList.map((json) => Activity.fromJson(json)).toList();
       } else {
         throw Exception('Error al cargar las actividades');
       }
     } catch (e) {
       throw Exception('Error de conexión: $e');
     }
-
   }
 }
