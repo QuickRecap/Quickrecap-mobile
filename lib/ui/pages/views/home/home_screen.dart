@@ -65,11 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = json.decode(response.body);
         setState(() {
-          // Tomamos solo los dos primeros elementos usando take(2)
           activities =
               jsonData.take(2).map((data) => Activity.fromJson(data)).toList();
-
-          // Convertimos las actividades al formato requerido para topActivities
           topActivities = activities
               .map((activity) => {
                     'name': activity.name,

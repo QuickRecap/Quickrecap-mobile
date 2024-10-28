@@ -399,6 +399,7 @@ class _PlayGapsState extends State<PlayGaps> {
                         ),
                       ),
                       child: RichText(
+                        textAlign: TextAlign.justify,
                         text: TextSpan(
                           style: TextStyle(
                             fontSize: 18,
