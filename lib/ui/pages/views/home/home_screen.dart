@@ -3,7 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:quickrecap/data/api/home_api.dart';
+import 'package:quickrecap/data/repositories/local_storage_service.dart';
 import 'package:quickrecap/domain/entities/home.dart';
+import 'package:quickrecap/domain/entities/user.dart';
 import 'package:quickrecap/ui/constants/constants.dart';
 import 'package:quickrecap/ui/common/custom_container.dart';
 import 'package:quickrecap/ui/controllers/tab_index_controller.dart';
@@ -22,6 +24,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final HomeApi _homeService = HomeApi();
   HomeStats? _stats;
+
+  LocalStorageService localStorageService = LocalStorageService();
 
   @override
   void initState() {
@@ -90,27 +94,39 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             SizedBox(width: 15.w),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  "Hola, Diego!",
-                                  style: TextStyle(
-                                    color: kWhite,
-                                    fontSize: 18.sp,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                Text(
-                                  "¿Listo para aprender?",
-                                  style: TextStyle(
-                                    color: kWhite,
-                                    fontSize: 16.sp,
-                                    fontFamily: 'Poppins',
-                                  ),
-                                ),
-                              ],
+                            FutureBuilder<User?>(
+                              future: LocalStorageService().getCurrentUser(),
+                              builder: (context, snapshot) {
+                                String userName =
+                                    "Usuario"; // Valor por defecto
+
+                                if (snapshot.hasData && snapshot.data != null) {
+                                  userName = snapshot.data!.firstName;
+                                }
+
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Hola, $userName!",
+                                      style: TextStyle(
+                                        color: kWhite,
+                                        fontSize: 18.sp,
+                                        fontFamily: 'Poppins',
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Text(
+                                      "¿Listo para aprender?",
+                                      style: TextStyle(
+                                        color: kWhite,
+                                        fontSize: 16.sp,
+                                        fontFamily: 'Poppins',
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
                             ),
                           ],
                         ),
@@ -121,9 +137,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             size: 30.sp,
                           ),
                           onPressed: () {
-                            // Logout button action
+                            Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
                           },
-                        ),
+                        )
                       ],
                     ),
                     SizedBox(height: 20.h),
