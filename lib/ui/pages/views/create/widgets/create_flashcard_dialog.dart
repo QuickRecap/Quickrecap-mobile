@@ -122,7 +122,7 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                     }
 
                     // Expresión regular para permitir solo letras, números y espacios
-                    RegExp regExp = RegExp(r'^[a-zA-Z0-9\s]+$');
+                    RegExp regExp = RegExp(r'^[a-zA-Z0-9\s\-]+$');
                     if (!regExp.hasMatch(value)) {
                       return 'No se permiten caracteres especiales';
                     }
@@ -205,7 +205,7 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                   const SizedBox(height: 10),
                   CustomSelectInput(
                     label: "Selecciona una opción",
-                    suffix: " flascards",
+                    suffix: " flashcards",
                     value: widget.activityQuantityController.text.isEmpty ? null : widget.activityQuantityController.text,
                     options: ["15", "10", "8", "5"],
                     onChanged: (String? newValue) {

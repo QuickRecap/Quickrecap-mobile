@@ -49,6 +49,7 @@ import 'ui/providers/get_activities_for_user_provider.dart';
 import 'ui/providers/get_pdfs_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'services/activity_tracking_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -59,10 +60,14 @@ void main() async {
   final supportApi = SupportApi();
   final pdfApi = PdfApi();
   final activityApi = ActivityApi();
+  final activityTrackingService = ActivityTrackingService();
 
   runApp(
     MultiProvider(
       providers: [
+        Provider<ActivityTrackingService>.value(
+          value: activityTrackingService,
+        ),
         ChangeNotifierProvider(
           create: (_) => LoginProvider(LoginUseCase(UserRepositoryImpl(userApi))),
         ),
@@ -109,14 +114,21 @@ void main() async {
           create: (_) => GetActivitiesForUserProvider(GetActivitiesForUserUseCase(ActivityRepositoryImpl(activityApi))),
         ),
       ],
-      child: const MyApp(),
+      child: MyApp(activityTrackingService: activityTrackingService),
     ),
   );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class MyApp extends StatefulWidget {
+  final ActivityTrackingService activityTrackingService;
 
+  MyApp({Key? key, required this.activityTrackingService}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
@@ -124,37 +136,42 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return MaterialApp(
-          title: 'Flutter App',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            fontFamily: 'Poppins',
-            primarySwatch: Colors.blue,
-            textTheme: Typography.englishLike2018.apply(
-              fontSizeFactor: 1.sp,
-            ),
-          ),
-          localizationsDelegates: [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: [
-            const Locale('es', ''), // Español
-          ],
-          initialRoute: '/login',
-          routes: {
-            '/login': (context) => LoginScreen(),
-            '/register': (context) => const RegisterScreen(),
-            '/terms_conditions': (context) => TermsConditionsScreen(),
-            '/entrypoint': (context) => MainScreen(),
-            '/configuration': (context) => ConfigurationScreen(),
-            '/support': (context) => SupportScreen(),
-            '/password': (context) => PasswordScreen(),
-            '/information': (context) => ProfileInformationScreen(),
-            '/select_pdf': (context) => SelectPdfScreen(),
-            '/games': (context) => GamesScreen(),
+        return GestureDetector(
+          onTap: () {
+            widget.activityTrackingService.registerClick();
           },
+          child: MaterialApp(
+            title: 'Flutter App',
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              fontFamily: 'Poppins',
+              primarySwatch: Colors.blue,
+              textTheme: Typography.englishLike2018.apply(
+                fontSizeFactor: 1.sp,
+              ),
+            ),
+            localizationsDelegates: [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: [
+              const Locale('es', ''), // Español
+            ],
+            initialRoute: '/login',
+            routes: {
+              '/login': (context) => LoginScreen(),
+              '/register': (context) => const RegisterScreen(),
+              '/terms_conditions': (context) => TermsConditionsScreen(),
+              '/entrypoint': (context) => MainScreen(),
+              '/configuration': (context) => ConfigurationScreen(),
+              '/support': (context) => SupportScreen(),
+              '/password': (context) => PasswordScreen(),
+              '/information': (context) => ProfileInformationScreen(),
+              '/select_pdf': (context) => SelectPdfScreen(),
+              '/games': (context) => GamesScreen(),
+            },
+          ),
         );
       },
     );
