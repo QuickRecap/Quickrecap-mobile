@@ -205,7 +205,7 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                   const SizedBox(height: 10),
                   CustomSelectInput(
                     label: "Selecciona una opción",
-                    suffix: " flascards",
+                    suffix: " flashcards",
                     value: widget.activityQuantityController.text.isEmpty ? null : widget.activityQuantityController.text,
                     options: ["15", "10", "8", "5"],
                     onChanged: (String? newValue) {

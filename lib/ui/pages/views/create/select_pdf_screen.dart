@@ -29,16 +29,10 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchUserId();
+    getPdfsByUserId();
   }
 
-  Future<void> _fetchUserId() async {
-    LocalStorageService localStorageService = LocalStorageService();
-    userId = await localStorageService.getCurrentUserId();
-    getPdfsByUserId(userId);
-  }
-
-  Future<void> getPdfsByUserId(userId) async {
+  Future<void> getPdfsByUserId() async {
 
     setState(() {
       isLoading = true;
@@ -46,7 +40,7 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
 
     try {
       final getPdfsProvider = Provider.of<GetPdfsProvider>(context, listen: false);
-      List<Pdf>? pdfs = await getPdfsProvider.getPdfsByUserId(userId);
+      List<Pdf>? pdfs = await getPdfsProvider.getPdfsByUserId();
 
       //await Future.delayed(Duration(seconds: 2)); // Temporizador de 2 segundos
 

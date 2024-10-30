@@ -6,9 +6,9 @@ class GetPdfsUseCase {
 
   GetPdfsUseCase(this.pdfRepository);
 
-  Future<List<Pdf>?> getPdfsByUserId(int userId) async {
+  Future<List<Pdf>?> getPdfsByUserId() async {
     try {
-      return await pdfRepository.getPdfsByUserId(userId);
+      return await pdfRepository.getPdfsByUserId();
     } catch (e) {
       return null;
     }

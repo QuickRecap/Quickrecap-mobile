@@ -8,7 +8,7 @@ class GetPdfsProvider extends ChangeNotifier {
   // Constructor que inicializa el supportUseCase
   GetPdfsProvider(this.getPdfsUseCase);
 
-  Future<List<Pdf>?> getPdfsByUserId(int userId) async {
-    return await getPdfsUseCase.getPdfsByUserId(userId);
+  Future<List<Pdf>?> getPdfsByUserId() async {
+    return await getPdfsUseCase.getPdfsByUserId();
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../domain/entities/pdf.dart';
+import '../repositories/local_storage_service.dart';
 
 class PdfApi {
   Future<bool> postPdf(String pdfName, String url, int userId) async {
@@ -24,7 +25,24 @@ class PdfApi {
     return response.statusCode == 200 || response.statusCode == 201;
   }
 
-  Future<List<Pdf>?> getPdfsByUserId(int userId) async {
+  Future<bool> deletePdf(int pdfId) async {
+
+    final response = await http.delete(
+      Uri.parse('http://10.0.2.2:8000/quickrecap/file/delete/$pdfId'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
+
+    // Consider both 200 OK and 201 Created as success
+    return response.statusCode == 200 || response.statusCode == 201;
+  }
+
+  Future<List<Pdf>?> getPdfsByUserId() async {
+
+    LocalStorageService localStorageService = LocalStorageService();
+    int userId = await localStorageService.getCurrentUserId();
+
     try {
       final response = await http.get(
         Uri.parse('http://10.0.2.2:8000/quickrecap/file/search/$userId'),
