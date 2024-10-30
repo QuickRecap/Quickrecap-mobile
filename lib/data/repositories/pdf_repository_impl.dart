@@ -8,8 +8,8 @@ class PdfRepositoryImpl implements PdfRepository{
   PdfRepositoryImpl(this.pdfApi);
 
   @override
-  Future<bool> postPdf(String pdfName, String url, int userId) async {
-    return await pdfApi.postPdf(pdfName, url, userId);
+  Future<bool> postPdf(String pdfName, String url) async {
+    return await pdfApi.postPdf(pdfName, url);
   }
 
   @override

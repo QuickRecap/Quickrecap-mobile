@@ -5,9 +5,9 @@ class SavePdfUseCase {
 
   SavePdfUseCase(this.pdfRepository);
 
-  Future<bool> savePdf(String pdfName, String url, int userId) async {
+  Future<bool> savePdf(String pdfName, String url) async {
     try {
-      return await pdfRepository.postPdf(pdfName, url, userId);
+      return await pdfRepository.postPdf(pdfName, url);
     } catch (e) {
       return false;
     }

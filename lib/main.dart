@@ -11,6 +11,7 @@ import 'data/repositories/user_repository_impl.dart';
 import 'data/repositories/activity_repository_impl.dart';
 import 'application/login_use_case.dart';
 import 'application/save_pdf_use_case.dart';
+import 'application/delete_pdf_use_case.dart';
 import 'application/register_use_case.dart';
 import 'application/password_use_case.dart';
 import 'application/support_use_case.dart';
@@ -34,6 +35,7 @@ import 'ui/pages/views/profile/password_screen.dart';
 import 'ui/pages/views/profile/information_screen.dart';
 import 'ui/pages/views/create/select_pdf_screen.dart';
 import 'ui/providers/login_provider.dart';
+import 'ui/providers/delete_pdf_provider.dart';
 import 'ui/providers/upload_pdf_provider.dart';
 import 'ui/providers/register_provider.dart';
 import 'ui/providers/support_provider.dart';
@@ -63,6 +65,9 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(
+          create: (_) => DeletePdfsProvider(DeletePdfUseCase(PdfRepositoryImpl(pdfApi))),
+        ),
         ChangeNotifierProvider(
           create: (_) => LoginProvider(LoginUseCase(UserRepositoryImpl(userApi))),
         ),

@@ -7,7 +7,7 @@ class UploadPdfProvider extends ChangeNotifier {
   // Constructor que inicializa el supportUseCase
   UploadPdfProvider(this.savePdfUseCase);
 
-  Future<bool> uploadPdf(String pdfName, String url, int userId) async {
-    return await savePdfUseCase.savePdf(pdfName, url, userId);
+  Future<bool> uploadPdf(String pdfName, String url) async {
+    return await savePdfUseCase.savePdf(pdfName, url);
   }
 }

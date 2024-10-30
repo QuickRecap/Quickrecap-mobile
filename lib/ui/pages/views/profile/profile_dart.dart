@@ -6,6 +6,10 @@ import '../../../../domain/entities/user.dart';
 import '../../../../domain/entities/pdf.dart';
 import '../../../providers/get_pdfs_provider.dart';
 import 'package:provider/provider.dart';
+import '../../../providers/delete_pdf_provider.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatefulWidget {
   final User user;
@@ -19,11 +23,33 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   List<Map<String, String>> pdfList = [];
   bool isLoading = false;
+  int puntos = 0;
+  int completadas = 0;
+  int generadas = 0;
 
   @override
   void initState() {
     super.initState();
     getPdfsByUserId();
+    _fetchEstadisticas();
+  }
+
+  Future<void> _fetchEstadisticas() async {
+    final response = await http.get(
+      Uri.parse('http://10.0.2.2:8000/quickrecap/user/estadistics/7'),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        puntos = data['puntos'];
+        completadas = data['completadas'];
+        generadas = data['generadas'];
+      });
+    } else {
+      // Maneja el error aquí, si lo necesitas
+      print('Error al obtener datos: ${response.statusCode}');
+    }
   }
 
   Future<void> getPdfsByUserId() async {
@@ -60,15 +86,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           name: pdfData['name'] ?? '',
           url: pdfData['url'] ?? '',
         );
-
-        Navigator.pushNamed(
-          context,
-          '/entrypoint',
-          arguments: {
-            'selectedPdf': selectedPdf,
-            'initialIndex': 2
-          },
-        );
       },
       onLongPress: () {
         showModalBottomSheet(
@@ -104,6 +121,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ],
                   ),
                   SizedBox(height: 16.h),
+                  // Nombre
                   Padding(
                     padding: EdgeInsets.only(left: 6, bottom: 7),
                     child: Text('Nombre:',
@@ -139,71 +157,130 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
                         ),
                         builder: (BuildContext context) {
-                          return Container(
-                            padding: EdgeInsets.all(24.w),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'Confirmar eliminación',
-                                  style: TextStyle(
-                                    fontSize: 18.sp,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
+                          bool _localIsLoading = false;
+
+                          return StatefulBuilder(
+                              builder: (BuildContext context, StateSetter setState) {
+                                return Container(
+                                  padding: EdgeInsets.all(24.w),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'Confirmar eliminación',
+                                        style: TextStyle(
+                                          fontSize: 18.sp,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      SizedBox(height: 16.h),
+                                      Text(
+                                        '¿Desea eliminar el PDF "${pdfData['name'] ?? ''}"?',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 14.sp,
+                                          color: Color(0xff9A9A9A),
+                                          fontFamily: "poppins",
+                                        ),
+                                      ),
+                                      SizedBox(height: 24.h),
+                                      ElevatedButton(
+                                        onPressed: _localIsLoading
+                                            ? null
+                                            : () async {
+                                          try {
+                                            setState(() {
+                                              _localIsLoading = true;
+                                            });
+
+                                            final deletePdfProvider = Provider.of<DeletePdfsProvider>(context, listen: false);
+
+                                            // Verificar si el ID existe y es válido
+                                            final pdfId = pdfData['id'];
+                                            if (pdfId == null) {
+                                              throw Exception('ID del PDF no encontrado');
+                                            }
+
+                                            bool isSuccess = await deletePdfProvider.deleteById(int.parse(pdfId.toString()));
+
+                                            if (isSuccess) {
+                                              Navigator.of(context).pop(); // Cerrar el diálogo de confirmación
+                                              // Opcional: Mostrar un mensaje de éxito
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                SnackBar(
+                                                  content: Text('PDF eliminado correctamente'),
+                                                  backgroundColor: Colors.green,
+                                                ),
+                                              );
+                                            } else {
+                                              throw Exception('No se pudo eliminar el PDF');
+                                            }
+                                          } catch (e) {
+                                            // Mostrar error al usuario
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(
+                                                content: Text('Error al eliminar el PDF: ${e.toString()}'),
+                                                backgroundColor: Colors.red,
+                                              ),
+                                            );
+                                          } finally {
+                                            if (mounted) {
+                                              setState(() {
+                                                _localIsLoading = false;
+                                              });
+                                            }
+                                          }
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Color(0xFFFF3B30),
+                                          minimumSize: Size(double.infinity, 48.h),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(15.r),
+                                          ),
+                                        ),
+                                        child: _localIsLoading
+                                            ? SizedBox(
+                                          width: 24,
+                                          height: 24,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                            : Text(
+                                            'Eliminar',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontFamily: 'Poppins',
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.w600,
+                                            )
+                                        ),
+                                      ),
+                                      SizedBox(height: 12.h),
+                                      TextButton(
+                                        onPressed: _localIsLoading
+                                            ? null
+                                            : () {
+                                          Navigator.pop(context);
+                                        },
+                                        style: TextButton.styleFrom(
+                                          minimumSize: Size(double.infinity, 48.h),
+                                        ),
+                                        child: Text(
+                                          'Cancelar',
+                                          style: TextStyle(
+                                            fontSize: 14.sp,
+                                            color: Color(0xff9A9A9A),
+                                            fontFamily: "poppins",
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                SizedBox(height: 16.h),
-                                Text(
-                                  '¿Desea eliminar el PDF "${pdfData['name']}"?',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 14.sp,
-                                    color: Color(0xff9A9A9A),
-                                    fontFamily: "poppins",
-                                  ),
-                                ),
-                                SizedBox(height: 24.h),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    // Add your delete logic here
-                                    Navigator.pop(context);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(0xFFFF3B30),
-                                    minimumSize: Size(double.infinity, 48.h),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15.r),
-                                    ),
-                                  ),
-                                  child: Text(
-                                    'Eliminar',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontFamily: 'Poppins',
-                                        fontSize: 17,
-                                        fontWeight: FontWeight.w600,
-                                      )
-                                  ),
-                                ),
-                                SizedBox(height: 12.h),
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  style: TextButton.styleFrom(
-                                    minimumSize: Size(double.infinity, 48.h),
-                                  ),
-                                  child: Text(
-                                    'Cancelar',
-                                    style: TextStyle(
-                                      fontSize: 14.sp,
-                                      color: Color(0xff9A9A9A),
-                                      fontFamily: "poppins",
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
+                                );
+                              }
                           );
                         },
                       );
@@ -214,11 +291,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15),
                       ),
-                      elevation: 0,// Especifica width y height
+                      elevation: 0,
                       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                     ),
                     child: Text(
-                      'Eliminar PDF',
+                        'Eliminar PDF',
                         style: TextStyle(
                           color: Colors.white,
                           fontFamily: 'Poppins',
@@ -277,7 +354,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.all(16.w),
+            padding: EdgeInsets.only(
+              left: 16.w,
+              right: 16.w,
+              top: 20.w, // Reemplaza <tu_valor> con el valor deseado para el top
+            ),
             child: Text(
               'Mis PDFs',
               style: TextStyle(
@@ -299,7 +380,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           else if (pdfList.isEmpty)
             Center(
               child: Padding(
-                padding: EdgeInsets.all(20.h),
+                padding: EdgeInsets.only(
+                  left: 16.w,
+                  right: 16.w,
+                  bottom: 16.w,
+                  top: 16.w, // Reemplaza <tu_valor> con el valor deseado para el top
+                ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -324,20 +410,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
             )
           else
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 16.w,
-                  mainAxisSpacing: 16.h,
-                  childAspectRatio: 0.75, // Ajustado para acomodar el texto debajo
+              padding: EdgeInsets.symmetric(horizontal: 16.w), // Quitado el vertical padding
+              child: Container(
+                margin: EdgeInsets.only(top: 15.h),
+                child: GridView.builder(
+                  padding: EdgeInsets.zero, // Añadido para eliminar el padding interno del GridView
+                  shrinkWrap: true,
+                  physics: NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16.w,
+                    mainAxisSpacing: 16.h,
+                    childAspectRatio: 0.75,
+                  ),
+                  itemCount: pdfList.length,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      child: _buildPdfItem(pdfData: pdfList[index]),
+                    );
+                  },
                 ),
-                itemCount: pdfList.length,
-                itemBuilder: (context, index) {
-                  return _buildPdfItem(pdfData: pdfList[index]);
-                },
               ),
             ),
           if (!isLoading && pdfList.isNotEmpty)
@@ -417,12 +509,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   padding: EdgeInsets.symmetric(horizontal: 26.w),
                   child: Column(
                     children: [
-                      SizedBox(height: 120.h),
+                      SizedBox(height: 100.h),
                       _buildPdfSection(),
                     ],
                   ),
                 ),
-                SizedBox(height: 20.h),
+                SizedBox(height: 16.h),
               ],
             ),
             Positioned(
@@ -496,7 +588,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatColumn('1,025', 'puntos\n'),
+              _buildStatColumn('$puntos', 'puntos\n'),
               Container(
                 height: 78.0,
                 child: VerticalDivider(
@@ -505,7 +597,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   width: 1,
                 ),
               ),
-              _buildStatColumn('105', 'actividades\ncompletadas'),
+              _buildStatColumn('$completadas', 'actividades\ncompletadas'),
               Container(
                 height: 78.0,
                 child: VerticalDivider(
@@ -514,7 +606,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   width: 1,
                 ),
               ),
-              _buildStatColumn('10', 'actividades\ngeneradas'),
+              _buildStatColumn('$generadas', 'actividades\ngeneradas'),
             ],
           ),
         ],

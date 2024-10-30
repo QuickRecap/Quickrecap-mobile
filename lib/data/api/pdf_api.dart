@@ -4,7 +4,10 @@ import '../../domain/entities/pdf.dart';
 import '../repositories/local_storage_service.dart';
 
 class PdfApi {
-  Future<bool> postPdf(String pdfName, String url, int userId) async {
+  Future<bool> postPdf(String pdfName, String url) async {
+    LocalStorageService localStorageService = LocalStorageService();
+    int userId = await localStorageService.getCurrentUserId();
+
     final body = jsonEncode({
       "nombre": pdfName,
       "url": url,
@@ -35,7 +38,7 @@ class PdfApi {
     );
 
     // Consider both 200 OK and 201 Created as success
-    return response.statusCode == 200 || response.statusCode == 201;
+    return response.statusCode == 200 || response.statusCode == 204;
   }
 
   Future<List<Pdf>?> getPdfsByUserId() async {

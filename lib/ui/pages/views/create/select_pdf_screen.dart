@@ -121,12 +121,19 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
         final uploadPdfProvider = Provider.of<UploadPdfProvider>(context, listen: false);
         bool success = await uploadPdfProvider.uploadPdf(
             selectedPdf.name,
-            selectedPdf.url,
-            userId
-        ).timeout(Duration(seconds: 30)); // Añadimos un timeout de 15 segundos
+            selectedPdf.url
+        ).timeout(Duration(seconds: 60)); // Añadimos un timeout de 15 segundos
 
         if (success) {
-          //Navigator.pushNamed(context, '/login');
+          // Navegar al entrypoint (MainScreen) y pasar el PDF seleccionado
+          Navigator.pushNamed(
+            context,
+            '/entrypoint',
+            arguments: {
+              'selectedPdf': selectedPdf,  // Aquí pasas el objeto Pdf
+              'initialIndex': 2    // Para asegurarte que la pestaña "Crear" esté seleccionada
+            },
+          );
         } else {
           _showErrorSnackBar("No se pudo guardar este pdf en tu lista");
         }
@@ -137,17 +144,6 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
       } finally {
         //setState(() => _isLoading = false);
       }
-
-
-      // Navegar al entrypoint (MainScreen) y pasar el PDF seleccionado
-      Navigator.pushNamed(
-        context,
-        '/entrypoint',
-        arguments: {
-          'selectedPdf': selectedPdf,  // Aquí pasas el objeto Pdf
-          'initialIndex': 2    // Para asegurarte que la pestaña "Crear" esté seleccionada
-        },
-      );
     } catch (e) {
       // Si ocurre un error durante el procesamiento, mostrar el diálogo de error
       _showErrorDialog(context, 'Error al procesar el PDF: $e');
