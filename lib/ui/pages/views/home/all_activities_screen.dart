@@ -6,6 +6,15 @@ import 'package:quickrecap/ui/constants/constants.dart';
 import 'package:quickrecap/domain/entities/activity.dart';
 import 'package:http/http.dart' as http;
 import '../../../../data/repositories/local_storage_service.dart';
+import '../../../../domain/entities/quiz_activity.dart';
+import '../../../../domain/entities/flashcard_activity.dart';
+import '../../../../domain/entities/quiz.dart';
+import '../../../../domain/entities/gaps.dart';
+import '../../../../domain/entities/linkers.dart';
+import '../../../../domain/entities/gaps_activity.dart';
+import '../../../../domain/entities/linkers_activity.dart';
+import '../../../../domain/entities/flashcard.dart';
+import '../activities/flashcards/play_flashcards.dart';
 
 class AllActivitiesScreen extends StatefulWidget {
   const AllActivitiesScreen({Key? key}) : super(key: key);
@@ -77,7 +86,8 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
     });
   }
 
-  void PlayActivity(int activityId) async{
+  void PlayActivity(int activityId) async {
+    dynamic activityData;
     try {
       final response = await http.get(
         Uri.parse('http://10.0.2.2:8000/quickrecap/activity/research?id=$activityId'),
@@ -86,11 +96,112 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
         },
       );
 
-      if (response.statusCode == 200) {
-        final List<dynamic> jsonData = json.decode(response.body);
-        setState(() {
-          activities = jsonData.map((data) => Activity.fromJson(data)).toList();
-        });
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final data = json.decode(utf8.decode(response.bodyBytes));
+        String tipoActividad = data['actividad']['tipo_actividad'];  // Cambiado a 'actividad'
+
+        switch (tipoActividad) {
+          case 'Quiz':
+            if (data['flashcards'] != null && data['quiz'] != null && data['actividad'] != null) {
+              List<Flashcard> flashcards = (data['flashcards'] as List)
+                  .map((flashcardJson) => Flashcard.fromJson(flashcardJson))
+                  .toList();
+
+              List<Quiz> quizzes = (data['quiz'] as List)
+                  .map((quizJson) => Quiz.fromJson(quizJson))
+                  .toList();
+
+              activityData = QuizActivity(
+                flashcards: flashcards,
+                quizzes: quizzes,
+                id: data['actividad']['id'],  // Cambiado a 'actividad'
+                name: data['actividad']['nombre'],  // Cambiado a 'actividad'
+                quantity: data['actividad']['numero_preguntas'],  // Cambiado a 'actividad'
+                timer: data['actividad']['tiempo_por_pregunta'],  // Cambiado a 'actividad'
+                isRated: false,
+              );
+            }
+            break;
+
+          case 'Gaps':
+            if (data['flashcards'] != null && data['gaps'] != null && data['actividad'] != null) {
+              List<Flashcard> flashcards = (data['flashcards'] as List)
+                  .map((flashcardJson) => Flashcard.fromJson(flashcardJson))
+                  .toList();
+
+              List<Gaps> gaps = (data['gaps'] as List)
+                  .map((gapsJson) => Gaps.fromJson(gapsJson))
+                  .toList();
+
+              activityData = GapsActivity(
+                flashcards: flashcards,
+                gaps: gaps,
+                id: data['actividad']['id'],  // Cambiado a 'actividad'
+                name: data['actividad']['nombre'],  // Cambiado a 'actividad'
+                quantity: data['actividad']['numero_preguntas'],  // Cambiado a 'actividad'
+                timer: data['actividad']['tiempo_por_pregunta'],  // Cambiado a 'actividad'
+                isRated: false,
+              );
+            }
+            break;
+
+          case 'Linkers':
+            if (data['flashcards'] != null && data['linkers'] != null && data['actividad'] != null) {
+              List<Flashcard> flashcards = (data['flashcards'] as List)
+                  .map((flashcardJson) => Flashcard.fromJson(flashcardJson))
+                  .toList();
+
+              List<Linkers> linkers = (data['linkers'] as List)
+                  .asMap()
+                  .map((index, linkersJson) => MapEntry(
+                index,
+                Linkers.fromJson(linkersJson, index),
+              ))
+                  .values
+                  .toList();
+
+              activityData = LinkersActivity(
+                flashcards: flashcards,
+                linkers: linkers,
+                id: data['actividad']['id'],  // Cambiado a 'actividad'
+                name: data['actividad']['nombre'],  // Cambiado a 'actividad'
+                quantity: data['actividad']['numero_preguntas'],  // Cambiado a 'actividad'
+                timer: data['actividad']['tiempo_por_pregunta'],  // Cambiado a 'actividad'
+                isRated: false,
+              );
+            }
+            break;
+
+          case 'Flashcards':
+            if (data['flashcards'] != null) {
+              List<Flashcard> flashcards = (data['flashcards'] as List)
+                  .map((flashcardJson) => Flashcard.fromJson(flashcardJson))
+                  .toList();
+
+              activityData = FlashcardActivity(
+                id: data['actividad']['id'],  // Cambiado a 'actividad'
+                flashcards: flashcards,
+                name: data['actividad']['nombre'],  // Cambiado a 'actividad'
+                quantity: data['actividad']['numero_preguntas'],  // Cambiado a 'actividad'
+                timer: data['actividad']['tiempo_por_pregunta'],  // Cambiado a 'actividad'
+                isRated: false,
+              );
+            }
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PlayFlashcards(
+                  flashcardActivity: activityData!,
+                  isPreparation: false, // Agrega 'isPreparation' como parámetro nombrado
+                ),
+              ),
+            );
+            break;
+
+          default:
+            print('Tipo de actividad desconocido');
+            activityData = null;
+        }
       } else {
         print('Error: ${response.statusCode}');
       }
