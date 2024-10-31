@@ -58,6 +58,7 @@ class ConfigurationScreen extends StatelessWidget {
               icon: Icons.music_note,
               text: 'Música y Efectos',
               onTap: () {
+                Navigator.pushNamed(context, '/music');
                 // Acción al presionar
               },
             ),

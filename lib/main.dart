@@ -31,6 +31,7 @@ import 'ui/pages/terms_conditions_screen.dart';
 import 'ui/pages/views/profile/configuration_screen.dart';
 import 'ui/pages/views/games/games_screen.dart';
 import 'ui/pages/views/profile/support_screen.dart';
+import 'ui/pages/views/profile/music_screen.dart';
 import 'ui/pages/views/profile/password_screen.dart';
 import 'ui/pages/views/profile/information_screen.dart';
 import 'ui/pages/views/create/select_pdf_screen.dart';
@@ -155,6 +156,7 @@ class MyApp extends StatelessWidget {
             '/entrypoint': (context) => MainScreen(),
             '/configuration': (context) => ConfigurationScreen(),
             '/support': (context) => SupportScreen(),
+            '/music': (context) => MusicScreen(),
             '/password': (context) => PasswordScreen(),
             '/information': (context) => ProfileInformationScreen(),
             '/select_pdf': (context) => SelectPdfScreen(),
