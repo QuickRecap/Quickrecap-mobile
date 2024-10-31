@@ -7,7 +7,7 @@ class AddUserPointsProvider extends ChangeNotifier {
 
   AddUserPointsProvider(this.addUserPointsUseCase);
 
-  Future<bool> addUserPoints(int points) async {
-    return await addUserPointsUseCase.addUserPoints(points);
+  Future<bool> addUserPoints(int points, int activityId) async {
+    return await addUserPointsUseCase.addUserPoints(points, activityId);
   }
 }

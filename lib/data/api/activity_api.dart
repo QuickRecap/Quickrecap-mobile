@@ -235,12 +235,12 @@ class ActivityApi {
     int userId = await localStorageService.getCurrentUserId();
 
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:8000/quickrecap/comments/create'),
+      Uri.parse('http://10.0.2.2:8000/quickrecap/rated/create'),
       body: jsonEncode({
-        "comentario": commentary,
-        "calificacion": rating,
-        "actividad_id": activityId,
-        "usuario": userId
+        "commentary": commentary,
+        "rate": rating,
+        "activity": activityId,
+        "user": userId
       }),
       headers: {
         'Content-Type': 'application/json',

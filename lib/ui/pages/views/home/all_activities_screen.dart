@@ -20,7 +20,6 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
   List<Activity> activities = [];
   bool isDialogLoading = false;
   bool isLoading = false;
-
   LocalStorageService localStorageService = LocalStorageService();
 
 
@@ -31,9 +30,10 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
   }
 
   Future<void> fetchActivities() async {
+    int userId = await localStorageService.getCurrentUserId();
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/quickrecap/activity/research'),
+        Uri.parse('http://10.0.2.2:8000/quickrecap/activity/research?user_id=$userId'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -77,8 +77,26 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
     });
   }
 
-  void PlayActivity(int activityId) {
-    // Implementa la lógica para reproducir la actividad
+  void PlayActivity(int activityId) async{
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:8000/quickrecap/activity/research?id=$activityId'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonData = json.decode(response.body);
+        setState(() {
+          activities = jsonData.map((data) => Activity.fromJson(data)).toList();
+        });
+      } else {
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching activities: $e');
+    }
   }
 
   @override

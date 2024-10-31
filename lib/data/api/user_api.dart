@@ -76,7 +76,7 @@ class UserApi {
     return response.statusCode == 200 || response.statusCode == 201;
   }
 
-  Future<bool> addUserPoints(int points) async{
+  Future<bool> addUserPoints(int points, int activityId) async{
     // Obtener el userId desde el servicio de almacenamiento local
     LocalStorageService localStorageService = LocalStorageService();
     int userId = await localStorageService.getCurrentUserId();
@@ -85,6 +85,7 @@ class UserApi {
         Uri.parse('http://10.0.2.2:8000/quickrecap/user/addpoints/$userId'),
         body: jsonEncode({
           'puntos': points,
+          'actividad_id': activityId,
         }),
         headers: {
           'Content-Type': 'application/json',

@@ -35,7 +35,7 @@ class _ResultsLinkersState extends State<ResultsLinkers> {
   Future<void> addUserPoints() async {
     final addUserPointsProvider = Provider.of<AddUserPointsProvider>(context, listen: false);
     try {
-      bool success = await addUserPointsProvider.addUserPoints(widget.activityReview.score);
+      bool success = await addUserPointsProvider.addUserPoints(widget.activityReview.score, widget.linkersActivity.id);
       if (success) {
         print("Puntos añadidos correctamente.");
       } else {

@@ -34,7 +34,7 @@ class _ResultsGapsState extends State<ResultsGaps> {
   Future<void> addUserPoints() async {
     final addUserPointsProvider = Provider.of<AddUserPointsProvider>(context, listen: false);
     try {
-      bool success = await addUserPointsProvider.addUserPoints(widget.activityReview.score);
+      bool success = await addUserPointsProvider.addUserPoints(widget.activityReview.score, widget.gapsActivity.id);
       if (success) {
         print("Puntos añadidos correctamente.");
       } else {

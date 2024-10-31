@@ -35,8 +35,9 @@ class _CategoryScreenState extends State<CategoryScreen> {
   }
 
   Future<void> fetchActivities() async {
+    int userId = await localStorageService.getCurrentUserId();
     try {
-      final url = 'http://10.0.2.2:8000/quickrecap/activity/research?tipo=${widget.activityType}';
+      final url = 'http://10.0.2.2:8000/quickrecap/activity/research?user_id=$userId&tipo=${widget.activityType}';
       final response = await http.get(
         Uri.parse(url),
         headers: {
