@@ -1,9 +1,8 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import '../../../../ui/constants/constants.dart';
-import '../../../../ui/providers/support_provider.dart';
+import '../../../../ui/providers/audio_provider.dart';
 
 class MusicScreen extends StatefulWidget {
   const MusicScreen({super.key});
@@ -13,11 +12,6 @@ class MusicScreen extends StatefulWidget {
 }
 
 class _MusicScreenState extends State<MusicScreen> {
-  bool _isLoading = false;
-  final _formKey = GlobalKey<FormState>();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,13 +45,33 @@ class _MusicScreenState extends State<MusicScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Música',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Consumer<AudioProvider>(
+                  builder: (context, audioProvider, child) {
+                    return Switch(
+                      value: audioProvider.isMusicEnabled,
+                      onChanged: (bool value) {
+                        audioProvider.toggleMusic();
+                      },
+                      activeColor: Colors.purple, // O el color que prefieras
+                    );
+                  },
+                ),
+              ],
+            ),
           ],
         ),
       ),
     );
   }
-
-
 }
-

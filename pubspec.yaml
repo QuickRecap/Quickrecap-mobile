@@ -40,6 +40,7 @@ dependencies:
   firebase_storage: ^11.6.0
   file_picker: ^5.2.10
   uuid: ^4.5.1
+  just_audio: ^0.9.0
   syncfusion_flutter_pdf: ^27.1.50
   dotted_border: ^2.1.0
   flutter_localizations:
@@ -83,6 +84,7 @@ flutter:
   assets:
     - assets/images/
     - assets/fonts/
+    - assets/audio/background_music.mp3
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 
