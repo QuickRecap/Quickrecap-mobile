@@ -132,6 +132,20 @@ class _GamesScreenState extends State<GamesScreen> {
     });
   }
 
+  void _startActivity(BuildContext context, int activityId) {
+    // Aquí puedes realizar cualquier lógica que necesites antes de navegar.
+    // Por ejemplo, puedes guardar el estado, registrar el evento, etc.
+
+    // Navegar a la pantalla de detalles de la actividad
+    /*Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ActivityDetailsScreen(activityId: activityId),
+      ),
+    );*/
+  }
+
+
   List<Activity> getFilteredActivities() {
     return allActivities.where((activity) {
       bool matchesSearch = activity.name.toLowerCase().contains(searchQuery.toLowerCase());
@@ -363,42 +377,62 @@ class _GamesScreenState extends State<GamesScreen> {
       itemCount: filteredActivities.length,
       itemBuilder: (context, index) {
         final activity = filteredActivities[index];
-        return Container(
-          height: 65,
-          child: Row(
-            children: [
-              Icon(
-                Icons.play_circle_fill_outlined,
-                color: kPrimaryLight,
-                size: 40,
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  activity.name,
-                  style: TextStyle(
-                    color: kGrey2,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
+        final isLastItem = index == filteredActivities.length - 1;
+
+        return Column(
+          children: [
+            Container(
+              height: 65,
+              child: Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      // Aquí puedes definir la acción que se ejecutará al tocar el ícono de play
+                      _startActivity(context, activity.id);
+                    },
+                    child: Icon(
+                      Icons.play_circle_fill_outlined,
+                      color: kPrimaryLight,
+                      size: 40,
+                    ),
                   ),
-                ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      activity.name,
+                      style: TextStyle(
+                        color: kGrey2,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  GestureDetector(
+                    onTap: () => _showOptionsBottomSheet(context, activity),
+                    child: Icon(
+                      Icons.settings,
+                      color: kGrey,
+                      size: 25,
+                    ),
+                  ),
+                ],
               ),
-              SizedBox(width: 10),
-              GestureDetector(
-                  onTap: () => _showOptionsBottomSheet(context, activity),
-                  child: Icon(
-                    Icons.settings,
-                    color: kGrey,
-                    size: 25,
-                  )
+            ),
+            if (!isLastItem)
+              Divider(
+                color: Color(0xffD9D9D9),
+                thickness: 1.0,
+                indent: 12,
+                endIndent: 12,
               ),
-            ],
-          ),
+          ],
         );
       },
     );
   }
+
 
   Widget _buildFavoriteActivityList(int currentTabIndex, BuildContext context) {
     if (isLoading) {
@@ -430,94 +464,104 @@ class _GamesScreenState extends State<GamesScreen> {
       itemCount: filteredActivities.length,
       itemBuilder: (context, index) {
         final activity = filteredActivities[index];
-        bool isFavorite = activity.favorite; // Tomar el valor del objeto directamente
+        final isLastItem = index == filteredActivities.length - 1;
+        bool isFavorite = activity.favorite;
 
-        return Container(
-          height: 65,
-          child: Row(
-            children: [
-              Icon(
-                Icons.play_circle_fill_outlined,
-                color: kPrimaryLight,
-                size: 40,
-              ),
-              SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  activity.name,
-                  style: TextStyle(
-                    color: kGrey2,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
+        return Column(
+          children: [
+            Container(
+              height: 65,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.play_circle_fill_outlined,
+                    color: kPrimaryLight,
+                    size: 40,
                   ),
-                ),
-              ),
-              SizedBox(width: 10),
-              GestureDetector(
-                onTap: () async {
-                  setState(() {
-                    isLoading = true;
-                  });
-
-                  try {
-                    int userId = await localStorageService.getCurrentUserId();
-                    final response = await http.post(
-                      Uri.parse('http://10.0.2.2:8000/quickrecap/favorite/update/${activity.id}'),
-                      headers: <String, String>{
-                        'Content-Type': 'application/json; charset=UTF-8',
-                      },
-                      body: jsonEncode(<String, dynamic>{
-                        'favorito': !isFavorite,
-                        'user': userId,
-                      }),
-                    );
-
-                    if (response.statusCode == 200) {
-                      setState(() {
-                        activity.favorite = !isFavorite; // Actualizar el valor en el objeto
-                        getFilteredActivities(); // Recargar actividades filtradas
-                      });
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('No pudimos agregar esta actividad a tus favoritos'),
-                          backgroundColor: Color(0xffFFCFD0),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Error de conexión: $e'),
-                        backgroundColor: Color(0xffFFCFD0),
-                        behavior: SnackBarBehavior.floating,
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      activity.name,
+                      style: TextStyle(
+                        color: kGrey2,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
                       ),
-                    );
-                  } finally {
-                    setState(() {
-                      isLoading = false;
-                    });
-                  }
-                },
-                child: Icon(
-                  Icons.bookmark,
-                  color: activity.favorite ? Color(0xffffd100) : Color(
-                      0xffa2a2a2), // Usar activity.favorite
-                  size: 30, // Aumentar el tamaño del icono
-                ),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  GestureDetector(
+                    onTap: () async {
+                      setState(() {
+                        isLoading = true;
+                      });
+
+                      try {
+                        int userId = await localStorageService.getCurrentUserId();
+                        final response = await http.post(
+                          Uri.parse('http://10.0.2.2:8000/quickrecap/favorite/update/${activity.id}'),
+                          headers: <String, String>{
+                            'Content-Type': 'application/json; charset=UTF-8',
+                          },
+                          body: jsonEncode(<String, dynamic>{
+                            'favorito': !isFavorite,
+                            'user': userId,
+                          }),
+                        );
+
+                        if (response.statusCode == 200) {
+                          setState(() {
+                            activity.favorite = !isFavorite;
+                            getFilteredActivities();
+                          });
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('No pudimos agregar esta actividad a tus favoritos'),
+                              backgroundColor: Color(0xffFFCFD0),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        }
+                      } catch (e) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error de conexión: $e'),
+                            backgroundColor: Color(0xffFFCFD0),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      } finally {
+                        setState(() {
+                          isLoading = false;
+                        });
+                      }
+                    },
+                    child: Icon(
+                      Icons.bookmark,
+                      color: isFavorite ? Color(0xffffd100) : Color(0xffa2a2a2),
+                      size: 30,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            if (!isLastItem)
+              Divider(
+                color: Color(0xffD9D9D9),
+                thickness: 1.0,
+                indent: 12,
+                endIndent: 12,
+              ),
+          ],
         );
       },
     );
-
   }
 
-  Widget _buildHistoryActivityList(int currentTabIndex, BuildContext context) {
 
+  Widget _buildHistoryActivityList(int currentTabIndex, BuildContext context) {
     if (isLoading) {
       return Center(child: CircularProgressIndicator());
     }
@@ -528,7 +572,6 @@ class _GamesScreenState extends State<GamesScreen> {
 
     List<dynamic> historyActivities = getFilteredActivities();
 
-    // Verificamos si no hay actividades en el historial
     if (historyActivities.isEmpty) {
       return Center(
         child: Text(
@@ -548,57 +591,70 @@ class _GamesScreenState extends State<GamesScreen> {
       itemCount: historyActivities.length,
       itemBuilder: (context, index) {
         final activity = historyActivities[index];
-
+        final isLastItem = index == historyActivities.length - 1;
         bool isFavorite = activity.favorite;
-        return Container(
-          padding: EdgeInsets.symmetric(vertical: 10), // Separación vertical
-          height: 65, // Altura fija (puedes ajustarla según sea necesario)
-          child: Row(
-            children: [
-              SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  activity.name,
-                  style: TextStyle(
-                    color: kGrey2,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: 'Poppins',
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-              SizedBox(width: 10),
-              GestureDetector(
-                onTap: () => _showOptionsBottomSheet(context, activity),
-                child: Container(
-                  width: 60,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: kPrimaryLight.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        activity.maxScore.toString()+"/"+activity.numberOfQuestions.toString(),
-                        style: TextStyle(
-                          color: kPrimaryLight,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                        ),
+
+        return Column(
+          children: [
+            Container(
+              padding: EdgeInsets.symmetric(vertical: 10),
+              height: 65,
+              child: Row(
+                children: [
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      activity.name,
+                      style: TextStyle(
+                        color: kGrey2,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Poppins',
+                        fontSize: 16,
                       ),
-                    ],
+                    ),
                   ),
-                ),
+                  SizedBox(width: 10),
+                  GestureDetector(
+                    onTap: () => _showOptionsBottomSheet(context, activity),
+                    child: Container(
+                      width: 60,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: kPrimaryLight.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "${activity.maxScore}/${activity.numberOfQuestions}",
+                            style: TextStyle(
+                              color: kPrimaryLight,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            if (!isLastItem)
+              Divider(
+                color: Color(0xffD9D9D9),
+                thickness: 1.0,
+                indent: 12,
+                endIndent: 12,
+              ),
+          ],
         );
       },
     );
   }
+
 
   void _removeActivityById(int activityId) {
     setState(() {

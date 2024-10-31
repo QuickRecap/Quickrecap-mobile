@@ -251,6 +251,7 @@ class ActivityApi {
     return response.statusCode == 200 || response.statusCode == 201;
   }
 
+
   Future<List<Activity>> getActivityListByUserId(int tabIndex) async {
     LocalStorageService localStorageService = LocalStorageService();
     int userId = await localStorageService.getCurrentUserId();

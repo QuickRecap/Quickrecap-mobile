@@ -156,10 +156,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                       children: [
                         // Solo contador
                         Padding(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 10.h,
-                            horizontal: 20.w,
-                          ),
+                          padding: EdgeInsets.only( top: 20.h, bottom: 10, left: 20.w, right: 20.w),
                           child: Row(
                             children: [
                               Text(
@@ -178,71 +175,75 @@ class _CategoryScreenState extends State<CategoryScreen> {
                         // Lista de actividades
                         Expanded(
                           child: ListView.builder(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 20.w, vertical: 1.h),
+                            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 1.h),
                             itemCount: getFilteredActivities().length,
                             itemBuilder: (context, index) {
                               final activity = getFilteredActivities()[index];
-                              return Container(
-                                height: 65.h,
-                                margin: EdgeInsets.only(bottom: 10.h),
-                                padding: EdgeInsets.symmetric(horizontal: 10.0),
-                                decoration: BoxDecoration(
-                                  color: kWhite,
-                                  borderRadius: BorderRadius.circular(15.r),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: kDark.withOpacity(0.1),
-                                      spreadRadius: 1,
-                                      blurRadius: 5,
-                                      offset: Offset(0, 2),
+                              final isLastItem = index == getFilteredActivities().length - 1;
+
+                              return Column(
+                                children: [
+                                  Container(
+                                    height: 50.h,
+                                    padding: EdgeInsets.symmetric(horizontal: 10.0),
+                                    decoration: BoxDecoration(
+                                      color: kWhite,
+                                      borderRadius: BorderRadius.circular(15.r),
                                     ),
-                                  ],
-                                ),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.play_circle_fill_outlined,
-                                      color: kPrimaryLight,
-                                      size: 35.sp,
-                                    ),
-                                    SizedBox(width: 12.w),
-                                    Expanded(
-                                      child: Text(
-                                        activity.name,
-                                        style: TextStyle(
-                                          color: kGrey2,
-                                          fontFamily: 'Poppins',
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 14.sp,
-                                        ),
-                                      ),
-                                    ),
-                                    Row(
+                                    child: Row(
                                       children: [
                                         Icon(
-                                          Icons.play_arrow_rounded,
-                                          color: kDark,
-                                          size: 22.sp,
+                                          Icons.play_circle_fill_outlined,
+                                          color: kPrimaryLight,
+                                          size: 35.sp,
                                         ),
-                                        SizedBox(width: 5.w),
-                                        Text(
-                                          activity.timesPlayed.toString(),
-                                          style: TextStyle(
-                                            color: kGrey2,
-                                            fontFamily: 'Poppins',
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 14.sp,
+                                        SizedBox(width: 12.w),
+                                        Expanded(
+                                          child: Text(
+                                            activity.name,
+                                            style: TextStyle(
+                                              color: kGrey2,
+                                              fontFamily: 'Poppins',
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 14.sp,
+                                            ),
                                           ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.play_arrow_rounded,
+                                              color: kDark,
+                                              size: 22.sp,
+                                            ),
+                                            SizedBox(width: 5.w),
+                                            Text(
+                                              activity.timesPlayed.toString(),
+                                              style: TextStyle(
+                                                color: kGrey2,
+                                                fontFamily: 'Poppins',
+                                                fontWeight: FontWeight.w500,
+                                                fontSize: 14.sp,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  if (!isLastItem)
+                                    Divider(
+                                      color: Color(0xffD9D9D9),
+                                      thickness: 1.0,
+                                      indent: 10,
+                                      endIndent: 10,
+                                    ),
+                                ],
                               );
                             },
                           ),
                         ),
+
                       ],
                     ),
                   ),
