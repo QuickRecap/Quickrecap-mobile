@@ -9,6 +9,7 @@ import '../../../providers/get_activities_for_user_provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
+import '../activities/activity_service.dart';
 
 class GamesScreen extends StatefulWidget {
   const GamesScreen({super.key});
@@ -131,20 +132,6 @@ class _GamesScreenState extends State<GamesScreen> {
       overlayEntry.remove();
     });
   }
-
-  void _startActivity(BuildContext context, int activityId) {
-    // Aquí puedes realizar cualquier lógica que necesites antes de navegar.
-    // Por ejemplo, puedes guardar el estado, registrar el evento, etc.
-
-    // Navegar a la pantalla de detalles de la actividad
-    /*Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ActivityDetailsScreen(activityId: activityId),
-      ),
-    );*/
-  }
-
 
   List<Activity> getFilteredActivities() {
     return allActivities.where((activity) {
@@ -387,8 +374,7 @@ class _GamesScreenState extends State<GamesScreen> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      // Aquí puedes definir la acción que se ejecutará al tocar el ícono de play
-                      _startActivity(context, activity.id);
+                      playActivity(context, activity.id);
                     },
                     child: Icon(
                       Icons.play_circle_fill_outlined,
@@ -473,10 +459,15 @@ class _GamesScreenState extends State<GamesScreen> {
               height: 65,
               child: Row(
                 children: [
-                  Icon(
-                    Icons.play_circle_fill_outlined,
-                    color: kPrimaryLight,
-                    size: 40,
+                  GestureDetector(
+                    onTap: () {
+                      playActivity(context, activity.id);
+                    },
+                    child: Icon(
+                      Icons.play_circle_fill_outlined,
+                      color: kPrimaryLight,
+                      size: 40,
+                    ),
                   ),
                   SizedBox(width: 12),
                   Expanded(

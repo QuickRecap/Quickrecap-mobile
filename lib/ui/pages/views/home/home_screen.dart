@@ -13,6 +13,8 @@ import 'package:quickrecap/ui/controllers/tab_index_controller.dart';
 import 'package:quickrecap/ui/pages/views/home/all_activities_screen.dart';
 import 'package:quickrecap/ui/pages/views/home/category_screen.dart';
 import 'package:http/http.dart' as http;
+import '../activities/activity_service.dart';
+import 'widgets/options_bottom_sheet.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,8 +27,11 @@ class _HomeScreenState extends State<HomeScreen> {
   final HomeApi _homeService = HomeApi();
   HomeStats? _stats;
   List<Activity> activities = [];
+  List<Activity> topActivities = []; // Corrected type
+  bool isDialogLoading = false;
 
   LocalStorageService localStorageService = LocalStorageService();
+
 
   @override
   void initState() {
@@ -44,14 +49,24 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (e) {}
   }
 
-  List<Map<String, String>> topActivities = [];
-
   final List<Map<String, dynamic>> categories = [
     {'name': 'Quiz', 'icon': Icons.quiz, 'activityType': 'Quiz'},
     {'name': 'Gaps', 'icon': Icons.space_bar, 'activityType': 'Gaps'},
     {'name': 'Flashcards', 'icon': Icons.style, 'activityType': 'Flashcards'},
     {'name': 'Linkers', 'icon': Icons.link, 'activityType': 'Linkers'},
   ];
+
+  void _addFavoriteActivityById(int activityId) {
+    setState(() {
+      final activity = activities.firstWhere(
+            (activity) => activity.id == activityId,
+        orElse: () => throw Exception('Activity not found'),
+      );
+
+      activity.favorite = true; // Cambiamos favorite porque ya no es final
+    });
+  }
+
 
   Future<void> fetchActivities() async {
     try {
@@ -65,14 +80,8 @@ class _HomeScreenState extends State<HomeScreen> {
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = json.decode(response.body);
         setState(() {
-          activities =
-              jsonData.take(2).map((data) => Activity.fromJson(data)).toList();
-          topActivities = activities
-              .map((activity) => {
-                    'name': activity.name,
-                    'play_count': activity.timesPlayed.toString(),
-                  })
-              .toList();
+          activities = jsonData.take(2).map((data) => Activity.fromJson(data)).toList();
+          topActivities = activities; // Now correctly typed as List<Activity>
         });
       } else {
         print('Error: ${response.statusCode}');
@@ -296,63 +305,74 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     SizedBox(height: 15.h),
                     // Top activities list
-                    ...topActivities.map((activity) => Container(
-                          height: 65.h,
-                          margin: EdgeInsets.only(bottom: 10.h),
-                          padding: EdgeInsets.symmetric(horizontal: 10.0),
-                          decoration: BoxDecoration(
-                            color: kWhite,
-                            borderRadius: BorderRadius.circular(15.r),
-                            boxShadow: [
-                              BoxShadow(
-                                color: kDark.withOpacity(0.1),
-                                spreadRadius: 1,
-                                blurRadius: 5,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
+                    ...topActivities.map((activity) => GestureDetector(
+                      onTap: () {
+                        // Llamamos al bottom dialog pasándole la activity
+                      },
+                      child: Container(
+                        height: 65.h,
+                        margin: EdgeInsets.only(bottom: 10.h),
+                        padding: EdgeInsets.symmetric(horizontal: 10.0),
+                        decoration: BoxDecoration(
+                          color: kWhite,
+                          borderRadius: BorderRadius.circular(15.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: kDark.withOpacity(0.1),
+                              spreadRadius: 1,
+                              blurRadius: 5,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                // Llama a la función playActivity
+                                playActivity(context, activity.id);  // Llama a playActivity con el ID de la actividad
+                              },
+                              child: Icon(
                                 Icons.play_circle_fill_outlined,
                                 color: kPrimaryLight,
                                 size: 35.sp,
                               ),
-                              SizedBox(width: 12.w),
-                              Expanded(
-                                child: Text(
-                                  activity['name']!,
+                            ),
+                            SizedBox(width: 12.w),
+                            Expanded(
+                              child: Text(
+                                activity.name!,
+                                style: TextStyle(
+                                  color: kGrey2,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14.sp,
+                                ),
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.play_arrow_rounded,
+                                  color: kDark,
+                                  size: 22.sp,
+                                ),
+                                SizedBox(width: 5.w),
+                                Text(
+                                  activity.timesPlayed.toString(),
                                   style: TextStyle(
                                     color: kGrey2,
                                     fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w600,
+                                    fontWeight: FontWeight.w500,
                                     fontSize: 14.sp,
                                   ),
                                 ),
-                              ),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.play_arrow_rounded,
-                                    color: kDark,
-                                    size: 22.sp,
-                                  ),
-                                  SizedBox(width: 5.w),
-                                  Text(
-                                    activity['play_count'].toString(),
-                                    style: TextStyle(
-                                      color: kGrey2,
-                                      fontFamily: 'Poppins',
-                                      fontWeight: FontWeight.w500,
-                                      fontSize: 14.sp,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        )),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    )),
                     // Categories section
                     SizedBox(height: 10.h),
                     Text(
@@ -480,6 +500,14 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _showOptionsBottomSheet(BuildContext context, Activity activity) {
+    OptionsBottomSheet.show(
+      context,
+      activity,
+      _addFavoriteActivityById,
     );
   }
 }

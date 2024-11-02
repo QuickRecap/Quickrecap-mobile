@@ -150,7 +150,10 @@ class ActivityApi {
           data['linkers'] != null &&
           data['activity'] != null) {
         List<Flashcard> flashcards = (data['flashcards'] as List)
-            .map((flashcardJson) => Flashcard.fromJson(flashcardJson))
+            .asMap()
+            .entries
+            .where((entry) => entry.key % 3 == 0) // Mantiene solo las flashcards en posiciones múltiplos de 3
+            .map((entry) => Flashcard.fromJson(entry.value))
             .toList();
 
         List<Linkers> linkers = (data['linkers'] as List)
