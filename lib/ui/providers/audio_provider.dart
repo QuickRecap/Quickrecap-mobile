@@ -1,82 +1,90 @@
-import 'package:flutter/foundation.dart';
+// lib/ui/providers/audio_provider.dart
+
+import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import '../../data/repositories/local_storage_service.dart';
 
-class AudioProvider with ChangeNotifier {
-  final AudioPlayer _audioPlayer = AudioPlayer();
-  bool _isMusicEnabled = true;
-  bool _isInitialized = false;
-  bool _hasError = false;
+class AudioProvider extends ChangeNotifier {
+  final AudioPlayer _player = AudioPlayer();
+  final LocalStorageService _storageService = LocalStorageService();
+  bool _isEnabled = true;
+  bool get isEnabled => _isEnabled;
 
-  bool get isMusicEnabled => _isMusicEnabled;
-  bool get hasError => _hasError;
+  AudioProvider() {
+    print('AudioProvider initialized');
+    _loadSavedSettings();
+  }
 
-  Future<void> initAudio() async {
-    if (_isInitialized) return;
-
+  Future<void> _loadSavedSettings() async {
     try {
-      print(await _audioPlayer.setAsset('assets/audio/background_music.mp3')); // Verify path
-      await _audioPlayer.setLoopMode(LoopMode.one); // Consider changing loop mode
-      await _audioPlayer.setVolume(0.5);
-
-      _isInitialized = true;
-
-      // Only reproduce if enabled
-      if (_isMusicEnabled) {
-        await _audioPlayer.play();
-      }
+      _isEnabled = await _storageService.getMusicEnabled();
+      print('Loaded saved music settings: $_isEnabled');
+      await _initAudio();
     } catch (e) {
-      _hasError = true;
-      print('Error in AudioProvider.initAudio: $e');
+      print('Error loading saved settings: $e');
     }
   }
 
-  void toggleMusic() {
-    if (_hasError) return; // No hacer nada si hay error
+  Future<void> loadSettings() async {
+    await _loadSavedSettings();
+  }
 
-    _isMusicEnabled = !_isMusicEnabled;
+  Future<void> _initAudio() async {
     try {
-      if (_isMusicEnabled) {
-        _audioPlayer.play();
+      print('Starting audio initialization...');
+
+      final duration = await _player.setAsset('assets/audio/background_music.mp3');
+      print('Audio duration: ${duration?.inSeconds} seconds');
+
+      if (duration == null) {
+        print('Error: Could not load audio file');
+        return;
+      }
+
+      await _player.setLoopMode(LoopMode.all);
+      print('Loop mode set');
+
+      await _player.setVolume(0.5);
+      print('Volume set to 0.5');
+
+      if (_isEnabled) {
+        print('Starting playback...');
+        await _player.play();
+        print('Playback started');
+      }
+    } catch (e) {
+      print('Error initializing audio: $e');
+      print('Stack trace: ${StackTrace.current}');
+    }
+  }
+
+  Future<void> toggleAudio() async {
+    try {
+      _isEnabled = !_isEnabled;
+      print('Audio toggled. isEnabled: $_isEnabled');
+
+      // Save the new setting
+      await _storageService.setMusicEnabled(_isEnabled);
+      print('Audio setting saved to database');
+
+      if (_isEnabled) {
+        print('Attempting to play audio...');
+        await _player.play();
+        print('Audio playing');
       } else {
-        _audioPlayer.pause();
+        print('Attempting to pause audio...');
+        await _player.pause();
+        print('Audio paused');
       }
       notifyListeners();
     } catch (e) {
-      print('Error en toggleMusic: $e');
+      print('Error toggling audio: $e');
     }
   }
 
-  Future<void> pauseBackgroundMusic() async {
-    if (_hasError) return;
-
-    try {
-      if (_audioPlayer.playing) {
-        await _audioPlayer.pause();
-      }
-    } catch (e) {
-      print('Error en pauseBackgroundMusic: $e');
-    }
-  }
-
-  Future<void> resumeBackgroundMusic() async {
-    if (_hasError) return;
-
-    try {
-      if (!_audioPlayer.playing && _isMusicEnabled) {
-        await _audioPlayer.play();
-      }
-    } catch (e) {
-      print('Error en resumeBackgroundMusic: $e');
-    }
-  }
-
-  @override
   void dispose() {
-    try {
-      _audioPlayer.dispose();
-    } catch (e) {
-      print('Error en dispose: $e');
-    }
+    print('Disposing AudioProvider');
+    _player.dispose();
     super.dispose();
   }
 }

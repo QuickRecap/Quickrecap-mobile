@@ -48,9 +48,9 @@ import 'ui/providers/rate_activity_provider.dart';
 import 'ui/providers/edit_profile_provider.dart';
 import 'ui/providers/password_provider.dart';
 import 'ui/providers/add_user_points_provider.dart';
+import 'ui/providers/audio_provider.dart';
 import 'ui/providers/get_activities_for_user_provider.dart';
 import 'ui/providers/get_pdfs_provider.dart';
-import 'ui/providers/audio_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -68,7 +68,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
-            create: (_) => AudioProvider()  // Ya no inicializamos aquí
+          create: (_) => AudioProvider(),
         ),
         ChangeNotifierProvider(
           create: (_) => DeletePdfsProvider(DeletePdfUseCase(PdfRepositoryImpl(pdfApi))),

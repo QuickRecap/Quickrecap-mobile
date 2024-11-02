@@ -12,6 +12,20 @@ class MusicScreen extends StatefulWidget {
 }
 
 class _MusicScreenState extends State<MusicScreen> {
+  bool? isAudioEnabled; // Variable para almacenar el estado inicial
+
+  @override
+  void initState() {
+    super.initState();
+    // Cargar el estado inicial desde el AudioProvider
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final audioProvider = Provider.of<AudioProvider>(context, listen: false);
+      setState(() {
+        isAudioEnabled = audioProvider.isEnabled;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -45,30 +59,38 @@ class _MusicScreenState extends State<MusicScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Música',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w500,
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20.w),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Música',
+                    style: TextStyle(
+                      color: Color(0xff212121),
+                      fontSize: 16.sp,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-                Consumer<AudioProvider>(
-                  builder: (context, audioProvider, child) {
-                    return Switch(
-                      value: audioProvider.isMusicEnabled,
-                      onChanged: (bool value) {
-                        audioProvider.toggleMusic();
-                      },
-                      activeColor: Colors.purple, // O el color que prefieras
-                    );
-                  },
-                ),
-              ],
-            ),
+                  Consumer<AudioProvider>(
+                    builder: (context, audioProvider, child) {
+                      return Switch(
+                        value: isAudioEnabled ?? audioProvider.isEnabled, // Usar la variable local
+                        onChanged: (value) async {
+                          setState(() {
+                            isAudioEnabled = value; // Actualizar la variable local
+                          });
+                          await audioProvider.toggleAudio(); // Cambiar el valor en el provider
+                        },
+                        activeColor: Color(0xff6D5BFF),
+                        inactiveThumbColor: Colors.grey,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            )
           ],
         ),
       ),
