@@ -3,9 +3,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickrecap/data/repositories/local_storage_service.dart';
+import '../../../../domain/entities/history_activity.dart';
 import 'package:quickrecap/ui/constants/constants.dart';
 import '../../../../domain/entities/activity.dart';
+import '../../../../domain/entities/history_activity.dart';
 import '../../../providers/get_activities_for_user_provider.dart';
+import '../../../providers/get_history_provider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
@@ -25,9 +28,12 @@ class _GamesScreenState extends State<GamesScreen> {
   bool isDialogLoading = false;
   String? error;
   String _currentValue = 'Todos';
+  int displayableActivityQuantity = 0;
   String searchQuery = '';
-  List<Activity> allActivities = []; // Lista para almacenar todas las actividades
+  List<Activity> allActivities = [];
+  List<HistoryActivity> historyActivities = [];
   String? isChangingPrivacyFor;
+  bool isHistoryDisplayed = false;
 
   LocalStorageService localStorageService = LocalStorageService();
 
@@ -42,23 +48,36 @@ class _GamesScreenState extends State<GamesScreen> {
       isLoading = true;
       error = null;
     });
-
-    try {
-      // Llamada a la función de la API
-      final getActivitiesForUserProvider = Provider.of<GetActivitiesForUserProvider>(context, listen: false);
-      List<Activity>? activityList = await getActivitiesForUserProvider.getActivityListByUserId(tabIndex);
-      if (activityList != null) {
+    if(tabIndex!=2){
+      isHistoryDisplayed=false;
+      try {
+        // Llamada a la función de la API
+        final getActivitiesForUserProvider = Provider.of<GetActivitiesForUserProvider>(context, listen: false);
+        List<Activity>? activityList = await getActivitiesForUserProvider.getActivityListByUserId(tabIndex);
+        if (activityList != null) {
+          setState(() {
+            allActivities = activityList;
+            activities = List<Activity>.from(allActivities); // Aseguramos la seguridad del tipo
+            isLoading = false;
+          });
+        }
+      } catch (e) {
         setState(() {
-          allActivities = activityList;
-          activities = List<Activity>.from(allActivities); // Aseguramos la seguridad del tipo
+          error = e.toString();
           isLoading = false;
         });
       }
-    } catch (e) {
-      setState(() {
-        error = e.toString();
-        isLoading = false;
-      });
+    }else{
+      isHistoryDisplayed=true;
+      final getHistoryForUserProvider = Provider.of<GetHistoryProvider>(context, listen: false);
+      List<HistoryActivity>? historyList = await getHistoryForUserProvider.getHistoryByUserId();
+      if(historyList != null){
+        setState(() {
+          historyActivities = historyList;
+          isLoading = false;
+        });
+      }
+
     }
   }
 
@@ -134,11 +153,27 @@ class _GamesScreenState extends State<GamesScreen> {
   }
 
   List<Activity> getFilteredActivities() {
-    return allActivities.where((activity) {
+    List<Activity> results = allActivities.where((activity) {
       bool matchesSearch = activity.name.toLowerCase().contains(searchQuery.toLowerCase());
       bool matchesType = _currentValue == 'Todos' || activity.activityType == _currentValue;
       return matchesSearch && matchesType;
     }).toList();
+    setState(() {
+      displayableActivityQuantity= results.length;
+    });
+    return results;
+  }
+
+  List<HistoryActivity> getFilteredHistoryActivities() {
+    List<HistoryActivity> results = historyActivities.where((activity) {
+      bool matchesSearch = activity.activityName.toLowerCase().contains(searchQuery.toLowerCase());
+      bool matchesType = _currentValue == 'Todos' || activity.activityType == _currentValue;
+      return matchesSearch && matchesType;
+    }).toList();
+    setState(() {
+      displayableActivityQuantity= results.length;
+    });
+    return results;
   }
 
   @override
@@ -266,12 +301,12 @@ class _GamesScreenState extends State<GamesScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 Text(
-                                  '${getFilteredActivities().length} actividades',
+                                '${isHistoryDisplayed ? getFilteredHistoryActivities().length : getFilteredActivities().length} actividades',
                                   style: TextStyle(
-                                      color: kDark,
-                                      fontSize: 14.sp,
-                                      fontWeight: FontWeight.w500,
-                                      fontFamily: 'Poppins'
+                                    color: kDark,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'Poppins',
                                   ),
                                 ),
                                 DropdownButton<String>(
@@ -561,7 +596,7 @@ class _GamesScreenState extends State<GamesScreen> {
       return Center(child: Text(error!, style: TextStyle(color: Colors.red)));
     }
 
-    List<dynamic> historyActivities = getFilteredActivities();
+    List<HistoryActivity> historyActivities = getFilteredHistoryActivities();
 
     if (historyActivities.isEmpty) {
       return Center(
@@ -583,7 +618,6 @@ class _GamesScreenState extends State<GamesScreen> {
       itemBuilder: (context, index) {
         final activity = historyActivities[index];
         final isLastItem = index == historyActivities.length - 1;
-        bool isFavorite = activity.favorite;
 
         return Column(
           children: [
@@ -595,7 +629,7 @@ class _GamesScreenState extends State<GamesScreen> {
                   SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      activity.name,
+                      activity.activityName,
                       style: TextStyle(
                         color: kGrey2,
                         fontWeight: FontWeight.w600,
@@ -605,29 +639,26 @@ class _GamesScreenState extends State<GamesScreen> {
                     ),
                   ),
                   SizedBox(width: 10),
-                  GestureDetector(
-                    onTap: () => _showOptionsBottomSheet(context, activity),
-                    child: Container(
-                      width: 60,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: kPrimaryLight.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "${activity.maxScore}/${activity.numberOfQuestions}",
-                            style: TextStyle(
-                              color: kPrimaryLight,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                            ),
+                  Container(
+                    width: 60,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: kPrimaryLight.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "${activity.correctAnswers}/${activity.numberOfQuestions}",
+                          style: TextStyle(
+                            color: kPrimaryLight,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -650,7 +681,6 @@ class _GamesScreenState extends State<GamesScreen> {
   void _removeActivityById(int activityId) {
     setState(() {
       allActivities.removeWhere((activity) => activity.id == activityId);
-      // Since getFilteredActivities() depends on allActivities, it will automatically update
     });
   }
 

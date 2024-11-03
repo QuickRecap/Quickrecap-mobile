@@ -28,7 +28,7 @@ class _ResultsFlashcardsState extends State<ResultsFlashcards> {
   Future<void> addUserPoints() async {
     final addUserPointsProvider = Provider.of<AddUserPointsProvider>(context, listen: false);
     try {
-      bool success = await addUserPointsProvider.addUserPoints(100, widget.flashcardActivity.id);
+      bool success = await addUserPointsProvider.addUserPoints(100, widget.flashcardActivity.id, widget.flashcardActivity.quantity, widget.flashcardActivity.quantity);
       if (success) {
         print("Puntos añadidos correctamente.");
       } else {

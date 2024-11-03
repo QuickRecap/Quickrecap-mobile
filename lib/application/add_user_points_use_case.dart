@@ -5,9 +5,9 @@ class AddUserPointsUseCase{
 
   AddUserPointsUseCase(this.userRepository);
 
-  Future<bool> addUserPoints(int points, int activityId) async {
+  Future<bool> addUserPoints(int points, int activityId, int correctAnswers, int totalQuestions) async {
     try {
-      return await userRepository.addUserPoints(points, activityId);
+      return await userRepository.addUserPoints(points, activityId, correctAnswers, totalQuestions);
     } catch (e) {
       return false;
     }

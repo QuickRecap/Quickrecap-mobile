@@ -4,9 +4,11 @@ import 'package:firebase_core/firebase_core.dart';
 import 'data/api/support_api.dart';
 import 'data/api/pdf_api.dart';
 import 'data/api/user_api.dart';
+import 'data/api/history_api.dart';
 import 'data/api/activity_api.dart';
 import 'data/repositories/support_repository_impl.dart';
 import 'data/repositories/pdf_repository_impl.dart';
+import 'data/repositories/history_repository_impl.dart';
 import 'data/repositories/user_repository_impl.dart';
 import 'data/repositories/activity_repository_impl.dart';
 import 'application/login_use_case.dart';
@@ -20,6 +22,7 @@ import 'application/create_quiz_use_case.dart';
 import 'application/create_linkers_use_case.dart';
 import 'application/create_gaps_use_case.dart';
 import 'application/create_flashcard_use_case.dart';
+import 'application/get_history_use_case.dart';
 import 'application/get_pdfs_use_case.dart';
 import 'application/rating_activity_use_case.dart';
 import 'application/edit_profile_use_case.dart';
@@ -38,6 +41,7 @@ import 'ui/pages/views/create/select_pdf_screen.dart';
 import 'ui/providers/login_provider.dart';
 import 'ui/providers/delete_pdf_provider.dart';
 import 'ui/providers/upload_pdf_provider.dart';
+import 'ui/providers/get_history_provider.dart';
 import 'ui/providers/register_provider.dart';
 import 'ui/providers/support_provider.dart';
 import 'ui/providers/quiz_provider.dart';
@@ -63,12 +67,16 @@ void main() async {
   final supportApi = SupportApi();
   final pdfApi = PdfApi();
   final activityApi = ActivityApi();
+  final historyApi = HistoryApi();
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(
           create: (_) => AudioProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => GetHistoryProvider(GetHistoryUseCase(HistoryRepositoryImpl(historyApi))),
         ),
         ChangeNotifierProvider(
           create: (_) => DeletePdfsProvider(DeletePdfUseCase(PdfRepositoryImpl(pdfApi))),

@@ -28,7 +28,7 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<bool> addUserPoints(int points,int activityId) async{
-    return await userApi.addUserPoints(points, activityId);
+  Future<bool> addUserPoints(int points,int activityId, int correctAnswers, int totalQuestions) async{
+    return await userApi.addUserPoints(points, activityId, correctAnswers, totalQuestions);
   }
 }

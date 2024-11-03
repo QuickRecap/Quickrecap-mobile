@@ -34,7 +34,7 @@ class _ResultsQuizState extends State<ResultsQuiz> {
   Future<void> addUserPoints() async {
     final addUserPointsProvider = Provider.of<AddUserPointsProvider>(context, listen: false);
     try {
-      bool success = await addUserPointsProvider.addUserPoints(widget.activityReview.score, widget.quizActivity.id);
+      bool success = await addUserPointsProvider.addUserPoints(widget.activityReview.score, widget.quizActivity.id, widget.activityReview.score ~/ 100, widget.quizActivity.quantity);
       if (success) {
         print("Puntos añadidos correctamente.");
       } else {

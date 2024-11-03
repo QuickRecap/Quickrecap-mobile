@@ -4,9 +4,11 @@ import '../../domain/entities/user.dart';
 import '../repositories/local_storage_service.dart';
 
 class UserApi {
+  final String baseUrl = 'http://10.0.2.2:8000/quickrecap';
+
   Future<User?> login(String email, String password) async {
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:8000/quickrecap/login/'),
+      Uri.parse('$baseUrl/login/'),
       body: {
         'email': email,
         'password': password,
@@ -23,9 +25,8 @@ class UserApi {
 
   Future<bool> register(String nombre, String apellidos, String gender,
       String phone, String email, String password) async {
-    print(gender);
     final response = await http.post(
-      Uri.parse('http://10.0.2.2:8000/quickrecap/register/'),
+      Uri.parse('$baseUrl/register/'),
       body: {
         'email': email,
         'password': password,
@@ -41,9 +42,9 @@ class UserApi {
 
   Future<bool> changePassword(String userId, String oldPassword, String newPassword) async {
     final response = await http.put(
-      Uri.parse('http://10.0.2.2:8000/quickrecap/change-password/'),
+      Uri.parse('$baseUrl/change-password/'),
       body: {
-        'id': userId, // Agrega el user_id
+        'id': userId,
         'old_password': oldPassword,
         'new_password': newPassword,
       },
@@ -62,7 +63,7 @@ class UserApi {
       String imageUrl,
       ) async {
     final response = await http.put(
-      Uri.parse('http://10.0.2.2:8000/quickrecap/user/update/$userId'),
+      Uri.parse('$baseUrl/user/update/$userId'),
       body: {
         'nombres': firstName,
         'apellidos': lastName,
@@ -76,24 +77,23 @@ class UserApi {
     return response.statusCode == 200 || response.statusCode == 201;
   }
 
-  Future<bool> addUserPoints(int points, int activityId) async{
-    // Obtener el userId desde el servicio de almacenamiento local
+  Future<bool> addUserPoints(int points, int activityId, int correctAnswers, int totalQuestions) async {
     LocalStorageService localStorageService = LocalStorageService();
     int userId = await localStorageService.getCurrentUserId();
 
-      final response = await http.put(
-        Uri.parse('http://10.0.2.2:8000/quickrecap/user/addpoints/$userId'),
-        body: jsonEncode({
-          'puntos': points,
-          'actividad_id': activityId,
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      );
+    final response = await http.put(
+      Uri.parse('$baseUrl/user/addpoints/$userId'),
+      body: jsonEncode({
+        "puntos": points,
+        "actividad_id": activityId,
+        "respuestas_correctas": correctAnswers,
+        "numero_preguntas": totalQuestions
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
 
-      // Consider both 200 OK and 201 Created as success
-      return response.statusCode == 200 || response.statusCode == 201;
+    return response.statusCode == 200 || response.statusCode == 201;
   }
-
 }
