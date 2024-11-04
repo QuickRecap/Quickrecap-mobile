@@ -18,10 +18,10 @@ class GamesScreen extends StatefulWidget {
   const GamesScreen({super.key});
 
   @override
-  _GamesScreenState createState() => _GamesScreenState();
+  GamesScreenState createState() => GamesScreenState();
 }
 
-class _GamesScreenState extends State<GamesScreen> {
+class GamesScreenState extends State<GamesScreen> {
   //String? userId;
   List<Activity> activities = [];
   bool isLoading = false;
@@ -34,6 +34,7 @@ class _GamesScreenState extends State<GamesScreen> {
   List<HistoryActivity> historyActivities = [];
   String? isChangingPrivacyFor;
   bool isHistoryDisplayed = false;
+  int currentTabIndex=0;
 
   LocalStorageService localStorageService = LocalStorageService();
 
@@ -43,10 +44,15 @@ class _GamesScreenState extends State<GamesScreen> {
     _fetchActivities(0);
   }
 
+  Future<void> refresh() async {
+    _fetchActivities(currentTabIndex);
+  }
+
   Future<void> _fetchActivities(int tabIndex) async {
     setState(() {
       isLoading = true;
       error = null;
+      currentTabIndex = tabIndex;
     });
     if(tabIndex!=2){
       isHistoryDisplayed=false;

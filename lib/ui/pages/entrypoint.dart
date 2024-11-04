@@ -20,6 +20,10 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   late final TabIndexController controller;
   Pdf? selectedPdf;
+  final GlobalKey<HomeScreenState> homeKey = GlobalKey();
+  final GlobalKey<GamesScreenState> gamesKey = GlobalKey();
+  final GlobalKey<CreateScreenState> createKey = GlobalKey();
+  final GlobalKey<ProfileScreenState> profileKey = GlobalKey();
 
   @override
   void initState() {
@@ -65,36 +69,39 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  void refreshCurrentView(int index) {
+    switch (index) {
+      case 0:
+        if (homeKey.currentState != null) {
+          homeKey.currentState!.refresh();
+        }
+        break;
+      case 1:
+        if (gamesKey.currentState != null) {
+          gamesKey.currentState!.refresh();
+        }
+        break;
+      case 2:
+        if (createKey.currentState != null) {
+          createKey.currentState!.refresh();
+        }
+        break;
+      case 3:
+        if (profileKey.currentState != null) {
+          profileKey.currentState!.refresh();
+        }
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
       final List<Widget> pageList = [
-        const HomeScreen(),
-        const GamesScreen(),
-            () {
-          if (controller.tabIndex == 2) {
-            return CreateScreen(selectedPdf: selectedPdf);
-          } else {
-            return Container(); // Un contenedor vacío cuando no está seleccionado
-          }
-        }(),
-        FutureBuilder<User?>(
-          future: loadUserProfile(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator()); // Mostramos un cargador mientras se obtienen los datos
-            }
-            if (snapshot.hasError) {
-              return Center(child: Text('Error al cargar el perfil'));
-            }
-            if (snapshot.hasData) {
-              return ProfileScreen(user: snapshot.data!);
-            } else {
-              return Center(child: Text('No se encontró información del usuario.'));
-            }
-          },
-        ),
+        HomeScreen(key: homeKey),
+        GamesScreen(key: gamesKey),
+        CreateScreen(key: createKey, selectedPdf: selectedPdf),
+        ProfileScreen(key: profileKey),
       ];
 
       return Scaffold(
@@ -105,37 +112,26 @@ class _MainScreenState extends State<MainScreen> {
         bottomNavigationBar: Theme(
           data: Theme.of(context).copyWith(canvasColor: Colors.white),
           child: BottomNavigationBar(
-            // ------- UNSELECTED STYLES ------- //
             showUnselectedLabels: true,
-            unselectedIconTheme:
-            const IconThemeData(color: kDisabled, size: 45),
+            unselectedIconTheme: const IconThemeData(color: kDisabled, size: 45),
             unselectedItemColor: kDisabled,
             unselectedLabelStyle: const TextStyle(color: kDisabled),
-
-            // ------- SELECTED STYLES ------- //
             showSelectedLabels: true,
-            selectedIconTheme:
-            const IconThemeData(color: kDark, size: 45),
+            selectedIconTheme: const IconThemeData(color: kDark, size: 45),
             selectedItemColor: kDark,
             selectedLabelStyle: const TextStyle(color: kDark),
-
-            // ------- FUNCTIONS ------- //
             type: BottomNavigationBarType.fixed,
             currentIndex: controller.tabIndex,
             onTap: (value) async {
-              controller.tabIndex = value;
-              // Si se selecciona la pestaña de crear y no hay PDF seleccionado, puedes manejarlo aquí
-              if (value == 2 && selectedPdf == null) {
-                print('Navegando a CreateScreen sin PDF seleccionado');
-                // Puedes mostrar un diálogo o snackbar aquí si lo deseas
-              }
-              if (value == 3) {
-                // Si el índice es 3 (perfil), cargamos el perfil
-                await loadUserProfile();
+              if (controller.tabIndex != value) {  // Solo si cambiamos de tab
+                controller.tabIndex = value;
+                refreshCurrentView(value);  // Refrescamos la vista actual
+
+                if (value == 2 && selectedPdf == null) {
+                  print('Navegando a CreateScreen sin PDF seleccionado');
+                }
               }
             },
-
-            // ------- ITEMS ------- //
             items: [
               const BottomNavigationBarItem(
                 icon: Padding(

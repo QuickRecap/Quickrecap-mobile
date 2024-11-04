@@ -14,16 +14,23 @@ class CreateScreen extends StatefulWidget {
   const CreateScreen({Key? key, this.selectedPdf}) : super(key: key);
 
   @override
-  _CreateScreenState createState() => _CreateScreenState();
+  CreateScreenState createState() => CreateScreenState();
 }
 
-class _CreateScreenState extends State<CreateScreen> {
+class CreateScreenState extends State<CreateScreen> {
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController activityNameController = TextEditingController();
   final TextEditingController activityTypeController = TextEditingController();
   final TextEditingController activityTimeController = TextEditingController();
   final TextEditingController activityQuantityController = TextEditingController();
+
+  Future<void> refresh() async {
+    // Aquí tu lógica para recargar datos del home
+    setState(() {
+      // Actualizar el estado
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

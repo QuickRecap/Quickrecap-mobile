@@ -20,10 +20,10 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class HomeScreenState extends State<HomeScreen> {
   final HomeApi _homeService = HomeApi();
   HomeStats? _stats;
   List<Activity> activities = [];
@@ -38,6 +38,12 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     _loadStats();
     fetchActivities();
+  }
+
+  Future<void> refresh() async {
+    _loadStats();
+    fetchActivities();
+
   }
 
   Future<void> _loadStats() async {

@@ -12,17 +12,18 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatefulWidget {
-  final User user;
-
-  const ProfileScreen({Key? key, required this.user}) : super(key: key);
+  const ProfileScreen({Key? key}) : super(key: key);
 
   @override
-  _ProfileScreenState createState() => _ProfileScreenState();
+  ProfileScreenState createState() => ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class ProfileScreenState extends State<ProfileScreen> {
+  final LocalStorageService localStorageService = LocalStorageService();
   List<Map<String, String>> pdfList = [];
   bool isLoading = false;
+  bool _mounted = true;  // Track mounted state
+  User? user;  // Changed to just declare the variable
   int puntos = 0;
   int completadas = 0;
   int generadas = 0;
@@ -30,30 +31,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    getPdfsByUserId();
-    _fetchEstadisticas();
+    _initializeData();
+  }
+
+  Future<void> refresh() async {
+    _initializeData();
+  }
+  @override
+  void dispose() {
+    _mounted = false;  // Update mounted state
+    super.dispose();
+  }
+
+  Future<void> _initializeData() async {
+    try {
+      // Fetch user first since other operations might depend on it
+      final currentUser = await localStorageService.getCurrentUser();
+      if (!_mounted) return;
+
+      _safeSetState(() {
+        user = currentUser;
+      });
+
+      // Now fetch the rest of the data
+      await Future.wait([
+        getPdfsByUserId(),
+        _fetchEstadisticas(),
+      ]);
+    } catch (e) {
+      print('Error initializing data: $e');
+    }
+  }
+
+
+  // Safe setState wrapper
+  void _safeSetState(VoidCallback fn) {
+    if (_mounted && mounted) {
+      setState(fn);
+    }
   }
 
   Future<void> _fetchEstadisticas() async {
-    final response = await http.get(
-      Uri.parse('http://10.0.2.2:8000/quickrecap/user/estadistics/7'),
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('http://10.0.2.2:8000/quickrecap/user/estadistics/7'),
+      );
 
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      setState(() {
-        puntos = data['puntos'];
-        completadas = data['completadas'];
-        generadas = data['generadas'];
-      });
-    } else {
-      // Maneja el error aquí, si lo necesitas
-      print('Error al obtener datos: ${response.statusCode}');
+      if (!_mounted) return;  // Check if still mounted
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        _safeSetState(() {
+          puntos = data['puntos'];
+          completadas = data['completadas'];
+          generadas = data['generadas'];
+        });
+      } else {
+        print('Error al obtener datos: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error fetching statistics: $e');
     }
   }
 
   Future<void> getPdfsByUserId() async {
-    setState(() {
+    if (!_mounted) return;  // Check if still mounted
+
+    _safeSetState(() {
       isLoading = true;
     });
 
@@ -61,7 +105,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final getPdfsProvider = Provider.of<GetPdfsProvider>(context, listen: false);
       List<Pdf>? pdfs = await getPdfsProvider.getPdfsByUserId();
 
-      setState(() {
+      if (!_mounted) return;  // Check again after async operation
+
+      _safeSetState(() {
         if (pdfs != null) {
           pdfList = pdfs.map((pdf) => {
             "id": pdf.id.toString(),
@@ -72,9 +118,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
         isLoading = false;
       });
     } catch (e) {
-      setState(() {
+      if (!_mounted) return;
+
+      _safeSetState(() {
         isLoading = false;
       });
+      print('Error fetching PDFs: $e');
     }
   }
 
@@ -550,9 +599,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               CircleAvatar(
                 radius: 35,
-                backgroundImage: (widget.user.profileImg != null &&
-                    widget.user.profileImg!.isNotEmpty)
-                    ? NetworkImage(widget.user.profileImg!)
+                backgroundImage: (user?.profileImg != null &&
+                    user!.profileImg!.isNotEmpty)
+                    ? NetworkImage(user!.profileImg!)
                     : AssetImage('assets/images/profile_pic.png') as ImageProvider,
               ),
               SizedBox(width: 16.w),
@@ -561,7 +610,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${widget.user.firstName} ${widget.user.lastName}',
+                      '${user?.firstName ?? ''} ${user?.lastName ?? ''}',
                       style: TextStyle(
                         fontSize: 18.sp,
                         fontWeight: FontWeight.w500,
