@@ -599,10 +599,17 @@ class ProfileScreenState extends State<ProfileScreen> {
             children: [
               CircleAvatar(
                 radius: 35,
-                backgroundImage: (user?.profileImg != null &&
-                    user!.profileImg!.isNotEmpty)
-                    ? NetworkImage(user!.profileImg!)
-                    : AssetImage('assets/images/profile_pic.png') as ImageProvider,
+                backgroundColor: kWhite,
+                backgroundImage: (user?.profileImg != null && user!.profileImg!.isNotEmpty)
+                    ? NetworkImage(user!.profileImg!) as ImageProvider
+                    : null,
+                child: (user?.profileImg == null || user!.profileImg!.isEmpty)
+                    ? Icon(
+                  Icons.person,
+                  size: 30.sp,
+                  color: kPrimary,
+                )
+                    : null,
               ),
               SizedBox(width: 16.w),
               Expanded(

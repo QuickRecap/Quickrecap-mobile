@@ -13,9 +13,13 @@ class ConfigurationScreen extends StatelessWidget {
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios, color: Color(0xFF000000)), // Color negro
           onPressed: () {
-            if (Navigator.canPop(context)) {
-              Navigator.pop(context);
-            }
+            Navigator.pushNamed(
+              context,
+              '/entrypoint',
+              arguments: {  // Aquí pasas el objeto Pdf
+                'initialIndex': 3    // Para asegurarte que la pestaña "Crear" esté seleccionada
+              },
+            );
           },
         ),
         title: Text('Configuración'),

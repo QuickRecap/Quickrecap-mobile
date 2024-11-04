@@ -28,7 +28,7 @@ class HomeScreenState extends State<HomeScreen> {
   HomeStats? _stats;
   List<Activity> activities = [];
   List<Activity> topActivities = []; // Corrected type
-  bool isDialogLoading = false;
+  bool isLoading = false;
 
   LocalStorageService localStorageService = LocalStorageService();
 
@@ -75,6 +75,10 @@ class HomeScreenState extends State<HomeScreen> {
 
 
   Future<void> fetchActivities() async {
+    setState(() {
+      isLoading = true;
+    });
+
     try {
       final response = await http.get(
         Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/activity/research'),
@@ -87,14 +91,105 @@ class HomeScreenState extends State<HomeScreen> {
         final List<dynamic> jsonData = json.decode(response.body);
         setState(() {
           activities = jsonData.take(2).map((data) => Activity.fromJson(data)).toList();
-          topActivities = activities; // Now correctly typed as List<Activity>
+          topActivities = activities;
         });
       } else {
         print('Error: ${response.statusCode}');
       }
     } catch (e) {
       print('Error fetching activities: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
+  }
+
+  // Replace the topActivities.map section with this:
+  Widget _buildActivitiesList() {
+    if (isLoading) {
+      return ConstrainedBox(
+        constraints: BoxConstraints(
+          minHeight: 70.h,
+        ),
+        child: Container(
+          alignment: Alignment.center,
+          child: const CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(kPrimary),
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: topActivities.map((activity) => GestureDetector(
+        onTap: () {
+          _showOptionsBottomSheet(context, activity);
+        },
+        child: Container(
+          height: 65.h,
+          margin: EdgeInsets.only(bottom: 10.h),
+          padding: EdgeInsets.symmetric(horizontal: 10.0),
+          decoration: BoxDecoration(
+            color: kWhite,
+            borderRadius: BorderRadius.circular(15.r),
+            boxShadow: [
+              BoxShadow(
+                color: kDark.withOpacity(0.1),
+                spreadRadius: 1,
+                blurRadius: 5,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  playActivity(context, activity.id);
+                },
+                child: Icon(
+                  Icons.play_circle_fill_outlined,
+                  color: kPrimaryLight,
+                  size: 35.sp,
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Text(
+                  activity.name!,
+                  style: TextStyle(
+                    color: kGrey2,
+                    fontFamily: 'Poppins',
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14.sp,
+                  ),
+                ),
+              ),
+              Row(
+                children: [
+                  Icon(
+                    Icons.play_arrow_rounded,
+                    color: kDark,
+                    size: 22.sp,
+                  ),
+                  SizedBox(width: 5.w),
+                  Text(
+                    activity.timesPlayed.toString(),
+                    style: TextStyle(
+                      color: kGrey2,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w500,
+                      fontSize: 14.sp,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      )).toList(),
+    );
   }
 
   @override
@@ -125,55 +220,65 @@ class HomeScreenState extends State<HomeScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 25.r,
-                              backgroundColor: kWhite,
-                              child: Icon(
-                                Icons.person,
-                                size: 30.sp,
-                                color: kPrimary,
-                              ),
-                            ),
-                            SizedBox(width: 15.w),
-                            FutureBuilder<User?>(
-                              future: LocalStorageService().getCurrentUser(),
-                              builder: (context, snapshot) {
-                                String userName =
-                                    "Usuario"; // Valor por defecto
+                    Row(
+                    children: [
+                    FutureBuilder<User?>(
+                        future: LocalStorageService().getCurrentUser(),
+                builder: (context, snapshot) {
+                  String userName = "Usuario"; // Valor por defecto
+                  String? profileImg;
 
-                                if (snapshot.hasData && snapshot.data != null) {
-                                  userName = snapshot.data!.firstName;
-                                }
+                  if (snapshot.hasData && snapshot.data != null) {
+                    userName = snapshot.data!.firstName;
+                    profileImg = snapshot.data!.profileImg;
+                  }
 
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Hola, $userName!",
-                                      style: TextStyle(
-                                        color: kWhite,
-                                        fontSize: 18.sp,
-                                        fontFamily: 'Poppins',
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    Text(
-                                      "¿Listo para aprender?",
-                                      style: TextStyle(
-                                        color: kWhite,
-                                        fontSize: 16.sp,
-                                        fontFamily: 'Poppins',
-                                      ),
-                                    ),
-                                  ],
-                                );
-                              },
+                  return Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 35,
+                        backgroundColor: kWhite,
+                        backgroundImage: (profileImg != null && profileImg.isNotEmpty)
+                            ? NetworkImage(profileImg) as ImageProvider
+                            : null,
+                        child: (profileImg == null || profileImg.isEmpty)
+                            ? Icon(
+                          Icons.person,
+                          size: 30.sp,
+                          color: kPrimary,
+                        )
+                            : null,
+                      ),
+                      SizedBox(width: 15.w),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Hola, $userName!",
+                            style: TextStyle(
+                              color: kWhite,
+                              fontSize: 18.sp,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
                             ),
-                          ],
-                        ),
-                        IconButton(
+                          ),
+                          Text(
+                            "¿Listo para aprender?",
+                            style: TextStyle(
+                              color: kWhite,
+                              fontSize: 16.sp,
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              ),
+              ],
+            ),
+            IconButton(
                           icon: Icon(
                             Icons.logout,
                             color: kWhite,
@@ -311,74 +416,7 @@ class HomeScreenState extends State<HomeScreen> {
                     ),
                     SizedBox(height: 15.h),
                     // Top activities list
-                    ...topActivities.map((activity) => GestureDetector(
-                      onTap: () {
-                        // Llamamos al bottom dialog pasándole la activity
-                      },
-                      child: Container(
-                        height: 65.h,
-                        margin: EdgeInsets.only(bottom: 10.h),
-                        padding: EdgeInsets.symmetric(horizontal: 10.0),
-                        decoration: BoxDecoration(
-                          color: kWhite,
-                          borderRadius: BorderRadius.circular(15.r),
-                          boxShadow: [
-                            BoxShadow(
-                              color: kDark.withOpacity(0.1),
-                              spreadRadius: 1,
-                              blurRadius: 5,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                // Llama a la función playActivity
-                                playActivity(context, activity.id);  // Llama a playActivity con el ID de la actividad
-                              },
-                              child: Icon(
-                                Icons.play_circle_fill_outlined,
-                                color: kPrimaryLight,
-                                size: 35.sp,
-                              ),
-                            ),
-                            SizedBox(width: 12.w),
-                            Expanded(
-                              child: Text(
-                                activity.name!,
-                                style: TextStyle(
-                                  color: kGrey2,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 14.sp,
-                                ),
-                              ),
-                            ),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.play_arrow_rounded,
-                                  color: kDark,
-                                  size: 22.sp,
-                                ),
-                                SizedBox(width: 5.w),
-                                Text(
-                                  activity.timesPlayed.toString(),
-                                  style: TextStyle(
-                                    color: kGrey2,
-                                    fontFamily: 'Poppins',
-                                    fontWeight: FontWeight.w500,
-                                    fontSize: 14.sp,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    )),
+                    _buildActivitiesList(),
                     // Categories section
                     SizedBox(height: 10.h),
                     Text(
@@ -477,14 +515,20 @@ class HomeScreenState extends State<HomeScreen> {
   }) {
     return Container(
       width: 90.w,
-      height: 90.h, // Agregamos altura fija para controlar mejor el espacio
+      height: 90.h,
       decoration: BoxDecoration(
-        color: kWhite,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(15.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05), // Sombra muy tenue
+            blurRadius: 10,
+            offset: Offset(1, 1), // Ajuste para la dirección de la sombra
+          ),
+        ],
       ),
       child: Padding(
-        padding: EdgeInsets.symmetric(
-            vertical: 10.h), // Reducimos el padding vertical
+        padding: EdgeInsets.symmetric(vertical: 10.h),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -508,6 +552,7 @@ class HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
 
   void _showOptionsBottomSheet(BuildContext context, Activity activity) {
     OptionsBottomSheet.show(
