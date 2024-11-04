@@ -21,7 +21,7 @@ Future<void> playActivity(BuildContext context, int activityId) async {
   dynamic activityData;
   try {
     final response = await http.get(
-      Uri.parse('http://10.0.2.2:8000/quickrecap/activity/research?id=$activityId'),
+      Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/activity/research?id=$activityId'),
       headers: {
         'Content-Type': 'application/json',
       },

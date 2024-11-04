@@ -52,7 +52,7 @@ class _OptionsBottomSheetState extends State<OptionsBottomSheet> {
     try {
       int userId = await localStorageService.getCurrentUserId();
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/quickrecap/favorite/update/${widget.activity.id}'),
+        Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/favorite/update/${widget.activity.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

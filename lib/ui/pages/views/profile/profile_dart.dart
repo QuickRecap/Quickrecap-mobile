@@ -56,7 +56,7 @@ class ProfileScreenState extends State<ProfileScreen> {
       // Now fetch the rest of the data
       await Future.wait([
         getPdfsByUserId(),
-        _fetchEstadisticas(),
+        _fetchEstadisticas(int.parse(currentUser!.id)),
       ]);
     } catch (e) {
       print('Error initializing data: $e');
@@ -71,10 +71,10 @@ class ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Future<void> _fetchEstadisticas() async {
+  Future<void> _fetchEstadisticas(int userId) async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/quickrecap/user/estadistics/7'),
+        Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/user/estadistics/$userId'),
       );
 
       if (!_mounted) return;  // Check if still mounted

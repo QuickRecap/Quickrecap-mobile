@@ -287,7 +287,7 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
               Row(
                 children: [
                   ElevatedButton(
-                    onPressed: _previousGap,
+                    onPressed: _currentIndex == 0 ? null : _previousGap,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xff7464FC),
                       padding: EdgeInsets.symmetric(vertical: 16, horizontal: 40),
@@ -302,7 +302,7 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
                         fontSize: 18,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: _currentIndex == 0 ? Colors.grey[600] : Colors.white,
                       ),
                     ),
                   ),

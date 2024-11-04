@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:quickrecap/domain/entities/home.dart';
 
 class HomeApi {
-  final String baseUrl = 'http://10.0.2.2:8000/quickrecap';
+  final String baseUrl = 'https://quickrecap.rj.r.appspot.com/quickrecap';
 
   Future<HomeStats> getHomeStats() async {
     try {

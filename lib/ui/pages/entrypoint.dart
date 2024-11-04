@@ -42,33 +42,6 @@ class _MainScreenState extends State<MainScreen> {
     });
   }
 
-  Future<User?> loadUserProfile() async {
-    print("consultando a LocalStorageService");
-    try {
-      LocalStorageService localStorageService = LocalStorageService();
-      User? user = await localStorageService.getCurrentUser();
-
-      if (user != null) {
-        return User(
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          gender: user.gender,
-          phone: user.phone,
-          email: user.email,
-          birthday: user.birthday,
-          profileImg: user.profileImg,
-        );
-      } else {
-        print("No se encontró información del usuario.");
-        return null;
-      }
-    } catch (e) {
-      print("Error al cargar el perfil: $e");
-      return null;
-    }
-  }
-
   void refreshCurrentView(int index) {
     switch (index) {
       case 0:
@@ -135,7 +108,7 @@ class _MainScreenState extends State<MainScreen> {
             items: [
               const BottomNavigationBarItem(
                 icon: Padding(
-                  padding: EdgeInsets.all(5.0),
+                  padding: EdgeInsets.only(top: 5, right: 5, bottom: 0, left: 5),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -148,7 +121,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
               const BottomNavigationBarItem(
                 icon: Padding(
-                  padding: EdgeInsets.all(5.0),
+                  padding: EdgeInsets.only(top: 5, right: 5, bottom: 0, left: 5),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -161,7 +134,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
               const BottomNavigationBarItem(
                 icon: Padding(
-                  padding: EdgeInsets.all(5.0),
+                  padding: EdgeInsets.only(top: 5, right: 5, bottom: 0, left: 5),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -174,7 +147,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
               BottomNavigationBarItem(
                 icon: Padding(
-                  padding: const EdgeInsets.all(5.0),
+                  padding: const EdgeInsets.only(top: 5, right: 5, bottom: 0, left: 5),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [

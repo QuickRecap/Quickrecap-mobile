@@ -12,7 +12,7 @@ import '../../domain/entities/activity.dart';
 import '../repositories/local_storage_service.dart';
 
 class ActivityApi {
-  final String baseUrl = 'http://10.0.2.2:8000/quickrecap';
+  final String baseUrl = 'https://quickrecap.rj.r.appspot.com/quickrecap';
   final Map<String, String> headers = {
     'Content-Type': 'application/json; charset=UTF-8',
   };

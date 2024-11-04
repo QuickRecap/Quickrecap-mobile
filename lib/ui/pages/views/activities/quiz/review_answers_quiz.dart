@@ -232,13 +232,13 @@ class _ReviewAnswersQuizState extends State<ReviewAnswersQuiz> {
               Row(
                 children: [
                   ElevatedButton(
-                    onPressed: _previousQuestion,
+                    onPressed: _currentIndex == 0 ? null : _previousQuestion,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color(0xff7464FC),
                       padding: EdgeInsets.symmetric(vertical: 16, horizontal: 40),
                       disabledBackgroundColor: Colors.grey[300],
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(17), // Ajusta el valor según tus necesidades
+                        borderRadius: BorderRadius.circular(17),
                       ),
                     ),
                     child: Text(
@@ -247,7 +247,7 @@ class _ReviewAnswersQuizState extends State<ReviewAnswersQuiz> {
                         fontSize: 18,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w600,
-                        color: Colors.white,
+                        color: _currentIndex == 0 ? Colors.grey[600] : Colors.white,
                       ),
                     ),
                   ),

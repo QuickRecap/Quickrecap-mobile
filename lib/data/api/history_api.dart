@@ -4,7 +4,7 @@ import '../repositories/local_storage_service.dart';
 import '../../domain/entities/history_activity.dart';
 
 class HistoryApi {
-  final String baseUrl = 'http://10.0.2.2:8000/quickrecap';
+  final String baseUrl = 'https://quickrecap.rj.r.appspot.com/quickrecap';
 
   Future<List<HistoryActivity>> getHistoryByUser() async {
     LocalStorageService localStorageService = LocalStorageService();

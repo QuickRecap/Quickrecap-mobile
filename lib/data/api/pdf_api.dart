@@ -4,7 +4,7 @@ import '../../domain/entities/pdf.dart';
 import '../repositories/local_storage_service.dart';
 
 class PdfApi {
-  final String baseUrl = 'http://10.0.2.2:8000/quickrecap';
+  final String baseUrl = 'https://quickrecap.rj.r.appspot.com/quickrecap';
   final Map<String, String> headers = {'Content-Type': 'application/json'};
   final LocalStorageService localStorageService = LocalStorageService();
 

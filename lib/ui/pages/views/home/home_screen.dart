@@ -77,7 +77,7 @@ class HomeScreenState extends State<HomeScreen> {
   Future<void> fetchActivities() async {
     try {
       final response = await http.get(
-        Uri.parse('http://10.0.2.2:8000/quickrecap/activity/research'),
+        Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/activity/research'),
         headers: {
           'Content-Type': 'application/json',
         },

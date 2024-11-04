@@ -91,7 +91,7 @@ class GamesScreenState extends State<GamesScreen> {
     try {
       final response = await http
           .put(
-        Uri.parse('http://10.0.2.2:8000/quickrecap/activity/update/${activity.id}'),
+        Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/activity/update/${activity.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -389,12 +389,12 @@ class GamesScreenState extends State<GamesScreen> {
     if (filteredActivities.isEmpty) {
       return Center(
         child: Text(
-          'No hay actividades disponibles',
+          'No hay actividades que mostrar',
           style: TextStyle(
-            color: kGrey2,
+            color: Color(0xff9A9A9A),
             fontSize: 16.sp,
             fontFamily: 'Poppins',
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w400,
           ),
         ),
       );
@@ -475,12 +475,12 @@ class GamesScreenState extends State<GamesScreen> {
     if (filteredActivities.isEmpty) {
       return Center(
         child: Text(
-          'No hay actividades disponibles',
+          'No hay actividades que mostrar',
           style: TextStyle(
-            color: kGrey2,
+            color: Color(0xff9A9A9A),
             fontSize: 16.sp,
             fontFamily: 'Poppins',
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w400,
           ),
         ),
       );
@@ -532,7 +532,7 @@ class GamesScreenState extends State<GamesScreen> {
                       try {
                         int userId = await localStorageService.getCurrentUserId();
                         final response = await http.post(
-                          Uri.parse('http://10.0.2.2:8000/quickrecap/favorite/update/${activity.id}'),
+                          Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/favorite/update/${activity.id}'),
                           headers: <String, String>{
                             'Content-Type': 'application/json; charset=UTF-8',
                           },
@@ -607,12 +607,12 @@ class GamesScreenState extends State<GamesScreen> {
     if (historyActivities.isEmpty) {
       return Center(
         child: Text(
-          'No hay actividades en el historial',
+          'No hay actividades que mostrar',
           style: TextStyle(
-            color: kGrey2,
+            color: Color(0xff9A9A9A),
             fontSize: 16.sp,
             fontFamily: 'Poppins',
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w400,
           ),
         ),
       );
@@ -767,7 +767,7 @@ class GamesScreenState extends State<GamesScreen> {
                                     try {
                                       int userId = await localStorageService.getCurrentUserId();
                                       final response = await http.post(
-                                        Uri.parse('http://10.0.2.2:8000/quickrecap/favorite/update/${activity.id}'),
+                                        Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/favorite/update/${activity.id}'),
                                         headers: <String, String>{
                                           'Content-Type': 'application/json; charset=UTF-8',
                                         },
@@ -1172,7 +1172,7 @@ class GamesScreenState extends State<GamesScreen> {
                                                   Navigator.of(context).pop(); // Cierra el BottomSheet de confirmación
                                                   try {
                                                     final response = await http.delete(
-                                                      Uri.parse('http://10.0.2.2:8000/quickrecap/activity/delete/${activity.id}'),
+                                                      Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/activity/delete/${activity.id}'),
                                                       headers: <String, String>{
                                                         'Content-Type': 'application/json; charset=UTF-8',
                                                       },

@@ -25,7 +25,6 @@ class CategoryScreen extends StatefulWidget {
 class _CategoryScreenState extends State<CategoryScreen> {
   String searchQuery = '';
   List<Activity> activities = [];
-  bool isDialogLoading = false;
   bool isLoading = false;
 
   LocalStorageService localStorageService = LocalStorageService();
@@ -37,9 +36,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
   }
 
   Future<void> fetchActivities() async {
+    setState(() {
+      isLoading = true;
+    });
+
     int userId = await localStorageService.getCurrentUserId();
     try {
-      final url = 'http://10.0.2.2:8000/quickrecap/activity/research?user_id=$userId&tipo=${widget.activityType}';
+      final url = 'https://quickrecap.rj.r.appspot.com/quickrecap/activity/research?user_id=$userId&tipo=${widget.activityType}';
       final response = await http.get(
         Uri.parse(url),
         headers: {
@@ -57,6 +60,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
       }
     } catch (e) {
       print('Error fetching activities: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -194,83 +201,99 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
                         // Lista de actividades
                         Expanded(
-                          child: ListView.builder(
-                            padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 1.h),
-                            itemCount: getFilteredActivities().length,
-                            itemBuilder: (context, index) {
-                              final activity = getFilteredActivities()[index];
-                              final isLastItem = index == getFilteredActivities().length - 1;
-                              return Column(
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      // Llamamos al bottom dialog pasándole la activity
-                                      _showOptionsBottomSheet(context, activity);
-                                    },
-                                    child: Container(
-                                      height: 50.h,
-                                      padding: EdgeInsets.symmetric(horizontal: 10.0),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          GestureDetector(
-                                            onTap: () {
-                                              // Llama a la función PlayActivity
-                                              playActivity(context, activity.id);  // Llama a playActivity
-                                            },
-                                            child: Icon(
-                                              Icons.play_circle_fill_outlined,
-                                              color: kPrimaryLight,
-                                              size: 35.sp,
+                          child: isLoading
+                              ? Center(
+                            child: CircularProgressIndicator(),
+                          )
+                              : activities.isEmpty
+                              ? Center(
+                            child: Text(
+                              'No hay actividades que mostrar',
+                              style: TextStyle(
+                                color: Color(0xff9A9A9A),
+                                fontSize: 16.sp,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          )
+                              : ListView.builder(
+                                  padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 1.h),
+                                  itemCount: getFilteredActivities().length,
+                                  itemBuilder: (context, index) {
+                                    final activity = getFilteredActivities()[index];
+                                    final isLastItem = index == getFilteredActivities().length - 1;
+                                    return Column(
+                                      children: [
+                                        GestureDetector(
+                                          onTap: () {
+                                            // Llamamos al bottom dialog pasándole la activity
+                                            _showOptionsBottomSheet(context, activity);
+                                          },
+                                          child: Container(
+                                            height: 50.h,
+                                            padding: EdgeInsets.symmetric(horizontal: 10.0),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white,
                                             ),
-                                          ),
-                                          SizedBox(width: 12.w),
-                                          Expanded(
-                                            child: Text(
-                                              activity.name,
-                                              style: TextStyle(
-                                                color: kGrey2,
-                                                fontFamily: 'Poppins',
-                                                fontWeight: FontWeight.w600,
-                                                fontSize: 14.sp,
-                                              ),
-                                            ),
-                                          ),
-                                          Row(
-                                            children: [
-                                              Icon(
-                                                Icons.play_arrow_rounded,
-                                                color: kDark,
-                                                size: 22.sp,
-                                              ),
-                                              SizedBox(width: 5.w),
-                                              Text(
-                                                activity.timesPlayed.toString(),
-                                                style: TextStyle(
-                                                  color: kGrey2,
-                                                  fontFamily: 'Poppins',
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 14.sp,
+                                            child: Row(
+                                              children: [
+                                                GestureDetector(
+                                                  onTap: () {
+                                                    // Llama a la función PlayActivity
+                                                    playActivity(context, activity.id);  // Llama a playActivity
+                                                  },
+                                                  child: Icon(
+                                                    Icons.play_circle_fill_outlined,
+                                                    color: kPrimaryLight,
+                                                    size: 35.sp,
+                                                  ),
                                                 ),
-                                              ),
-                                            ],
+                                                SizedBox(width: 12.w),
+                                                Expanded(
+                                                  child: Text(
+                                                    activity.name,
+                                                    style: TextStyle(
+                                                      color: kGrey2,
+                                                      fontFamily: 'Poppins',
+                                                      fontWeight: FontWeight.w600,
+                                                      fontSize: 14.sp,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.play_arrow_rounded,
+                                                      color: kDark,
+                                                      size: 22.sp,
+                                                    ),
+                                                    SizedBox(width: 5.w),
+                                                    Text(
+                                                      activity.timesPlayed.toString(),
+                                                      style: TextStyle(
+                                                        color: kGrey2,
+                                                        fontFamily: 'Poppins',
+                                                        fontWeight: FontWeight.w500,
+                                                        fontSize: 14.sp,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  if (!isLastItem)
-                                    Divider(
-                                      color: Color(0xffD9D9D9),
-                                      thickness: 1.0,
-                                      indent: 12.w,
-                                      endIndent: 12.w,
-                                    ),
-                                ],
-                              );
-                            },
+                                        ),
+                                        if (!isLastItem)
+                                          Divider(
+                                            color: Color(0xffD9D9D9),
+                                            thickness: 1.0,
+                                            indent: 12.w,
+                                            endIndent: 12.w,
+                                          ),
+                                      ],
+                                    );
+                                  },
                           ),
                         ),
 

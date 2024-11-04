@@ -501,7 +501,7 @@ class _ReviewAnswersLinkersState extends State<ReviewAnswersLinkers> {
                           child: Row(
                             children: [
                               ElevatedButton(
-                                onPressed: _previousLinker,
+                                onPressed: _currentIndex == 0 ? null : _previousLinker,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Color(0xff7464FC),
                                   padding: EdgeInsets.symmetric(vertical: 16, horizontal: 40),
@@ -516,7 +516,7 @@ class _ReviewAnswersLinkersState extends State<ReviewAnswersLinkers> {
                                     fontSize: 18,
                                     fontFamily: 'Poppins',
                                     fontWeight: FontWeight.w600,
-                                    color: Colors.white,
+                                    color: _currentIndex == 0 ? Colors.grey[600] : Colors.white,
                                   ),
                                 ),
                               ),

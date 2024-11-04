@@ -4,7 +4,7 @@ import '../../domain/entities/user.dart';
 import '../repositories/local_storage_service.dart';
 
 class UserApi {
-  final String baseUrl = 'http://10.0.2.2:8000/quickrecap';
+  final String baseUrl = 'https://quickrecap.rj.r.appspot.com/quickrecap';
 
   Future<User?> login(String email, String password) async {
     final response = await http.post(

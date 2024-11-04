@@ -390,7 +390,7 @@ class _PlayGapsState extends State<PlayGaps> {
                       ),
                     ),
                     Container(
-                      padding: EdgeInsets.all(20),
+                      height: 300, // Altura máxima fija
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.only(
@@ -398,26 +398,45 @@ class _PlayGapsState extends State<PlayGaps> {
                           bottomRight: Radius.circular(15),
                         ),
                       ),
-                      child: RichText(
-                        textAlign: TextAlign.justify,
-                        text: TextSpan(
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.black,
-                            fontFamily: 'Poppins',
-                            height: 1.9,
-                          ),
-                          children: List.generate(textParts.length * 2 - 1, (index) {
-                            if (index.isEven) {
-                              return TextSpan(text: textParts[index ~/ 2]);
-                            } else {
-                              return WidgetSpan(
-                                child: IntrinsicWidth(
-                                  child: _buildDragTarget(index ~/ 2),
+                      child: ScrollbarTheme(
+                        data: ScrollbarThemeData(
+                          thickness: MaterialStateProperty.all(6.0),
+                          thumbColor: MaterialStateProperty.all(Color(
+                              0xFF525252).withOpacity(0.6)),
+                          radius: const Radius.circular(10),
+                          minThumbLength: 80,
+                        ),
+                        child: Scrollbar(
+                          thickness: 6,
+                          thumbVisibility: true,
+                          radius: Radius.circular(10),
+                          child: SingleChildScrollView(
+                            child: Container(
+                              padding: EdgeInsets.all(20),
+                              child: RichText(
+                                textAlign: TextAlign.justify,
+                                text: TextSpan(
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    color: Colors.black,
+                                    fontFamily: 'Poppins',
+                                    height: 1.9,
+                                  ),
+                                  children: List.generate(textParts.length * 2 - 1, (index) {
+                                    if (index.isEven) {
+                                      return TextSpan(text: textParts[index ~/ 2]);
+                                    } else {
+                                      return WidgetSpan(
+                                        child: IntrinsicWidth(
+                                          child: _buildDragTarget(index ~/ 2),
+                                        ),
+                                      );
+                                    }
+                                  }),
                                 ),
-                              );
-                            }
-                          }),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),
