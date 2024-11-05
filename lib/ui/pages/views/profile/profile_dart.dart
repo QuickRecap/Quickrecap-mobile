@@ -369,6 +369,14 @@ class ProfileScreenState extends State<ProfileScreen> {
               decoration: BoxDecoration(
                 color: Color(0xffF3F3F3),
                 borderRadius: BorderRadius.circular(10.r),
+                boxShadow: [
+                  BoxShadow(
+                    color: kDark.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 5,
+                    offset: Offset(0, 2),
+                  ),
+                ],
               ),
               child: Icon(Icons.insert_drive_file_outlined,
                   size: 100.sp,
@@ -398,15 +406,24 @@ class ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20.r),
+        boxShadow: [
+          BoxShadow(
+            color: kDark.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Fixed PDF Section Header
           Padding(
             padding: EdgeInsets.only(
               left: 16.w,
               right: 16.w,
-              top: 20.w, // Reemplaza <tu_valor> con el valor deseado para el top
+              top: 20.w,
             ),
             child: Text(
               'Mis PDFs',
@@ -429,12 +446,7 @@ class ProfileScreenState extends State<ProfileScreen> {
           else if (pdfList.isEmpty)
             Center(
               child: Padding(
-                padding: EdgeInsets.only(
-                  left: 16.w,
-                  right: 16.w,
-                  bottom: 16.w,
-                  top: 16.w, // Reemplaza <tu_valor> con el valor deseado para el top
-                ),
+                padding: EdgeInsets.all(16.w),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -459,11 +471,11 @@ class ProfileScreenState extends State<ProfileScreen> {
             )
           else
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w), // Quitado el vertical padding
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: Container(
                 margin: EdgeInsets.only(top: 15.h),
                 child: GridView.builder(
-                  padding: EdgeInsets.zero, // Añadido para eliminar el padding interno del GridView
+                  padding: EdgeInsets.zero,
                   shrinkWrap: true,
                   physics: NeverScrollableScrollPhysics(),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -482,20 +494,20 @@ class ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
           if (!isLoading && pdfList.isNotEmpty)
-              Padding(
-                padding: EdgeInsets.all(16.w),
-                  child: Center( // Añade este widget
-                    child: Text(
-                      'Has llegado al final de los resultados',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                      color: Color(0xff9A9A9A),
-                      fontSize: 14.sp,
-                      fontFamily: "poppins",
-                    ),
+            Padding(
+              padding: EdgeInsets.all(16.w),
+              child: Center(
+                child: Text(
+                  'Has llegado al final de los resultados',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xff9A9A9A),
+                    fontSize: 14.sp,
+                    fontFamily: "poppins",
                   ),
                 ),
               ),
+            ),
         ],
       ),
     );
@@ -505,91 +517,95 @@ class ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xffF6F8FC),
-      body: SingleChildScrollView(
-        child: Stack(
-          children: [
-            Column(
+      body: Stack(
+        children: [
+          Container(
+            height: 200.h,
+            decoration: BoxDecoration(
+              color: kPrimary,
+              image: DecorationImage(
+                image: AssetImage('assets/images/background-top.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  height: 190.h,
-                  decoration: BoxDecoration(
-                    color: kPrimary,
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/background-top.png'),
-                      fit: BoxFit.cover,
-                    ),
+                // Fixed Header Section
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: 24.w,
+                    right: 24.w,
+                    top: 15.h,
+                    bottom: 20.h,
                   ),
-                  child: SafeArea(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "Mi perfil",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 26.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.logout,
+                          color: Colors.white,
+                          size: 30.sp,
+                        ),
+                        onPressed: () {
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, '/login', (route) => false);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                // Fixed Profile Section
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 26.w),
+                  child: _buildProfileSection(),
+                ),
+                SizedBox(height: 20.h),
+                // Scrollable PDF Section
+                Expanded(
+                  child: SingleChildScrollView(
                     child: Padding(
-                      padding: EdgeInsets.only(left: 24.w, right: 24.w, top: 15.h),
+                      padding: EdgeInsets.symmetric(horizontal: 26.w),
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Mi perfil",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 26.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.logout,
-                                  color: Colors.white,
-                                  size: 30.sp,
-                                ),
-                                onPressed: () {
-                                  Navigator.pushNamedAndRemoveUntil(
-                                      context, '/login', (route) => false);
-                                },
-                              ),
-                            ],
-                          ),
+                          _buildPdfSection(),
+                          SizedBox(height: 16.h),
                         ],
                       ),
                     ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 26.w),
-                  child: Column(
-                    children: [
-                      SizedBox(height: 100.h),
-                      _buildPdfSection(),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 16.h),
               ],
             ),
-            Positioned(
-              top: 100.h,
-              left: 10.w,
-              right: 10.w,
-              child: _buildProfileSection(),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildProfileSection() {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
-      padding: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(15.w),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16.r),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
-            blurRadius: 10,
-            offset: Offset(0, 5),
+            color: kDark.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: Offset(0, 2),
           ),
         ],
       ),
