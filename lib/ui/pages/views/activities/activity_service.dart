@@ -1,5 +1,3 @@
-// activity_service.dart
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -16,9 +14,14 @@ import 'quiz/play_quiz_activity.dart';
 import 'gaps/play_gaps_activity.dart';
 import 'linkers/play_linkers_activity.dart';
 import 'flashcards/play_flashcards.dart';
+import '../home/widgets/loading_activity_dialog.dart';
 
 Future<void> playActivity(BuildContext context, int activityId) async {
   dynamic activityData;
+
+  // Mostrar el diálogo de carga
+  await LoadingActivityDialog.show(context);
+
   try {
     final response = await http.get(
       Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/activity/research?id=$activityId'),
@@ -53,6 +56,8 @@ Future<void> playActivity(BuildContext context, int activityId) async {
             );
 
             if (activityData != null) {
+              // Cerrar el diálogo antes de navegar
+              Navigator.pop(context);
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -84,6 +89,8 @@ Future<void> playActivity(BuildContext context, int activityId) async {
             );
 
             if (activityData != null) {
+              // Cerrar el diálogo antes de navegar
+              Navigator.pop(context);
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -120,6 +127,8 @@ Future<void> playActivity(BuildContext context, int activityId) async {
             );
 
             if (activityData != null) {
+              // Cerrar el diálogo antes de navegar
+              Navigator.pop(context);
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -146,6 +155,8 @@ Future<void> playActivity(BuildContext context, int activityId) async {
             );
 
             if (activityData != null) {
+              // Cerrar el diálogo antes de navegar
+              Navigator.pop(context);
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -160,13 +171,19 @@ Future<void> playActivity(BuildContext context, int activityId) async {
           break;
 
         default:
+        // Cerrar el diálogo si hay un tipo desconocido
+          Navigator.pop(context);
           print('Tipo de actividad desconocido');
           activityData = null;
       }
     } else {
+      // Cerrar el diálogo si hay error de respuesta
+      Navigator.pop(context);
       print('Error: ${response.statusCode}');
     }
   } catch (e) {
+    // Cerrar el diálogo si hay una excepción
+    Navigator.pop(context);
     print('Error fetching activities: $e');
   }
 }

@@ -7,6 +7,7 @@ import 'package:quickrecap/domain/entities/activity.dart';
 import 'package:http/http.dart' as http;
 import '../../../../data/repositories/local_storage_service.dart';
 import '../activities/activity_service.dart';
+import 'widgets/loading_activity_dialog.dart';
 
 class AllActivitiesScreen extends StatefulWidget {
   const AllActivitiesScreen({Key? key}) : super(key: key);

@@ -115,7 +115,7 @@ class HomeScreenState extends State<HomeScreen> {
         child: Container(
           alignment: Alignment.center,
           child: const CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(kPrimary),
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xffdadada)),
           ),
         ),
       );

@@ -923,7 +923,7 @@ class GamesScreenState extends State<GamesScreen> {
                                                             height: 16,
                                                             child: CircularProgressIndicator(
                                                               strokeWidth: 2,
-                                                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6D5BFF)),
+                                                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xffdadada)),
                                                             ),
                                                           )
                                                               : !activity.private
@@ -965,7 +965,7 @@ class GamesScreenState extends State<GamesScreen> {
                                                             height: 16,
                                                             child: CircularProgressIndicator(
                                                               strokeWidth: 2,
-                                                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6D5BFF)),
+                                                              valueColor: AlwaysStoppedAnimation<Color>(Color(0xffdadada)),
                                                             ),
                                                           )
                                                               : activity.private

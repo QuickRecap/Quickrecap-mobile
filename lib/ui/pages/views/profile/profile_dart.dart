@@ -422,7 +422,7 @@ class ProfileScreenState extends State<ProfileScreen> {
               child: Padding(
                 padding: EdgeInsets.all(20.h),
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF8375FD)),
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xffdadada)),
                 ),
               ),
             )
