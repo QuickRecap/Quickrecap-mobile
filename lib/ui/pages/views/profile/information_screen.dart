@@ -231,11 +231,19 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
               children: [
                 CircleAvatar(
                   radius: 50,
+                  backgroundColor: kWhite, // Color de fondo cuando se muestra el ícono
                   backgroundImage: _image != null
                       ? FileImage(File(_image!.path)) as ImageProvider
                       : (_downloadURL != null && _downloadURL!.isNotEmpty
                       ? NetworkImage(_downloadURL!)
-                      : AssetImage('assets/images/profile_pic.png')) as ImageProvider,
+                      : null), // No se establece una imagen si no hay URL o imagen seleccionada
+                  child: (_image == null && (_downloadURL == null || _downloadURL!.isEmpty))
+                      ? Icon(
+                    Icons.person,
+                    size: 30.sp,
+                    color: kPrimary, // Ajusta este color según tu preferencia
+                  )
+                      : null, // El ícono solo aparece si no hay imagen o URL
                 ),
                 TextButton(
                   onPressed: _pickImage,
