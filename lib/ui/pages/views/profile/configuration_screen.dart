@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickrecap/main.dart';
+import 'package:quickrecap/ui/constants/constants.dart';
 
 class ConfigurationScreen extends StatelessWidget {
   const ConfigurationScreen({super.key});
@@ -86,13 +87,13 @@ class ConfigurationScreen extends StatelessWidget {
       {required IconData icon, required String text, required Function() onTap}) {
     return ListTile(
       leading: Container(
-        height: 40.w, // Ajuste del tamaño del contenedor
+        height: 40.w,
         width: 40.w,
         decoration: BoxDecoration(
-          color: Color(0xFFEBEAFC), // Color púrpura de fondo
-          borderRadius: BorderRadius.circular(12.r), // Forma circular con esquinas redondeadas
+          color: Color(0xFFEBEAFC),
+          borderRadius: BorderRadius.circular(12.r),
         ),
-        child: Icon(icon, color: Color(0xFF6D5BFF), size: 24.sp), // Ícono con color púrpura más oscuro
+        child: Icon(icon, color: Color(0xFF6D5BFF), size: 24.sp),
       ),
       title: Text(
         text,
