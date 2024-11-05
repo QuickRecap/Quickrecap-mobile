@@ -441,7 +441,7 @@ class _PlayGapsState extends State<PlayGaps> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.only(left: 30.0, right: 30.0, bottom: 50.0, top: 50),
+                      padding: EdgeInsets.only(left: 40.0, right: 40.0, bottom: 50.0, top: 50),
                       child: SizedBox(
                         width: 200.0, // Ancho deseado para el botón
                         child: ElevatedButton(
@@ -451,7 +451,7 @@ class _PlayGapsState extends State<PlayGaps> {
                               fontFamily: 'Poppins',
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
-                              fontSize: 23,
+                              fontSize: 19,
                             ),
                           ),
                           // Validamos que todos los espacios estén llenos verificando que no haya nulls en answerSlots

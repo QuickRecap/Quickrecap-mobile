@@ -231,7 +231,7 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
               children: [
                 CircleAvatar(
                   radius: 50,
-                  backgroundColor: kWhite, // Color de fondo cuando se muestra el ícono
+                  backgroundColor: Color(0xffF0EFFE), // Color de fondo cuando se muestra el ícono
                   backgroundImage: _image != null
                       ? FileImage(File(_image!.path)) as ImageProvider
                       : (_downloadURL != null && _downloadURL!.isNotEmpty
@@ -240,8 +240,8 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                   child: (_image == null && (_downloadURL == null || _downloadURL!.isEmpty))
                       ? Icon(
                     Icons.person,
-                    size: 30.sp,
-                    color: kPrimary, // Ajusta este color según tu preferencia
+                    size: 60.sp,
+                    color: Color(0xff9489ff), // Ajusta este color según tu preferencia
                   )
                       : null, // El ícono solo aparece si no hay imagen o URL
                 ),

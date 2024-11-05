@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class CustomInput extends StatelessWidget {
+class CustomInput extends StatefulWidget {
   final TextEditingController controller;
   final String label;
   final bool obscureText;
   final String? Function(String?)? validator;
-  final TextInputType? keyboardType;  // Añadimos el parámetro para el tipo de teclado
-  final double? width;  // Parámetro para el ancho
+  final TextInputType? keyboardType;
+  final double? width;
 
   const CustomInput({
     Key? key,
@@ -14,23 +14,42 @@ class CustomInput extends StatelessWidget {
     required this.label,
     this.obscureText = false,
     this.validator,
-    this.keyboardType,  // Añadimos el parámetro de tipo de teclado al constructor
-    this.width,  // Añadimos el parámetro de ancho
+    this.keyboardType,
+    this.width,
   }) : super(key: key);
+
+  @override
+  _CustomInputState createState() => _CustomInputState();
+}
+
+class _CustomInputState extends State<CustomInput> {
+  late bool _isObscured;
+
+  @override
+  void initState() {
+    super.initState();
+    _isObscured = widget.obscureText;
+  }
+
+  void _toggleObscureText() {
+    setState(() {
+      _isObscured = !_isObscured;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: width,  // Utilizamos SizedBox para aplicar el ancho si se proporciona
+      width: widget.width,
       child: TextFormField(
-        controller: controller,
-        obscureText: obscureText,
-        validator: validator,
-        keyboardType: keyboardType,  // Pasamos el tipo de teclado al TextFormField
+        controller: widget.controller,
+        obscureText: _isObscured,
+        validator: widget.validator,
+        keyboardType: widget.keyboardType,
         cursorColor: const Color(0xFF585858),
         style: const TextStyle(color: Colors.black87),
         decoration: InputDecoration(
-          labelText: label,
+          labelText: widget.label,
           labelStyle: const TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w400,
@@ -42,7 +61,7 @@ class CustomInput extends StatelessWidget {
             color: Colors.white,
           ),
           filled: true,
-          fillColor: const Color(0xFFF1F1F1),  // Cambiado el color de fondo a #F1F1F1
+          fillColor: const Color(0xFFF1F1F1),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
             borderSide: BorderSide.none,
@@ -54,6 +73,15 @@ class CustomInput extends StatelessWidget {
           contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
           floatingLabelBehavior: FloatingLabelBehavior.never,
           alignLabelWithHint: true,
+          suffixIcon: widget.obscureText
+              ? IconButton(
+            icon: Icon(
+              _isObscured ? Icons.visibility_off : Icons.visibility,
+              color: Colors.grey,
+            ),
+            onPressed: _toggleObscureText,
+          )
+              : null,
         ),
       ),
     );

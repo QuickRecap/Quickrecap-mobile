@@ -291,6 +291,7 @@ class _PlayLinkersState extends State<PlayLinkers> {
                   'Cerrar',
                   style: TextStyle(
                     fontFamily: 'Poppins',
+                    color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -595,7 +596,7 @@ class _PlayLinkersState extends State<PlayLinkers> {
                                   fontFamily: 'Poppins',
                                   color: Colors.white,
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 23,
+                                  fontSize: 18,
                                 ),
                               ),
                               onPressed: _areAllItemsConnected() ? _checkAnswer : null,

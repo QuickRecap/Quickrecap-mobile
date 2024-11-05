@@ -93,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       CustomInput(
                         controller: passwordController,
                         label: 'Contraseña',
-                        obscureText: true,
+                        obscureText: true, // Habilita el botón para mostrar/ocultar la contraseña
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Por favor ingresa tu contraseña';

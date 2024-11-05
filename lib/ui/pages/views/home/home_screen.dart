@@ -15,6 +15,7 @@ import 'package:quickrecap/ui/pages/views/home/category_screen.dart';
 import 'package:http/http.dart' as http;
 import '../activities/activity_service.dart';
 import 'widgets/options_bottom_sheet.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -73,7 +74,6 @@ class HomeScreenState extends State<HomeScreen> {
     });
   }
 
-
   Future<void> fetchActivities() async {
     setState(() {
       isLoading = true;
@@ -105,22 +105,76 @@ class HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // Replace the topActivities.map section with this:
   Widget _buildActivitiesList() {
     if (isLoading) {
-      return ConstrainedBox(
-        constraints: BoxConstraints(
-          minHeight: 70.h,
-        ),
-        child: Container(
-          alignment: Alignment.center,
-          child: const CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(Color(0xffdadada)),
-          ),
+      // Configurar datos falsos para mostrar el skeleton
+      final fakeActivities = List.filled(2, Activity(name: 'Loading...', timesPlayed: 0, id: 0, activityType: 'Quiz', timePerQuestion: 10, numberOfQuestions: 10, maxScore: 10, favorite: false, completed: true, private: false, rated: false, flashcardId: 1, userId: 7));
+
+      return Skeletonizer(
+        enabled: isLoading,
+        child: Column(
+          children: fakeActivities.map((activity) => Container(
+            height: 65.h,
+            margin: EdgeInsets.only(bottom: 10.h),
+            padding: EdgeInsets.symmetric(horizontal: 10.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(15.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  spreadRadius: 1,
+                  blurRadius: 5,
+                  offset: Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.play_circle_fill_outlined,
+                  color: Colors.grey.shade300,
+                  size: 35.sp,
+                ),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Text(
+                    activity.name!,
+                    style: TextStyle(
+                      color: Colors.grey.shade300,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14.sp,
+                    ),
+                  ),
+                ),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.play_arrow_rounded,
+                      color: Colors.grey.shade300,
+                      size: 22.sp,
+                    ),
+                    SizedBox(width: 5.w),
+                    Text(
+                      activity.timesPlayed.toString(),
+                      style: TextStyle(
+                        color: Colors.grey.shade300,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14.sp,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          )).toList(),
         ),
       );
     }
 
+    // Retornar la lista de actividades real si no está cargando
     return Column(
       children: topActivities.map((activity) => GestureDetector(
         onTap: () {
@@ -192,6 +246,7 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -244,7 +299,7 @@ class HomeScreenState extends State<HomeScreen> {
                         child: (profileImg == null || profileImg.isEmpty)
                             ? Icon(
                           Icons.person,
-                          size: 30.sp,
+                          size: 35.sp,
                           color: kPrimary,
                         )
                             : null,

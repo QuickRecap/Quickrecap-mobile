@@ -60,107 +60,142 @@ class GamesScreenState extends State<GamesScreen> {
     setState(() {
       error = null;
       currentTabIndex = tabIndex;
-      _setLoadingState(tabIndex, true); // Establecer estado de carga inicial
+      switch (tabIndex) {
+        case 0:
+          isCreatedTabLoading = true;
+          break;
+        case 1:
+          isFavoriteTabLoading = true;
+          break;
+        case 2:
+          isHistoryTabLoading = true;
+          break;
+        default:
+        // Manejar cualquier otro caso, si es necesario
+          break;
+      }
     });
-
-    try {
-      List<Activity>? activityList;
-      // Determinar qué tipo de actividad cargar en función de tabIndex
-      if (tabIndex == 0 && createdActivities.isEmpty) {
-        activityList = await _getActivityList(tabIndex);
-        setState(() {
-          createdActivities = activityList ?? [];
-        });
-      } else if (tabIndex == 1) {
-        if (favoriteActivities.isEmpty) {
-          activityList = await _getActivityList(tabIndex);
+    if(tabIndex!=2){
+      if(tabIndex==0){//Created Case
+        if(createdActivities.length==0){
+          try {
+            // Llamada a la función de la API
+            final getActivitiesForUserProvider = Provider.of<GetActivitiesForUserProvider>(context, listen: false);
+            List<Activity>? activityList = await getActivitiesForUserProvider.getActivityListByUserId(tabIndex);
+            if (activityList != null) {
+              setState(() {
+                createdActivities = activityList;
+                isCreatedTabLoading = false;
+              });
+            }
+          } catch (e) {
+            setState(() {
+              error = e.toString();
+            });
+          }finally{
+            setState(() {
+              isCreatedTabLoading = false;
+            });
+          }
+        }else{
           setState(() {
-            favoriteActivities = activityList ?? [];
+            isCreatedTabLoading = false;
           });
         }
-        _mergeAuxFavorites(); // Merge de favoritos adicionales si existen
-      } else if (tabIndex == 2 && historyActivities.isEmpty) {
-        final historyList = await _getHistoryList();
-        setState(() {
-          historyActivities = historyList ?? [];
-        });
-      }
-    } catch (e) {
-      setState(() {
-        error = e.toString();
-      });
-    } finally {
-      // Desactivar estado de carga
-      setState(() {
-        _setLoadingState(tabIndex, false);
-      });
-    }
-  }
-
-  Future<List<Activity>?> _getActivityList(int tabIndex) async {
-    final getActivitiesProvider = Provider.of<GetActivitiesForUserProvider>(context, listen: false);
-    return await getActivitiesProvider.getActivityListByUserId(tabIndex);
-  }
-
-  Future<List<HistoryActivity>?> _getHistoryList() async {
-    final getHistoryProvider = Provider.of<GetHistoryProvider>(context, listen: false);
-    return await getHistoryProvider.getHistoryByUserId();
-  }
-
-  void _setLoadingState(int tabIndex, bool isLoading) {
-    isCreatedTabLoading = tabIndex == 0 && isLoading;
-    isFavoriteTabLoading = tabIndex == 1 && isLoading;
-    isHistoryTabLoading = tabIndex == 2 && isLoading;
-  }
-
-  void _mergeAuxFavorites() {
-    setState(() {
-      for (var activity in auxFavoriteActivitiesAdded) {
-        if (!favoriteActivities.any((fav) => fav.id == activity.id)) {
-          favoriteActivities.add(activity);
+      }else{// Favorite Case
+        if(favoriteActivities.length==0){
+          try {
+            // Llamada a la función de la API
+            final getActivitiesForUserProvider = Provider.of<GetActivitiesForUserProvider>(context, listen: false);
+            List<Activity>? activityList = await getActivitiesForUserProvider.getActivityListByUserId(tabIndex);
+            if (activityList != null) {
+              setState(() {
+                favoriteActivities=activityList;
+                isFavoriteTabLoading = false; // Actualiza el estado de carga
+              });
+            }
+          } catch (e) {
+            setState(() {
+              error = e.toString();
+            });
+          } finally{
+            setState(() {
+              isFavoriteTabLoading = false;
+            });
+          }
+        }else{
+          setState(() {
+            // Agregar actividades de auxFavoriteActivitiesAdded que no están en favoriteActivities
+            for (var activity in auxFavoriteActivitiesAdded) {
+              if (!favoriteActivities.any((favActivity) => favActivity.id == activity.id)) {
+                favoriteActivities.add(activity);
+              }
+            }
+            auxFavoriteActivitiesAdded=[];
+            isFavoriteTabLoading = false;
+          });
         }
       }
-      auxFavoriteActivitiesAdded = [];
-    });
+    }else{
+      if(historyActivities.length==0){
+        final getHistoryForUserProvider = Provider.of<GetHistoryProvider>(context, listen: false);
+        List<HistoryActivity>? historyList = await getHistoryForUserProvider.getHistoryByUserId();
+        if(historyList != null){
+          setState(() {
+            historyActivities = historyList;
+            isHistoryTabLoading = false;
+          });
+        }
+      }else{
+        setState(() {
+          isHistoryTabLoading = false;
+        });
+      }
+
+    }
   }
 
   Future<void> _updateActivityPrivacy(Activity activity, bool privateValue) async {
     try {
-      final response = await http
-          .put(
+      print('Iniciando solicitud de actualización de privacidad para la actividad con ID: ${activity.id}');
+
+      final response = await http.put(
         Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/activity/update/${activity.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, dynamic>{
-          'private': privateValue,
+          'privado': privateValue,
         }),
-      )
-          .timeout(Duration(seconds: 10)); // Configura el timeout aquí
+      );
+
+      print('Respuesta recibida: ${response.statusCode}');
 
       if (response.statusCode == 200) {
+        print('La privacidad de la actividad se actualizó correctamente.');
         setState(() {
           // Encuentra la actividad y actualiza su estado de privacidad
           final index = createdActivities.indexWhere((a) => a.id == activity.id);
           if (index != -1) {
             createdActivities[index].private = privateValue;
+            print('Estado de privacidad actualizado en la lista local');
+          } else {
+            print('No se encontró la actividad en la lista local.');
           }
         });
       } else {
-        print('No pudimos cambiar la privacidad de esta actividad');
+        print('Error al cambiar la privacidad de la actividad. Código de estado: ${response.statusCode}');
         _showErrorSnackBar('No pudimos cambiar la privacidad de esta actividad');
       }
-    } on TimeoutException catch (_) {
-      print('No pudimos cambiar la privacidad de esta actividad');
-      _showErrorSnackBar('La solicitud tardó demasiado, por favor intente de nuevo.');
     } on SocketException catch (_) {
-      print('No pudimos cambiar la privacidad de esta actividad');
+      print('Error de conexión al servidor.');
       _showErrorSnackBar('Error de conexión. Verifique su conexión a internet.');
     } catch (e) {
-      print('No pudimos cambiar la privacidad de esta actividad');
+      print('Error inesperado: $e');
       _showErrorSnackBar('Ocurrió un error inesperado: $e');
     }
   }
+
 
   void _showErrorSnackBar(String message) {
     final overlay = Overlay.of(context);
@@ -382,31 +417,33 @@ class GamesScreenState extends State<GamesScreen> {
                                 ),
                                 DropdownButton<String>(
                                   value: _currentValue,
-                                  icon:
-                                  Icon(Icons.arrow_drop_down, color: kDark),
+                                  icon: Icon(Icons.arrow_drop_down, color: kDark),
                                   underline: Container(),
                                   dropdownColor: Colors.white,
                                   style: TextStyle(
                                       color: kDark,
                                       fontFamily: 'Poppins',
                                       fontSize: 14.sp,
-                                      fontWeight: FontWeight.w500),
+                                      fontWeight: FontWeight.w500
+                                  ),
                                   items: <String>[
                                     'Todos',
                                     'Quiz',
                                     'Flashcards',
                                     'Gap',
                                     'Linkers'
-                                  ].map<DropdownMenuItem<String>>(
-                                          (String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Text(
-                                            value,
-                                            style: TextStyle(color: kDark),
-                                          ),
-                                        );
-                                      }).toList(),
+                                  ].map<DropdownMenuItem<String>>((String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                        child: Text(
+                                          value,
+                                          style: TextStyle(color: kDark),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
                                   onChanged: (String? newValue) {
                                     if (newValue != null) {
                                       setState(() {

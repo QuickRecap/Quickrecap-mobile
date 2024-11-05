@@ -621,16 +621,16 @@ class ProfileScreenState extends State<ProfileScreen> {
           Row(
             children: [
               CircleAvatar(
-                radius: 35,
-                backgroundColor: kWhite,
+                radius: 33,
+                backgroundColor: Color(0xffF0EFFE),
                 backgroundImage: (user?.profileImg != null && user!.profileImg!.isNotEmpty)
                     ? NetworkImage(user!.profileImg!) as ImageProvider
                     : null,
                 child: (user?.profileImg == null || user!.profileImg!.isEmpty)
                     ? Icon(
                   Icons.person,
-                  size: 30.sp,
-                  color: kPrimary,
+                  size: 42.sp,
+                  color: Color(0xff9489ff),
                 )
                     : null,
               ),

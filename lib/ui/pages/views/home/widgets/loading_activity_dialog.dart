@@ -22,10 +22,13 @@ class LoadingActivityDialog {
         },
         child: Dialog(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20.r),
+            borderRadius: BorderRadius.circular(20.r), // Borde redondeado de 20
           ),
           child: Container(
-            color: Colors.white, // Color de fondo blanco
+            decoration: BoxDecoration(
+              color: Colors.white, // Color de fondo blanco
+              borderRadius: BorderRadius.circular(20.r), // Borde redondeado de 20
+            ),
             width: 250.w,
             padding: EdgeInsets.symmetric(vertical: 40.h, horizontal: 20.w),
             child: Column(

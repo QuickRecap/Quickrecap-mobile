@@ -38,7 +38,7 @@ class TermsConditionsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               Text(
-                'Última actualización: [Fecha]',
+                'Última actualización: 5/11/2024',
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 14,
@@ -56,11 +56,13 @@ class TermsConditionsScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               _buildSection('1. Uso de la Aplicación',
-                  'Quick Recap es una herramienta diseñada para [descripción breve]. Usted se compromete a utilizar la aplicación de manera responsable y de acuerdo con todas las leyes aplicables.'),
+                  'Quick Recap es una herramienta diseñada para facilitar y reforzar el aprendizaje mediante actividades generadas apartir de archivos de formato PDF. Usted se compromete a utilizar la aplicación de manera responsable y de acuerdo con todas las leyes aplicables.'),
               _buildSection('2. Registro de Cuenta',
                   'Para utilizar ciertas funciones de la aplicación, puede ser necesario registrarse. Usted es responsable de mantener la confidencialidad de su cuenta y contraseña.'),
-              _buildSection('3. Privacidad',
-                  'Su privacidad es importante para nosotros. Por favor, consulte nuestra Política de Privacidad para entender cómo recopilamos, usamos y protegemos sus datos personales.'),
+              _buildSection(
+                  '3. Privacidad',
+                  'Valoramos y respetamos su privacidad. Nos comprometemos a proteger la información personal de nuestros usuarios. Esta aplicación móvil es parte de un proyecto de tesis y no tiene fines comerciales. Está destinada exclusivamente a usuarios seleccionados para la fase de prueba y validación de nuestra investigación.'
+              ),
               _buildSection('4. Propiedad Intelectual',
                   'Todo el contenido presente en Quick Recap, incluyendo pero no limitado a textos, gráficos, logotipos, iconos, imágenes, clips de audio, descargas digitales y compilaciones de datos, es propiedad de Quick Recap o de sus proveedores de contenido y está protegido por las leyes de propiedad intelectual.'),
               // ... (otros sections)
@@ -80,7 +82,7 @@ class TermsConditionsScreen extends StatelessWidget {
           style: const TextStyle(
             fontFamily: 'Poppins',
             fontSize: 18,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w600,
             color: Colors.black,
           ),
         ),
@@ -90,6 +92,7 @@ class TermsConditionsScreen extends StatelessWidget {
           style: const TextStyle(
             fontFamily: 'Poppins',
             fontSize: 16,
+            fontWeight: FontWeight.w400,
             color: Colors.black87,
           ),
         ),
