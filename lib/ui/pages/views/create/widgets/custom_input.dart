@@ -7,6 +7,7 @@ class CustomInput extends StatelessWidget {
   final String? Function(String?)? validator;
   final int? maxLength;
   final bool isDisabled;
+  final bool isLoading; // Add loading state
 
   const CustomInput({
     Key? key,
@@ -14,8 +15,9 @@ class CustomInput extends StatelessWidget {
     required this.label,
     this.isMultiline = false,
     this.validator,
-    this.maxLength,  // Añadimos el límite de caracteres al constructor
-    this.isDisabled = false,  // Añadimos la opción de deshabilitar
+    this.maxLength,
+    this.isDisabled = false,
+    this.isLoading = false, // Default to false
   }) : super(key: key);
 
   @override
@@ -24,31 +26,32 @@ class CustomInput extends StatelessWidget {
       child: Builder(
         builder: (BuildContext context) {
           final bool hasFocus = Focus.of(context).hasFocus;
+          final bool finalDisabledState = isDisabled || isLoading; // Combine both states
 
           return TextFormField(
             controller: controller,
-            enabled: !isDisabled,  // Deshabilitar si es necesario
+            enabled: !finalDisabledState,
             decoration: InputDecoration(
               hintText: hasFocus ? null : label,
               hintStyle: TextStyle(
-                color: isDisabled ? Color(0xFFB4ABFF) : Color(0xFFB4ABFF), // Color de hint deshabilitado y normal
+                color: finalDisabledState ? Color(0xFFB4ABFF) : Color(0xFFB4ABFF),
                 fontSize: 18.0,
                 fontFamily: 'Poppins',
               ),
-              filled: isDisabled, // Aplica el color de fondo solo cuando está deshabilitado
-              fillColor: isDisabled ? Color(0xFFF0EFFE) : null, // Fondo para deshabilitado
+              filled: finalDisabledState,
+              fillColor: finalDisabledState ? Color(0xFFF0EFFE) : null,
               contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(15),
                 borderSide: BorderSide(
-                  color: isDisabled ? Color(0xFFF0EFFE) : Color(0xFF6D5BFF), // Borde cuando está habilitado o deshabilitado
+                  color: finalDisabledState ? Color(0xFFF0EFFE) : Color(0xFF6D5BFF),
                   width: 1,
                 ),
               ),
-              disabledBorder: OutlineInputBorder( // Aseguramos el borde cuando está deshabilitado
+              disabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(15),
                 borderSide: const BorderSide(
-                  color: Color(0xFFF0EFFE), // Color específico para el borde deshabilitado
+                  color: Color(0xFFF0EFFE),
                   width: 1,
                 ),
               ),
@@ -66,7 +69,7 @@ class CustomInput extends StatelessWidget {
               ),
             ),
             style: TextStyle(
-              color: isDisabled ? Color(0xFF6D5BFF) : const Color(0xFF6D5BFF), // Color del texto deshabilitado y habilitado
+              color: finalDisabledState ? Color(0xFF6D5BFF) : const Color(0xFF6D5BFF),
             ),
             keyboardType: isMultiline ? TextInputType.multiline : TextInputType.text,
             maxLines: isMultiline ? null : 1,

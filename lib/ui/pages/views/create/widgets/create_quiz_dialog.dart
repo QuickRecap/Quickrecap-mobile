@@ -124,7 +124,7 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                         return 'Este campo es obligatorio';
                       }
                       // Expresión regular para permitir solo letras, números y espacios
-                      RegExp regExp = RegExp(r'^[a-zA-Z0-9\s]+$');
+                      RegExp regExp = RegExp(r'^[a-zA-Z0-9\s\-_]+$');
                       if (!regExp.hasMatch(value)) {
                         return 'No se permiten caracteres especiales';
                       }
@@ -133,6 +133,7 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                     },
                     maxLength: 50,
                     isDisabled: false,
+                    isLoading: _isLoading, // Add this line
                   ),
                   const SizedBox(height: 15),
                   Align(
@@ -190,6 +191,7 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                       }
                       return null;
                     },
+                    isLoading: _isLoading, // Add this line
                   ),
                   const SizedBox(height: 15),
                   Align(
@@ -221,6 +223,7 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                       }
                       return null;
                     },
+                    isLoading: _isLoading, // Add this line
                   ),
                   const SizedBox(height: 20),
                   SizedBox(
@@ -301,7 +304,7 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                         child: Text(
                           'Configuracion de la actividad',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 19,
                             fontFamily: "Poppins",
                             fontWeight: FontWeight.w600,
                             color: Color(0xff424242),

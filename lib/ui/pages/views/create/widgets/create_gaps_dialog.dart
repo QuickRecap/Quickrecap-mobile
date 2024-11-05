@@ -121,7 +121,7 @@ class _CreateGapsDialogState extends State<CreateGapsDialog> {
                         return 'Este campo es obligatorio';
                       }
                       // Expresión regular para permitir solo letras, números y espacios
-                      RegExp regExp = RegExp(r'^[a-zA-Z0-9\s]+$');
+                      RegExp regExp = RegExp(r'^[a-zA-Z0-9\s\-_]+$');
                       if (!regExp.hasMatch(value)) {
                         return 'No se permiten caracteres especiales';
                       }
@@ -130,6 +130,7 @@ class _CreateGapsDialogState extends State<CreateGapsDialog> {
                     },
                     maxLength: 50,
                     isDisabled: false,
+                    isLoading: _isLoading, // Add this line
                   ),
                   const SizedBox(height: 15),
                   Align(
@@ -187,6 +188,7 @@ class _CreateGapsDialogState extends State<CreateGapsDialog> {
                       }
                       return null;
                     },
+                    isLoading: _isLoading, // Add this line
                   ),
                   const SizedBox(height: 15),
                   Align(
@@ -218,6 +220,7 @@ class _CreateGapsDialogState extends State<CreateGapsDialog> {
                       }
                       return null;
                     },
+                    isLoading: _isLoading, // Add this line
                   ),
                   const SizedBox(height: 20),
                   SizedBox(

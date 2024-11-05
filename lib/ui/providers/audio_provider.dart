@@ -1,18 +1,60 @@
-// lib/ui/providers/audio_provider.dart
-
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import '../../data/repositories/local_storage_service.dart';
 
-class AudioProvider extends ChangeNotifier {
+class AudioProvider extends ChangeNotifier with WidgetsBindingObserver {
   final AudioPlayer _player = AudioPlayer();
   final LocalStorageService _storageService = LocalStorageService();
   bool _isEnabled = true;
+  bool _wasPlayingBeforeBackground = false;
   bool get isEnabled => _isEnabled;
 
   AudioProvider() {
     print('AudioProvider initialized');
+    WidgetsBinding.instance.addObserver(this);
     _loadSavedSettings();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print('App lifecycle state changed to: $state');
+    switch (state) {
+      case AppLifecycleState.paused:
+      // App is in background
+        _handleBackgroundState();
+        break;
+      case AppLifecycleState.resumed:
+      // App is in foreground
+        _handleForegroundState();
+        break;
+      default:
+        break;
+    }
+  }
+
+  Future<void> _handleBackgroundState() async {
+    try {
+      // Store current playing state before pausing
+      _wasPlayingBeforeBackground = _isEnabled && _player.playing;
+      if (_player.playing) {
+        print('App entering background: Pausing audio');
+        await _player.pause();
+      }
+    } catch (e) {
+      print('Error handling background state: $e');
+    }
+  }
+
+  Future<void> _handleForegroundState() async {
+    try {
+      // Resume playing only if it was playing before going to background
+      if (_wasPlayingBeforeBackground) {
+        print('App entering foreground: Resuming audio');
+        await _player.play();
+      }
+    } catch (e) {
+      print('Error handling foreground state: $e');
+    }
   }
 
   Future<void> _loadSavedSettings() async {
@@ -82,8 +124,10 @@ class AudioProvider extends ChangeNotifier {
     }
   }
 
+  @override
   void dispose() {
     print('Disposing AudioProvider');
+    WidgetsBinding.instance.removeObserver(this);
     _player.dispose();
     super.dispose();
   }
