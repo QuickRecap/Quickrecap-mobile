@@ -58,12 +58,12 @@ class _SupportScreenState extends State<SupportScreen> {
             const SizedBox(height: 10),
             _buildExpansionTile(
               title: '¿Cómo puedo generar un quiz?',
-              content: 'Solo tienes que subir el PDF de tu resumen o clase...',
+              content: 'Solo tienes que subir el PDF de tu resumen o clase y listo!!',
             ),
             const SizedBox(height: 10),
             _buildExpansionTile(
               title: '¿Cómo juego el quiz?',
-              content: 'Puedes jugar el quiz accediendo a la sección de juegos...',
+              content: 'Puedes jugar el quiz accediendo a la sección de juegos',
             ),
             const Spacer(),
             SizedBox(
@@ -360,6 +360,8 @@ class _CustomExpansionTileState extends State<_CustomExpansionTile> {
       child: Theme(
         data: ThemeData().copyWith(
           dividerColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
         ),
         child: ExpansionTile(
           title: Text(

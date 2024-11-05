@@ -108,7 +108,7 @@ class _MainScreenState extends State<MainScreen> {
             items: [
               const BottomNavigationBarItem(
                 icon: Padding(
-                  padding: EdgeInsets.only(top: 5, right: 5, bottom: 0, left: 5),
+                  padding: EdgeInsets.only(top: 5, right: 0, bottom: 0, left: 5),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -121,7 +121,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
               const BottomNavigationBarItem(
                 icon: Padding(
-                  padding: EdgeInsets.only(top: 5, right: 5, bottom: 0, left: 5),
+                  padding: EdgeInsets.only(top: 5, right: 0, bottom: 0, left: 10),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -134,7 +134,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
               const BottomNavigationBarItem(
                 icon: Padding(
-                  padding: EdgeInsets.only(top: 5, right: 5, bottom: 0, left: 5),
+                  padding: EdgeInsets.only(top: 5, right: 0, bottom: 0, left: 20),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -147,7 +147,7 @@ class _MainScreenState extends State<MainScreen> {
               ),
               BottomNavigationBarItem(
                 icon: Padding(
-                  padding: const EdgeInsets.only(top: 5, right: 5, bottom: 0, left: 5),
+                  padding: const EdgeInsets.only(top: 5, right: 5, bottom: 0, left: 0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
