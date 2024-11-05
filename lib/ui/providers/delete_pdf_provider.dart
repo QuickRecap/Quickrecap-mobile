@@ -8,7 +8,7 @@ class DeletePdfsProvider extends ChangeNotifier {
   // Constructor que inicializa el supportUseCase
   DeletePdfsProvider(this.deletePdfsUseCase);
 
-  Future<bool> deleteById(int pdfId) async {
-    return await deletePdfsUseCase.deletePdf(pdfId);
+  Future<bool> deleteById(int pdfId, String pdfUrl) async {
+    return await deletePdfsUseCase.deletePdf(pdfId, pdfUrl);
   }
 }

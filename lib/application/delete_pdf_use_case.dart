@@ -5,9 +5,9 @@ class DeletePdfUseCase {
 
   DeletePdfUseCase(this.pdfRepository);
 
-  Future<bool> deletePdf(int pdfId) async {
+  Future<bool> deletePdf(int pdfId, String pdfUrl) async {
     try {
-      return await pdfRepository.deletePdf(pdfId);
+      return await pdfRepository.deletePdf(pdfId, pdfUrl);
     } catch (e) {
       return false;
     }

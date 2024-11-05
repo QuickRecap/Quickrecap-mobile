@@ -13,8 +13,8 @@ class PdfRepositoryImpl implements PdfRepository{
   }
 
   @override
-  Future<bool> deletePdf(pdfId) async {
-    return await pdfApi.deletePdf(pdfId);
+  Future<bool> deletePdf(pdfId, String pdfUrl) async {
+    return await pdfApi.deletePdf(pdfId, pdfUrl);
   }
 
   @override

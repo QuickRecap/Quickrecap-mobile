@@ -35,6 +35,7 @@ class GamesScreenState extends State<GamesScreen> {
   String? isChangingPrivacyFor;
   bool isHistoryDisplayed = false;
   int currentTabIndex=0;
+  int? processingFavoriteId;
 
   LocalStorageService localStorageService = LocalStorageService();
 
@@ -493,6 +494,7 @@ class GamesScreenState extends State<GamesScreen> {
         final activity = filteredActivities[index];
         final isLastItem = index == filteredActivities.length - 1;
         bool isFavorite = activity.favorite;
+        bool isProcessing = processingFavoriteId == activity.id;
 
         return Column(
           children: [
@@ -524,12 +526,12 @@ class GamesScreenState extends State<GamesScreen> {
                   ),
                   SizedBox(width: 10),
                   GestureDetector(
-                    onTap: () async {
-                      setState(() {
-                        isLoading = true;
-                      });
-
+                    onTap: isProcessing ? null : () async {
                       try {
+                        setState(() {
+                          processingFavoriteId = activity.id;
+                        });
+
                         int userId = await localStorageService.getCurrentUserId();
                         final response = await http.post(
                           Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/favorite/update/${activity.id}'),
@@ -545,7 +547,6 @@ class GamesScreenState extends State<GamesScreen> {
                         if (response.statusCode == 200) {
                           setState(() {
                             activity.favorite = !isFavorite;
-                            getFilteredActivities();
                           });
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -565,12 +566,25 @@ class GamesScreenState extends State<GamesScreen> {
                           ),
                         );
                       } finally {
-                        setState(() {
-                          isLoading = false;
-                        });
+                        if (mounted) {
+                          setState(() {
+                            processingFavoriteId = null;
+                          });
+                        }
                       }
                     },
-                    child: Icon(
+                    child: isProcessing
+                        ? SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            isFavorite ? Color(0xffc0c0c0) : Color(0xffc0c0c0)
+                        ),
+                      ),
+                    )
+                        : Icon(
                       Icons.bookmark,
                       color: isFavorite ? Color(0xffffd100) : Color(0xffa2a2a2),
                       size: 30,

@@ -156,7 +156,7 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
     String baseFileName = path.basename(_image!.path);
 
     // Componer el nombre del archivo usando idController.text + '_' + baseFileName
-    String fileName = '${idController.text}_$baseFileName';
+    String fileName = '${idController.text}';
 
     // Usar el nombre compuesto en la referencia de almacenamiento
     Reference storageRef = storage.ref().child('profile_pics/$fileName');
@@ -452,7 +452,7 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                       'Enviar',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 16,
+                        fontSize: 18,
                       ),
                     ),
                     style: ElevatedButton.styleFrom(

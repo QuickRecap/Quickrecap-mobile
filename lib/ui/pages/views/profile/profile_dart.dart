@@ -247,13 +247,20 @@ class ProfileScreenState extends State<ProfileScreen> {
 
                                             // Verificar si el ID existe y es válido
                                             final pdfId = pdfData['id'];
+                                            final pdfUrl = pdfData['url'];
                                             if (pdfId == null) {
                                               throw Exception('ID del PDF no encontrado');
                                             }
 
-                                            bool isSuccess = await deletePdfProvider.deleteById(int.parse(pdfId.toString()));
+                                            bool isSuccess = await deletePdfProvider.deleteById(int.parse(pdfId.toString()),pdfUrl!);
 
                                             if (isSuccess) {
+                                              if (mounted) {
+                                                setState(() {
+                                                  pdfList.removeWhere((pdf) => pdf['id'] == pdfId);
+                                                });
+                                              }
+
                                               Navigator.of(context).pop(); // Cerrar el diálogo de confirmación
                                               // Opcional: Mostrar un mensaje de éxito
                                               ScaffoldMessenger.of(context).showSnackBar(
