@@ -119,7 +119,8 @@ class _PasswordScreenState extends State<PasswordScreen> {
         foregroundColor: Colors.black,
         elevation: 0,
       ),
-      body: Padding(
+      body: Container(
+        color: Colors.white, // Cambia el color de fondo a blanco
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
@@ -225,12 +226,12 @@ class _PasswordScreenState extends State<PasswordScreen> {
                 ),
                 child: _isLoading
                     ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    color: Colors.white,
+                    strokeWidth: 2,
+                  ),
                 )
                     : const Text(
                   'Actualizar contraseña',

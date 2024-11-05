@@ -25,6 +25,7 @@ class LoadingActivityDialog {
             borderRadius: BorderRadius.circular(20.r),
           ),
           child: Container(
+            color: Colors.white, // Color de fondo blanco
             width: 250.w,
             padding: EdgeInsets.symmetric(vertical: 40.h, horizontal: 20.w),
             child: Column(

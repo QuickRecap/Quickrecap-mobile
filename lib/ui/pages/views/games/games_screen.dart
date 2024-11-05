@@ -23,17 +23,20 @@ class GamesScreen extends StatefulWidget {
 
 class GamesScreenState extends State<GamesScreen> {
   //String? userId;
-  List<Activity> activities = [];
-  bool isLoading = false;
+  bool isCreatedTabLoading = false;
+  bool isFavoriteTabLoading = false;
+  bool isHistoryTabLoading = false;
+  bool isFavoriteLoading = false;
   bool isDialogLoading = false;
   String? error;
   String _currentValue = 'Todos';
   int displayableActivityQuantity = 0;
   String searchQuery = '';
-  List<Activity> allActivities = [];
+  List<Activity> createdActivities = [];
+  List<Activity> favoriteActivities = [];
+  List<Activity> auxFavoriteActivitiesAdded = [];
   List<HistoryActivity> historyActivities = [];
   String? isChangingPrivacyFor;
-  bool isHistoryDisplayed = false;
   int currentTabIndex=0;
   int? processingFavoriteId;
 
@@ -46,46 +49,79 @@ class GamesScreenState extends State<GamesScreen> {
   }
 
   Future<void> refresh() async {
+    createdActivities=[];
+    favoriteActivities = [];
+    historyActivities = [];
     _fetchActivities(currentTabIndex);
+    print("Actualizando: $currentTabIndex");
   }
 
   Future<void> _fetchActivities(int tabIndex) async {
     setState(() {
-      isLoading = true;
       error = null;
       currentTabIndex = tabIndex;
+      _setLoadingState(tabIndex, true); // Establecer estado de carga inicial
     });
-    if(tabIndex!=2){
-      isHistoryDisplayed=false;
-      try {
-        // Llamada a la función de la API
-        final getActivitiesForUserProvider = Provider.of<GetActivitiesForUserProvider>(context, listen: false);
-        List<Activity>? activityList = await getActivitiesForUserProvider.getActivityListByUserId(tabIndex);
-        if (activityList != null) {
+
+    try {
+      List<Activity>? activityList;
+      // Determinar qué tipo de actividad cargar en función de tabIndex
+      if (tabIndex == 0 && createdActivities.isEmpty) {
+        activityList = await _getActivityList(tabIndex);
+        setState(() {
+          createdActivities = activityList ?? [];
+        });
+      } else if (tabIndex == 1) {
+        if (favoriteActivities.isEmpty) {
+          activityList = await _getActivityList(tabIndex);
           setState(() {
-            allActivities = activityList;
-            activities = List<Activity>.from(allActivities); // Aseguramos la seguridad del tipo
-            isLoading = false;
+            favoriteActivities = activityList ?? [];
           });
         }
-      } catch (e) {
+        _mergeAuxFavorites(); // Merge de favoritos adicionales si existen
+      } else if (tabIndex == 2 && historyActivities.isEmpty) {
+        final historyList = await _getHistoryList();
         setState(() {
-          error = e.toString();
-          isLoading = false;
+          historyActivities = historyList ?? [];
         });
       }
-    }else{
-      isHistoryDisplayed=true;
-      final getHistoryForUserProvider = Provider.of<GetHistoryProvider>(context, listen: false);
-      List<HistoryActivity>? historyList = await getHistoryForUserProvider.getHistoryByUserId();
-      if(historyList != null){
-        setState(() {
-          historyActivities = historyList;
-          isLoading = false;
-        });
-      }
-
+    } catch (e) {
+      setState(() {
+        error = e.toString();
+      });
+    } finally {
+      // Desactivar estado de carga
+      setState(() {
+        _setLoadingState(tabIndex, false);
+      });
     }
+  }
+
+  Future<List<Activity>?> _getActivityList(int tabIndex) async {
+    final getActivitiesProvider = Provider.of<GetActivitiesForUserProvider>(context, listen: false);
+    return await getActivitiesProvider.getActivityListByUserId(tabIndex);
+  }
+
+  Future<List<HistoryActivity>?> _getHistoryList() async {
+    final getHistoryProvider = Provider.of<GetHistoryProvider>(context, listen: false);
+    return await getHistoryProvider.getHistoryByUserId();
+  }
+
+  void _setLoadingState(int tabIndex, bool isLoading) {
+    isCreatedTabLoading = tabIndex == 0 && isLoading;
+    isFavoriteTabLoading = tabIndex == 1 && isLoading;
+    isHistoryTabLoading = tabIndex == 2 && isLoading;
+  }
+
+  void _mergeAuxFavorites() {
+    setState(() {
+      for (var activity in auxFavoriteActivitiesAdded) {
+        if (!favoriteActivities.any((fav) => fav.id == activity.id)) {
+          favoriteActivities.add(activity);
+        }
+      }
+      auxFavoriteActivitiesAdded = [];
+    });
   }
 
   Future<void> _updateActivityPrivacy(Activity activity, bool privateValue) async {
@@ -105,9 +141,9 @@ class GamesScreenState extends State<GamesScreen> {
       if (response.statusCode == 200) {
         setState(() {
           // Encuentra la actividad y actualiza su estado de privacidad
-          final index = activities.indexWhere((a) => a.id == activity.id);
+          final index = createdActivities.indexWhere((a) => a.id == activity.id);
           if (index != -1) {
-            activities[index].private = privateValue;
+            createdActivities[index].private = privateValue;
           }
         });
       } else {
@@ -159,8 +195,20 @@ class GamesScreenState extends State<GamesScreen> {
     });
   }
 
-  List<Activity> getFilteredActivities() {
-    List<Activity> results = allActivities.where((activity) {
+  List<Activity> getFilteredCreatedActivities() {
+    List<Activity> results = createdActivities.where((activity) {
+      bool matchesSearch = activity.name.toLowerCase().contains(searchQuery.toLowerCase());
+      bool matchesType = _currentValue == 'Todos' || activity.activityType == _currentValue;
+      return matchesSearch && matchesType;
+    }).toList();
+    setState(() {
+      displayableActivityQuantity= results.length;
+    });
+    return results;
+  }
+
+  List<Activity> getFilteredFavoriteActivities() {
+    List<Activity> results = favoriteActivities.where((activity) {
       bool matchesSearch = activity.name.toLowerCase().contains(searchQuery.toLowerCase());
       bool matchesType = _currentValue == 'Todos' || activity.activityType == _currentValue;
       return matchesSearch && matchesType;
@@ -181,6 +229,19 @@ class GamesScreenState extends State<GamesScreen> {
       displayableActivityQuantity= results.length;
     });
     return results;
+  }
+
+  int _getActivityCount() {
+    switch (currentTabIndex) {
+      case 0:
+        return getFilteredCreatedActivities().length;
+      case 1:
+        return getFilteredFavoriteActivities().length;
+      case 2:
+        return getFilteredHistoryActivities().length;
+      default:
+        return 0; // En caso de que currentTabIndex no coincida
+    }
   }
 
   @override
@@ -287,6 +348,9 @@ class GamesScreenState extends State<GamesScreen> {
                             labelColor: kPrimary,
                             unselectedLabelColor: kGrey,
                             onTap: (index) {
+                              setState(() {
+                                currentTabIndex = index; // Actualiza el índice de la pestaña
+                              });
                               _fetchActivities(index);
                             },
                             tabs: [
@@ -308,7 +372,7 @@ class GamesScreenState extends State<GamesScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 Text(
-                                '${isHistoryDisplayed ? getFilteredHistoryActivities().length : getFilteredActivities().length} actividades',
+                                  '${_getActivityCount()} actividades',
                                   style: TextStyle(
                                     color: kDark,
                                     fontSize: 14.sp,
@@ -377,7 +441,7 @@ class GamesScreenState extends State<GamesScreen> {
   }
 
   Widget _buildCreatedActivityList(int currentTabIndex, BuildContext context) {
-    if (isLoading) {
+    if (isCreatedTabLoading) {
       return Center(child: CircularProgressIndicator());
     }
 
@@ -385,7 +449,7 @@ class GamesScreenState extends State<GamesScreen> {
       return Center(child: Text(error!, style: TextStyle(color: Colors.red)));
     }
 
-    List<Activity> filteredActivities = getFilteredActivities();
+    List<Activity> filteredActivities = getFilteredCreatedActivities();
 
     if (filteredActivities.isEmpty) {
       return Center(
@@ -463,7 +527,7 @@ class GamesScreenState extends State<GamesScreen> {
 
 
   Widget _buildFavoriteActivityList(int currentTabIndex, BuildContext context) {
-    if (isLoading) {
+    if (isFavoriteTabLoading) {
       return Center(child: CircularProgressIndicator());
     }
 
@@ -471,7 +535,7 @@ class GamesScreenState extends State<GamesScreen> {
       return Center(child: Text(error!, style: TextStyle(color: Colors.red)));
     }
 
-    List<dynamic> filteredActivities = getFilteredActivities();
+    List<dynamic> filteredActivities = getFilteredFavoriteActivities();
 
     if (filteredActivities.isEmpty) {
       return Center(
@@ -546,7 +610,16 @@ class GamesScreenState extends State<GamesScreen> {
 
                         if (response.statusCode == 200) {
                           setState(() {
-                            activity.favorite = !isFavorite;
+                            // Eliminar la actividad con el id `processingFavoriteId` de favoriteActivities
+                            favoriteActivities.removeWhere((activity) => activity.id == processingFavoriteId);
+
+                            // Intentar encontrar la actividad en createdActivities
+                            final activityIndex = createdActivities.indexWhere((activity) => activity.id == processingFavoriteId);
+
+                            // Si se encontró la actividad, cambiar su estado favorite a false
+                            if (activityIndex != -1) { // Verifica que se encontró
+                              createdActivities[activityIndex].favorite = false;
+                            }
                           });
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -575,14 +648,14 @@ class GamesScreenState extends State<GamesScreen> {
                     },
                     child: isProcessing
                         ? SizedBox(
-                      width: 30,
-                      height: 30,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                            isFavorite ? Color(0xffc0c0c0) : Color(0xffc0c0c0)
-                        ),
-                      ),
+                          width: 30,
+                          height: 30,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                isFavorite ? Color(0xffc0c0c0) : Color(0xffc0c0c0)
+                            ),
+                          ),
                     )
                         : Icon(
                       Icons.bookmark,
@@ -608,7 +681,7 @@ class GamesScreenState extends State<GamesScreen> {
 
 
   Widget _buildHistoryActivityList(int currentTabIndex, BuildContext context) {
-    if (isLoading) {
+    if (isHistoryTabLoading) {
       return Center(child: CircularProgressIndicator());
     }
 
@@ -700,24 +773,39 @@ class GamesScreenState extends State<GamesScreen> {
 
   void _removeActivityById(int activityId) {
     setState(() {
-      allActivities.removeWhere((activity) => activity.id == activityId);
+      createdActivities.removeWhere((activity) => activity.id == activityId);
     });
   }
 
-  void _addFavoriteActivityById(int activityId) {
+  void _changeFavoriteActivityById(int activityId) {
     setState(() {
-      final activity = allActivities.firstWhere(
+      // Buscar la actividad en createdActivities
+      final activity = createdActivities.firstWhere(
             (activity) => activity.id == activityId,
         orElse: () => throw Exception('Activity not found'),
       );
 
-      activity.favorite = true; // Cambiamos favorite porque ya no es final
+      // Cambiar el estado de favorite
+      activity.favorite = !activity.favorite;
+
+      // Actualizar la lista de favoriteActivities
+      if (activity.favorite) {
+        // Si es favorita, agregar a favoriteActivities
+        auxFavoriteActivitiesAdded.add(activity);
+      } else {
+        // Si no es favorita, eliminar de favoriteActivities
+        auxFavoriteActivitiesAdded.removeWhere((favActivity) => favActivity.id == activityId);
+        favoriteActivities.removeWhere((favActivity) => favActivity.id == activityId);
+      }
     });
   }
 
   void _showOptionsBottomSheet(BuildContext context, Activity activity) {
     bool isFavorite = activity.favorite;
     isDialogLoading=false;
+    setState(() {
+      isFavoriteLoading=false;
+    });
 
         showModalBottomSheet(
       context: context,
@@ -752,7 +840,7 @@ class GamesScreenState extends State<GamesScreen> {
                             color: Colors.black,
                             fontWeight: FontWeight.w600,
                             fontFamily: 'Poppins',
-                            fontSize: 20,
+                            fontSize: 18,
                           ),
                         ),
                         SizedBox(width: 48),
@@ -775,7 +863,7 @@ class GamesScreenState extends State<GamesScreen> {
                                 child: GestureDetector(
                                   onTap: () async {
                                     setState(() {
-                                      isLoading = true;
+                                      isFavoriteLoading = true;
                                     });
 
                                     try {
@@ -794,8 +882,7 @@ class GamesScreenState extends State<GamesScreen> {
                                       if (response.statusCode == 200) {
                                         setState(() {
                                           isFavorite = !isFavorite;
-                                          _addFavoriteActivityById(activity.id);
-                                          getFilteredActivities();
+                                          _changeFavoriteActivityById(activity.id);
                                         });
                                       } else {
                                         ScaffoldMessenger.of(context).showSnackBar(
@@ -816,7 +903,7 @@ class GamesScreenState extends State<GamesScreen> {
                                       );
                                     } finally {
                                       setState(() {
-                                        isLoading = false;
+                                        isFavoriteLoading = false;
                                       });
                                     }
                                   },
@@ -830,14 +917,14 @@ class GamesScreenState extends State<GamesScreen> {
                                       mainAxisAlignment: MainAxisAlignment.center,
                                       crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
-                                        isLoading
+                                        isFavoriteLoading
                                             ? SizedBox(
-                                          width: 25,
-                                          height: 25,
-                                          child: CircularProgressIndicator(
-                                            color: Color(0xFFB3B3B3),
-                                            strokeWidth: 2,
-                                          ),
+                                              width: 25,
+                                              height: 25,
+                                              child: CircularProgressIndicator(
+                                                color: Color(0xFFB3B3B3),
+                                                strokeWidth: 2,
+                                              ),
                                         )
                                             : Icon(
                                           Icons.bookmark,
@@ -871,6 +958,7 @@ class GamesScreenState extends State<GamesScreen> {
                                     // Después de cerrar el bottom sheet, abre uno nuevo
                                     showModalBottomSheet(
                                       context: context,
+                                      backgroundColor: Colors.white,
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
                                       ),

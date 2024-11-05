@@ -26,7 +26,6 @@ class _MusicScreenState extends State<MusicScreen> {
     });
   }
 
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -55,6 +54,7 @@ class _MusicScreenState extends State<MusicScreen> {
           },
         ),
       ),
+      backgroundColor: Colors.white, // Establecer el color de fondo del body a blanco
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -76,12 +76,12 @@ class _MusicScreenState extends State<MusicScreen> {
                   Consumer<AudioProvider>(
                     builder: (context, audioProvider, child) {
                       return Switch(
-                        value: isAudioEnabled ?? audioProvider.isEnabled, // Usar la variable local
+                        value: isAudioEnabled ?? audioProvider.isEnabled,
                         onChanged: (value) async {
                           setState(() {
-                            isAudioEnabled = value; // Actualizar la variable local
+                            isAudioEnabled = value;
                           });
-                          await audioProvider.toggleAudio(); // Cambiar el valor en el provider
+                          await audioProvider.toggleAudio();
                         },
                         activeColor: Color(0xff6D5BFF),
                         inactiveThumbColor: Colors.grey,
@@ -90,10 +90,11 @@ class _MusicScreenState extends State<MusicScreen> {
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
     );
   }
+
 }

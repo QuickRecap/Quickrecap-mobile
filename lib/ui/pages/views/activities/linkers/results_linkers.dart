@@ -182,7 +182,7 @@ class _ResultsLinkersState extends State<ResultsLinkers> {
                       child: Text(
                         'Finalizar',
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 18,
                           fontFamily: 'Poppins',
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -213,7 +213,7 @@ class _ResultsLinkersState extends State<ResultsLinkers> {
                       child: Text(
                         'Ver respuestas',
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 18,
                           fontFamily: 'Poppins',
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -244,7 +244,7 @@ class _ResultsLinkersState extends State<ResultsLinkers> {
                       child: Text(
                         'Volver a intentar',
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 18,
                           fontFamily: 'Poppins',
                           color: Colors.white,
 

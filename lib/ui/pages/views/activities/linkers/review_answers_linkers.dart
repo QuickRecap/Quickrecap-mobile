@@ -513,7 +513,7 @@ class _ReviewAnswersLinkersState extends State<ReviewAnswersLinkers> {
                                 child: Text(
                                   "Anterior",
                                   style: TextStyle(
-                                    fontSize: 18,
+                                    fontSize: 15,
                                     fontFamily: 'Poppins',
                                     fontWeight: FontWeight.w600,
                                     color: _currentIndex == 0 ? Colors.grey[600] : Colors.white,
@@ -534,7 +534,7 @@ class _ReviewAnswersLinkersState extends State<ReviewAnswersLinkers> {
                                 child: Text(
                                   _currentIndex < widget.linkersActivity.linkers!.length - 1 ? "Siguiente" : "Salir",
                                   style: TextStyle(
-                                    fontSize: 18,
+                                    fontSize: 15,
                                     fontFamily: 'Poppins',
                                     fontWeight: FontWeight.w600,
                                     color: Colors.white,

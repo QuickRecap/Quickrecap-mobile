@@ -244,7 +244,7 @@ class _ReviewAnswersQuizState extends State<ReviewAnswersQuiz> {
                     child: Text(
                       "Anterior",
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 15,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w600,
                         color: _currentIndex == 0 ? Colors.grey[600] : Colors.white,
@@ -265,7 +265,7 @@ class _ReviewAnswersQuizState extends State<ReviewAnswersQuiz> {
                     child: Text(
                       _currentIndex < widget.quizActivity.quizzes!.length - 1 ? "Siguiente" : "Salir",
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 15,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w600,
                         color: Colors.white,

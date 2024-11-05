@@ -88,58 +88,32 @@ class _MainScreenState extends State<MainScreen> {
             showUnselectedLabels: true,
             unselectedIconTheme: const IconThemeData(color: kDisabled, size: 45),
             unselectedItemColor: kDisabled,
-            unselectedLabelStyle: const TextStyle(color: kDisabled),
+            unselectedLabelStyle: const TextStyle(color: kDisabled, fontWeight: FontWeight.w500),
             showSelectedLabels: true,
-            selectedIconTheme: const IconThemeData(color: kDark, size: 45),
-            selectedItemColor: kDark,
-            selectedLabelStyle: const TextStyle(color: kDark),
+            selectedIconTheme: const IconThemeData(color: Color(0xff212121), size: 45),
+            selectedItemColor: Color(0xff212121),
+            selectedLabelStyle: const TextStyle(color: Color(0xff212121), fontWeight: FontWeight.w600),
             type: BottomNavigationBarType.fixed,
             currentIndex: controller.tabIndex,
             onTap: (value) async {
-              if (controller.tabIndex != value) {  // Solo si cambiamos de tab
+              if (controller.tabIndex != value) {  // Only if we change tabs
                 controller.tabIndex = value;
-                refreshCurrentView(value);  // Refrescamos la vista actual
+                refreshCurrentView(value);  // Refresh the current view
 
                 if (value == 2 && selectedPdf == null) {
-                  print('Navegando a CreateScreen sin PDF seleccionado');
+                  print('Navigating to CreateScreen without selected PDF');
                 }
               }
             },
             items: [
-              const BottomNavigationBarItem(
+              BottomNavigationBarItem(
                 icon: Padding(
-                  padding: EdgeInsets.only(top: 5, right: 0, bottom: 0, left: 5),
+                  padding: EdgeInsets.only(top: 5, right: 5, bottom: 0, left: 5),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.home),
-                      Text('Home', style: TextStyle(fontFamily: 'Poppins', fontSize: 15, color: Color(0xff565656))),
-                    ],
-                  ),
-                ),
-                label: '',
-              ),
-              const BottomNavigationBarItem(
-                icon: Padding(
-                  padding: EdgeInsets.only(top: 5, right: 0, bottom: 0, left: 10),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.dashboard),
-                      Text('Actividades', style: TextStyle(fontFamily: 'Poppins', fontSize: 15, color: Color(0xff565656))),
-                    ],
-                  ),
-                ),
-                label: '',
-              ),
-              const BottomNavigationBarItem(
-                icon: Padding(
-                  padding: EdgeInsets.only(top: 5, right: 0, bottom: 0, left: 20),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.add_circle_outline),
-                      Text('Crear', style: TextStyle(fontFamily: 'Poppins', fontSize: 15, color: Color(0xff565656))),
+                      Icon(Icons.home, color: controller.tabIndex == 0 ? Color(0xff212121) : kDisabled),
+                      Text('Home', style: TextStyle(fontFamily: 'Poppins', fontSize: 12, fontWeight: controller.tabIndex == 0 ? FontWeight.w600 : FontWeight.w500, color: controller.tabIndex == 0 ? Color(0xff212121) : kDisabled)),
                     ],
                   ),
                 ),
@@ -147,14 +121,38 @@ class _MainScreenState extends State<MainScreen> {
               ),
               BottomNavigationBarItem(
                 icon: Padding(
-                  padding: const EdgeInsets.only(top: 5, right: 5, bottom: 0, left: 0),
+                  padding: EdgeInsets.only(top: 5, right: 5, bottom: 0, left: 5),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      controller.tabIndex == 3
-                          ? const Icon(Icons.person)
-                          : const Icon(Icons.person_2_outlined),
-                      const Text('Perfil', style: TextStyle(fontFamily: 'Poppins', fontSize: 15, color: Color(0xff565656))),
+                      Icon(Icons.dashboard, color: controller.tabIndex == 1 ? Color(0xff212121) : kDisabled),
+                      Text('Actividades', style: TextStyle(fontFamily: 'Poppins', fontSize: 12, fontWeight: controller.tabIndex == 1 ? FontWeight.w600 : FontWeight.w500, color: controller.tabIndex == 1 ? Color(0xff212121) : kDisabled)),
+                    ],
+                  ),
+                ),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Padding(
+                  padding: EdgeInsets.only(top: 5, right: 5, bottom: 0, left: 5),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.add_circle_outline, color: controller.tabIndex == 2 ? Color(0xff212121) : kDisabled),
+                      Text('Crear', style: TextStyle(fontFamily: 'Poppins', fontSize: 12, fontWeight: controller.tabIndex == 2 ? FontWeight.w600 : FontWeight.w500, color: controller.tabIndex == 2 ? Color(0xff212121) : kDisabled)),
+                    ],
+                  ),
+                ),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Padding(
+                  padding: const EdgeInsets.only(top: 5, right: 5, bottom: 0, left: 5),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.person, color: controller.tabIndex == 3 ? Color(0xff212121) : kDisabled),
+                      Text('Perfil', style: TextStyle(fontFamily: 'Poppins', fontSize: 12, fontWeight: controller.tabIndex == 3 ? FontWeight.w600 : FontWeight.w500, color: controller.tabIndex == 3 ? Color(0xff212121) : kDisabled)),
                     ],
                   ),
                 ),

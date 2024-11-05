@@ -299,7 +299,7 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
                     child: Text(
                       "Anterior",
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 15,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w600,
                         color: _currentIndex == 0 ? Colors.grey[600] : Colors.white,
@@ -320,7 +320,7 @@ class _ReviewAnswersGapsState extends State<ReviewAnswersGaps> {
                     child: Text(
                       _currentIndex < widget.gapsActivity.gaps!.length - 1 ? "Siguiente" : "Salir",
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 15,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w600,
                         color: Colors.white,

@@ -159,7 +159,7 @@ class _ResultsFlashcardsState extends State<ResultsFlashcards> {
                       child: Text(
                         'Finalizar',
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 18,
                           fontFamily: 'Poppins',
                           color: Colors.white,
                           fontWeight: FontWeight.w600,

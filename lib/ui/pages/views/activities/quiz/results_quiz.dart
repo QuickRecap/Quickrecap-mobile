@@ -181,7 +181,7 @@ class _ResultsQuizState extends State<ResultsQuiz> {
                       child: Text(
                         'Finalizar',
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 18,
                           fontFamily: 'Poppins',
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -212,7 +212,7 @@ class _ResultsQuizState extends State<ResultsQuiz> {
                       child: Text(
                         'Ver respuestas',
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 18,
                           fontFamily: 'Poppins',
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
@@ -243,7 +243,7 @@ class _ResultsQuizState extends State<ResultsQuiz> {
                       child: Text(
                         'Volver a intentar',
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 18,
                           fontFamily: 'Poppins',
                           color: Colors.white,
                           fontWeight: FontWeight.w600,
