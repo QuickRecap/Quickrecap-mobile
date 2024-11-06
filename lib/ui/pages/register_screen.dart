@@ -101,6 +101,8 @@ class _RegisterScreen extends State<RegisterScreen> {
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Por favor ingrese su nombre';
+                              } else if (!RegExp(r"^[a-zA-ZÀ-ÿ\s]+$").hasMatch(value)) {
+                                return 'El nombre solo puede contener letras';
                               }
                               return null;
                             },
@@ -112,6 +114,8 @@ class _RegisterScreen extends State<RegisterScreen> {
                             validator: (value) {
                               if (value == null || value.isEmpty) {
                                 return 'Por favor ingrese sus apellidos';
+                              } else if (!RegExp(r"^[a-zA-ZÀ-ÿ\s]+$").hasMatch(value)) {
+                                return 'Los apellidos solo pueden contener letras';
                               }
                               return null;
                             },

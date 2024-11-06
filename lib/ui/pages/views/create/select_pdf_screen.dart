@@ -67,9 +67,13 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
       barrierDismissible: false,
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.r),
+          borderRadius: BorderRadius.circular(20.r), // Ajusta el radio de borde
         ),
         child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20.r), // Borde redondeado en el contenedor
+          ),
           width: 250.w, // Ajusta el ancho para que se asemeje al diseño
           padding: EdgeInsets.symmetric(vertical: 40.h, horizontal: 20.w),
           child: Column(
@@ -108,6 +112,7 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
       ),
     );
   }
+
 
   Future<void> _processUploadedPDF(BuildContext context, String pdfName, String downloadUrl) async {
     try {

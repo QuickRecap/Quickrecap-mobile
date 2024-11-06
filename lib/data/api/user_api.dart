@@ -16,7 +16,7 @@ class UserApi {
     );
 
     if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+      final data = json.decode(utf8.decode(response.bodyBytes));
       return User.fromJson(data['user']);
     } else {
       return null;

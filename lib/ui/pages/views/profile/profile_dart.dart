@@ -130,13 +130,6 @@ class ProfileScreenState extends State<ProfileScreen> {
   Widget _buildPdfItem({required Map<String, String> pdfData}) {
     return InkWell(
       onTap: () {
-        final selectedPdf = Pdf(
-          id: int.tryParse(pdfData['id'] ?? '0') ?? 0,
-          name: pdfData['name'] ?? '',
-          url: pdfData['url'] ?? '',
-        );
-      },
-      onLongPress: () {
         showModalBottomSheet(
           context: context,
           shape: RoundedRectangleBorder(
@@ -158,12 +151,12 @@ class ProfileScreenState extends State<ProfileScreen> {
                         onPressed: () => Navigator.pop(context),
                       ),
                       Text(
-                        'Configuracion de la actividad',
+                        'Opciones de archivo PDF',
                         style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.w600,
                           fontFamily: 'Poppins',
-                          fontSize: 19,
+                          fontSize: 20,
                         ),
                       ),
                       SizedBox(width: 48),
