@@ -7,6 +7,8 @@ import '../../../../../domain/entities/activity_review.dart';
 import '../widgets/timeout_dialog.dart';
 import '../widgets/pause_dialog.dart';
 import '../widgets/show_answer_dialog.dart';
+import '../../../../../ui/providers/audio_provider.dart';
+import 'package:provider/provider.dart';
 
 class PlayGaps extends StatefulWidget {
   final GapsActivity gapsActivity;
@@ -124,7 +126,7 @@ class _PlayGapsState extends State<PlayGaps> {
     }
   }
 
-  void _checkAnswer() {
+  Future<void> _checkAnswer() async {
     _timer?.cancel();
     bool allCorrect = true;
     List<Answer> selectedAnswers = [];
@@ -144,6 +146,9 @@ class _PlayGapsState extends State<PlayGaps> {
     }
 
     widget.gapsActivity.gaps![_currentIndex].selectAnswers = selectedAnswers;
+
+    final audioProvider = Provider.of<AudioProvider>(context, listen: false);
+    await audioProvider.answerSound(allCorrect);
 
     if (allCorrect) {
       setState(() {

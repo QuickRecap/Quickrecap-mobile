@@ -8,6 +8,8 @@ import '../../../../../domain/entities/activity_review.dart';
 import '../widgets/timeout_dialog.dart';
 import '../widgets/pause_dialog.dart';
 import '../widgets/show_answer_dialog.dart';
+import '../../../../../ui/providers/audio_provider.dart';
+import 'package:provider/provider.dart';
 
 
 class PlayQuiz extends StatefulWidget {
@@ -88,14 +90,20 @@ class _PlayQuizState extends State<PlayQuiz> {
     }
   }
 
-  void _checkAnswer() {
+  Future<void> _checkAnswer() async {
     _timer?.cancel();
 
     // Asigna la respuesta seleccionada al quiz actual antes de hacer la validación
     widget.quizActivity.quizzes![_currentIndex].selectedAnswer = _selectedAnswer;
 
     Quiz currentQuiz = widget.quizActivity.quizzes![_currentIndex];
-    if (_selectedAnswer == currentQuiz.answer) {
+
+    final audioProvider = Provider.of<AudioProvider>(context, listen: false);
+
+    bool isCorrect = _selectedAnswer == currentQuiz.answer;
+    await audioProvider.answerSound(isCorrect);
+
+    if (isCorrect) {
       _score += 100; // Sumar 100 puntos por respuesta correcta
       showAnswerDialog(
         context,

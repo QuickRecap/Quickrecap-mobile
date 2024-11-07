@@ -94,6 +94,8 @@ flutter:
     - assets/images/
     - assets/fonts/
     - assets/audio/background_music.mp3
+    - assets/audio/correct.wav
+    - assets/audio/incorrect.wav
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

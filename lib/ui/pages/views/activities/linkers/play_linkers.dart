@@ -7,6 +7,8 @@ import '../../../../../domain/entities/activity_review.dart';
 import '../widgets/timeout_dialog.dart';
 import '../widgets/pause_dialog.dart';
 import '../widgets/show_answer_dialog.dart';
+import '../../../../../ui/providers/audio_provider.dart';
+import 'package:provider/provider.dart';
 
 class PlayLinkers extends StatefulWidget {
   final LinkersActivity linkersActivity;
@@ -188,7 +190,7 @@ class _PlayLinkersState extends State<PlayLinkers> {
     }
   }
 
-  void _checkAnswer() {
+  Future<void> _checkAnswer() async {
     _timer?.cancel();
     var currentLinker = widget.linkersActivity.linkers![_currentIndex];
     bool allCorrect = true;
@@ -209,6 +211,9 @@ class _PlayLinkersState extends State<PlayLinkers> {
         }
       }
     }
+
+    final audioProvider = Provider.of<AudioProvider>(context, listen: false);
+    await audioProvider.answerSound(allCorrect);
 
     if (allCorrect) {
       setState(() {

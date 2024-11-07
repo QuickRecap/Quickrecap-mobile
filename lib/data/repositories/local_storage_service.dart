@@ -2,7 +2,6 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import '../../domain/entities/user.dart';
 
-
 class LocalStorageService {
   static Database? _database;
 
@@ -44,12 +43,13 @@ class LocalStorageService {
         await db.execute('''
           CREATE TABLE IF NOT EXISTS AppSettings(
             id INTEGER PRIMARY KEY,
-            music_enabled INTEGER DEFAULT 1
+            music_enabled INTEGER DEFAULT 1,
+            effects_enabled INTEGER DEFAULT 1
           )
         ''');
 
         // Insert default settings
-        await db.insert('AppSettings', {'id': 1, 'music_enabled': 1});
+        await db.insert('AppSettings', {'id': 1, 'music_enabled': 1, 'effects_enabled': 1});
         print("Database tables created successfully.");
       },
       onOpen: (db) async {
@@ -61,14 +61,15 @@ class LocalStorageService {
         await db.execute('''
           CREATE TABLE IF NOT EXISTS AppSettings(
             id INTEGER PRIMARY KEY,
-            music_enabled INTEGER DEFAULT 1
+            music_enabled INTEGER DEFAULT 1,
+            effects_enabled INTEGER DEFAULT 1
           )
         ''');
 
         // Check if default settings exist
         var settings = await db.query('AppSettings');
         if (settings.isEmpty) {
-          await db.insert('AppSettings', {'id': 1, 'music_enabled': 1});
+          await db.insert('AppSettings', {'id': 1, 'music_enabled': 1, 'effects_enabled': 1});
         }
       },
       version: 1,
@@ -90,6 +91,26 @@ class LocalStorageService {
     await db.update(
       'AppSettings',
       {'music_enabled': enabled ? 1 : 0},
+      where: 'id = ?',
+      whereArgs: [1],
+    );
+  }
+
+  // Effects settings methods
+  Future<bool> getEffectsEnabled() async {
+    final db = await database;
+    var result = await db.query('AppSettings', limit: 1);
+    if (result.isNotEmpty) {
+      return result.first['effects_enabled'] == 1;
+    }
+    return true; // Default to enabled if no setting found
+  }
+
+  Future<void> setEffectsEnabled(bool enabled) async {
+    final db = await database;
+    await db.update(
+      'AppSettings',
+      {'effects_enabled': enabled ? 1 : 0},
       where: 'id = ?',
       whereArgs: [1],
     );
@@ -128,7 +149,6 @@ class LocalStorageService {
     );
   }
 
-
   Future<void> updateUser(User user) async {
     final db = await database;
 
@@ -147,7 +167,6 @@ class LocalStorageService {
       whereArgs: [user.id],
     );
   }
-
 
   Future<User?> getCurrentUser() async {
     final db = await database;
@@ -186,9 +205,6 @@ class LocalStorageService {
       return 0;
     }
   }
-
-
-
 
   Future<Map<String, dynamic>?> getCredentials() async {
     final db = await database;

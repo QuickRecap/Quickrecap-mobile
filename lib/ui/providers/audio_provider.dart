@@ -3,11 +3,14 @@ import 'package:just_audio/just_audio.dart';
 import '../../data/repositories/local_storage_service.dart';
 
 class AudioProvider extends ChangeNotifier with WidgetsBindingObserver {
-  final AudioPlayer _player = AudioPlayer();
+  final AudioPlayer _musicPlayer = AudioPlayer();
+  final AudioPlayer _effectsPlayer = AudioPlayer(); // Nuevo player para efectos
   final LocalStorageService _storageService = LocalStorageService();
+  bool _isEffectsEnabled = true;
   bool _isEnabled = true;
   bool _wasPlayingBeforeBackground = false;
   bool get isEnabled => _isEnabled;
+  bool get isEffectsEnabled => _isEffectsEnabled;
 
   AudioProvider() {
     print('AudioProvider initialized');
@@ -20,11 +23,9 @@ class AudioProvider extends ChangeNotifier with WidgetsBindingObserver {
     print('App lifecycle state changed to: $state');
     switch (state) {
       case AppLifecycleState.paused:
-      // App is in background
         _handleBackgroundState();
         break;
       case AppLifecycleState.resumed:
-      // App is in foreground
         _handleForegroundState();
         break;
       default:
@@ -34,11 +35,10 @@ class AudioProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> _handleBackgroundState() async {
     try {
-      // Store current playing state before pausing
-      _wasPlayingBeforeBackground = _isEnabled && _player.playing;
-      if (_player.playing) {
+      _wasPlayingBeforeBackground = _isEnabled && _musicPlayer.playing;
+      if (_musicPlayer.playing) {
         print('App entering background: Pausing audio');
-        await _player.pause();
+        await _musicPlayer.pause();
       }
     } catch (e) {
       print('Error handling background state: $e');
@@ -47,10 +47,9 @@ class AudioProvider extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> _handleForegroundState() async {
     try {
-      // Resume playing only if it was playing before going to background
       if (_wasPlayingBeforeBackground) {
         print('App entering foreground: Resuming audio');
-        await _player.play();
+        await _musicPlayer.play();
       }
     } catch (e) {
       print('Error handling foreground state: $e');
@@ -60,6 +59,7 @@ class AudioProvider extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> _loadSavedSettings() async {
     try {
       _isEnabled = await _storageService.getMusicEnabled();
+      _isEffectsEnabled = await _storageService.getEffectsEnabled();
       print('Loaded saved music settings: $_isEnabled');
       await _initAudio();
     } catch (e) {
@@ -75,7 +75,7 @@ class AudioProvider extends ChangeNotifier with WidgetsBindingObserver {
     try {
       print('Starting audio initialization...');
 
-      final duration = await _player.setAsset('assets/audio/background_music.mp3');
+      final duration = await _musicPlayer.setAsset('assets/audio/background_music.mp3');
       print('Audio duration: ${duration?.inSeconds} seconds');
 
       if (duration == null) {
@@ -83,15 +83,15 @@ class AudioProvider extends ChangeNotifier with WidgetsBindingObserver {
         return;
       }
 
-      await _player.setLoopMode(LoopMode.all);
+      await _musicPlayer.setLoopMode(LoopMode.all);
       print('Loop mode set');
 
-      await _player.setVolume(0.5);
+      await _musicPlayer.setVolume(0.5);
       print('Volume set to 0.5');
 
       if (_isEnabled) {
         print('Starting playback...');
-        await _player.play();
+        await _musicPlayer.play();
         print('Playback started');
       }
     } catch (e) {
@@ -100,22 +100,50 @@ class AudioProvider extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  Future<void> answerSound(bool isCorrect) async {
+    if (!_isEffectsEnabled) return;
+
+    try {
+      // Seleccionar el archivo de sonido en función de si la respuesta es correcta o incorrecta
+      final soundFile = isCorrect ? 'assets/audio/correct.wav' : 'assets/audio/incorrect.wav';
+
+      print('Trying to play sound: $soundFile');
+
+      // Cargar el archivo de audio y verificar si se carga correctamente
+      final duration = await _effectsPlayer.setAsset(soundFile);
+      if (duration == null) {
+        print('Error: Could not load sound effect file');
+        return;
+      }
+      print('Sound effect duration: ${duration.inMilliseconds} ms');
+
+      // Ajustar el volumen y reproducir el sonido
+      await _effectsPlayer.setVolume(1.0);
+      await _effectsPlayer.play();
+      print('Sound effect playback started');
+    } catch (e) {
+      print('Error playing sound effect: $e');
+      print('Stack trace: ${StackTrace.current}');
+    }
+  }
+
+
+
   Future<void> toggleAudio() async {
     try {
       _isEnabled = !_isEnabled;
       print('Audio toggled. isEnabled: $_isEnabled');
 
-      // Save the new setting
       await _storageService.setMusicEnabled(_isEnabled);
       print('Audio setting saved to database');
 
       if (_isEnabled) {
         print('Attempting to play audio...');
-        await _player.play();
+        await _musicPlayer.play();
         print('Audio playing');
       } else {
         print('Attempting to pause audio...');
-        await _player.pause();
+        await _musicPlayer.pause();
         print('Audio paused');
       }
       notifyListeners();
@@ -124,11 +152,17 @@ class AudioProvider extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  Future<void> toggleEffects() async {
+    _isEffectsEnabled = !_isEffectsEnabled;
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     print('Disposing AudioProvider');
     WidgetsBinding.instance.removeObserver(this);
-    _player.dispose();
+    _musicPlayer.dispose();
+    _effectsPlayer.dispose();
     super.dispose();
   }
 }
