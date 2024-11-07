@@ -97,13 +97,14 @@ class _PlayFlashcardsState extends State<PlayFlashcards> with SingleTickerProvid
       if (widget.isPreparation && widget.onPreparationComplete != null) {
         widget.onPreparationComplete!();
       }else{
-        Navigator.push(
+        Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(
             builder: (context) => ResultsFlashcards(
               flashcardActivity: widget.flashcardActivity,
-            ) // Usamos el operador ! para indicar que no es nulo
+            ),
           ),
+              (Route<dynamic> route) => false, // Esto vacía la pila de navegación
         );
       }
     }

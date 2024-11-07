@@ -75,14 +75,15 @@ class _PlayQuizState extends State<PlayQuiz> {
           questions: widget.quizActivity.quizzes!.length,
           correctAnswers: (_score / 100).toInt(),
       );
-      Navigator.push(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (context) => ResultsQuiz(
             activityReview: activityReview,
             quizActivity: widget.quizActivity,
-          ), // Usamos el operador ! para indicar que no es nulo
+          ),
         ),
+            (Route<dynamic> route) => false, // Esto vacía la pila de navegación
       );
     }
   }

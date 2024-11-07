@@ -197,10 +197,10 @@ class GamesScreenState extends State<GamesScreen> {
     }
   }
 
-  void _deleteActivity(BuildContext context, Activity activity) async {
+  Future<void> _deleteActivity(BuildContext context, Activity activity) async {
     print('Iniciando eliminación de actividad: ${activity.id}');
     setState(() {
-      isActivityDeleteLoading = true;
+      isActivityDeleteLoading = true; // Activar el indicador de carga
     });
     try {
       final response = await http.delete(
@@ -216,21 +216,18 @@ class GamesScreenState extends State<GamesScreen> {
         Navigator.of(context).pop();
       } else {
         print("Error al eliminar la actividad: ${response.statusCode}");
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error al eliminar la actividad. Inténtalo de nuevo.')),
-        );
+        _showErrorSnackBar('Error al eliminar la actividad. Inténtalo de nuevo.');
       }
     } catch (e) {
       print("Error de conexión: $e");
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error de conexión: $e')),
-      );
+      _showErrorSnackBar('Error de conexión: $e');
     } finally {
       setState(() {
-        isActivityDeleteLoading = false;
+        isActivityDeleteLoading = false; // Desactivar el indicador de carga
       });
     }
   }
+
 
   void _showDeleteConfirmation(BuildContext context, Activity activity) {
     showModalBottomSheet(
@@ -239,74 +236,84 @@ class GamesScreenState extends State<GamesScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
       ),
       builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Confirmar eliminación',
-                style: TextStyle(
-                  color: kDark,
-                  fontFamily: 'Poppins',
-                  fontSize: 24,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(height: 15),
-              Text(
-                '¿Desea eliminar la actividad "${activity.name}"?',
-                style: TextStyle(
-                  color: kDark,
-                  fontFamily: 'Poppins',
-                  fontSize: 16,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: 20),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.end,
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            return Padding(
+              padding: EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.red,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                      ),
-                      child: isActivityDeleteLoading
-                          ? CircularProgressIndicator(color: kWhite)
-                          : Text('Eliminar', style: TextStyle(color: kWhite)),
-                      onPressed: isActivityDeleteLoading
-                          ? null
-                          : () {
-                        _deleteActivity(context, activity);
-                      },
+                  Text(
+                    'Confirmar eliminación',
+                    style: TextStyle(
+                      color: kDark,
+                      fontFamily: 'Poppins',
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  SizedBox(height: 10),
-                  SizedBox(
-                    width: double.infinity,
-                    child: TextButton(
-                      child: Text(
-                        'Cancelar',
-                        style: TextStyle(color: kGrey),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context).pop(); // Cierra el BottomSheet
-                      },
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 15),
-                      ),
+                  SizedBox(height: 15),
+                  Text(
+                    '¿Desea eliminar la actividad "${activity.name}"?',
+                    style: TextStyle(
+                      color: kDark,
+                      fontFamily: 'Poppins',
+                      fontSize: 16,
                     ),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(height: 20),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: EdgeInsets.symmetric(vertical: 15),
+                          ),
+                          child: isActivityDeleteLoading
+                              ? CircularProgressIndicator(color: kWhite)
+                              : Text('Eliminar', style: TextStyle(color: kWhite)),
+                          onPressed: isActivityDeleteLoading
+                              ? null
+                              : () async {
+                            setModalState(() {
+                              isActivityDeleteLoading = true;
+                            });
+                            await _deleteActivity(context, activity);
+                            setModalState(() {
+                              isActivityDeleteLoading = false;
+                            });
+                          },
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      SizedBox(
+                        width: double.infinity,
+                        child: TextButton(
+                          child: Text(
+                            'Cancelar',
+                            style: TextStyle(color: kGrey),
+                          ),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.symmetric(vertical: 15),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
-          ),
+            );
+          },
         );
       },
     );

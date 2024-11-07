@@ -111,14 +111,15 @@ class _PlayGapsState extends State<PlayGaps> {
         questions: widget.gapsActivity.gaps!.length,
         correctAnswers: (_score / 100).toInt(),
       );
-      Navigator.push(
+      Navigator.pushAndRemoveUntil(
         context,
         MaterialPageRoute(
           builder: (context) => ResultsGaps(
             activityReview: activityReview,
             gapsActivity: widget.gapsActivity,
-          ), // Usamos el operador ! para indicar que no es nulo
+          ),
         ),
+            (Route<dynamic> route) => false, // Esto vacía la pila de navegación
       );
     }
   }

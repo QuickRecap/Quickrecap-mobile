@@ -15,7 +15,7 @@ class InfoContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 160, // Ajusta según necesites
+      width: 150, // Ajusta según necesites
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
