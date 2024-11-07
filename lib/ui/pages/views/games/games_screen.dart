@@ -28,6 +28,7 @@ class GamesScreenState extends State<GamesScreen> {
   bool isHistoryTabLoading = false;
   bool isFavoriteLoading = false;
   bool isDialogLoading = false;
+  bool isActivityDeleteLoading = false;
   String? error;
   String _currentValue = 'Todos';
   int displayableActivityQuantity = 0;
@@ -196,6 +197,140 @@ class GamesScreenState extends State<GamesScreen> {
     }
   }
 
+  void _deleteActivity(BuildContext context, Activity activity) async {
+    print('Iniciando eliminación de actividad: ${activity.id}');
+    setState(() {
+      isActivityDeleteLoading = true;
+    });
+    try {
+      final response = await http.delete(
+        Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/activity/delete/${activity.id}'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      if (response.statusCode == 204 || response.statusCode == 502) {
+        print("Actividad eliminada exitosamente");
+        _removeActivityById(activity.id);
+        Navigator.of(context).pop();
+      } else {
+        print("Error al eliminar la actividad: ${response.statusCode}");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error al eliminar la actividad. Inténtalo de nuevo.')),
+        );
+      }
+    } catch (e) {
+      print("Error de conexión: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error de conexión: $e')),
+      );
+    } finally {
+      setState(() {
+        isActivityDeleteLoading = false;
+      });
+    }
+  }
+
+  void _showDeleteConfirmation(BuildContext context, Activity activity) {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+      ),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Confirmar eliminación',
+                style: TextStyle(
+                  color: kDark,
+                  fontFamily: 'Poppins',
+                  fontSize: 24,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(height: 15),
+              Text(
+                '¿Desea eliminar la actividad "${activity.name}"?',
+                style: TextStyle(
+                  color: kDark,
+                  fontFamily: 'Poppins',
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 20),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                      ),
+                      child: isActivityDeleteLoading
+                          ? CircularProgressIndicator(color: kWhite)
+                          : Text('Eliminar', style: TextStyle(color: kWhite)),
+                      onPressed: isActivityDeleteLoading
+                          ? null
+                          : () {
+                        _deleteActivity(context, activity);
+                      },
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      child: Text(
+                        'Cancelar',
+                        style: TextStyle(color: kGrey),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Cierra el BottomSheet
+                      },
+                      style: TextButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 15),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _removeActivityById(int activityId) {
+    print('Eliminando actividad con ID: $activityId');
+    print('Arreglo antes de eliminar: $createdActivities');
+
+    // Verificar si el ID existe en el arreglo
+    bool activityExists = createdActivities.any((activity) => activity.id == activityId);
+
+    if (!activityExists) {
+      print('Error: No se encontró el Activity ID $activityId en el arreglo.');
+      return;
+    }
+
+    // Eliminar la actividad si existe
+    setState(() {
+      createdActivities.removeWhere((activity) => activity.id == activityId);
+    });
+
+    print('Arreglo después de eliminar: $createdActivities');
+  }
 
   void _showErrorSnackBar(String message) {
     final overlay = Overlay.of(context);
@@ -807,13 +942,6 @@ class GamesScreenState extends State<GamesScreen> {
     );
   }
 
-
-  void _removeActivityById(int activityId) {
-    setState(() {
-      createdActivities.removeWhere((activity) => activity.id == activityId);
-    });
-  }
-
   void _changeFavoriteActivityById(int activityId) {
     setState(() {
       // Buscar la actividad en createdActivities
@@ -1259,97 +1387,7 @@ class GamesScreenState extends State<GamesScreen> {
                             onPressed: () {
                               // Cierra el diálogo actual antes de abrir el BottomSheet
                               Navigator.of(context).pop();
-                              showModalBottomSheet(
-                                context: context,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
-                                ),
-                                builder: (BuildContext context) {
-                                  return Padding(
-                                    padding: EdgeInsets.all(20),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text(
-                                          'Confirmar eliminación',
-                                          style: TextStyle(
-                                            color: kDark,
-                                            fontFamily: 'Poppins',
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                        SizedBox(height: 15),
-                                        Text(
-                                          '¿Desea eliminar la actividad "${activity.name}"?',
-                                          style: TextStyle(
-                                            color: kDark,
-                                            fontFamily: 'Poppins',
-                                            fontSize: 16,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                        ),
-                                        SizedBox(height: 20),
-                                        Column(
-                                          mainAxisAlignment: MainAxisAlignment.end,
-                                          children: [
-                                            SizedBox(
-                                              width: double.infinity, // Hace que el botón ocupe todo el ancho
-                                              child: ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor: Colors.red,
-                                                  shape: RoundedRectangleBorder(
-                                                    borderRadius: BorderRadius.circular(10),
-                                                  ),
-                                                  padding: EdgeInsets.symmetric(vertical: 15),
-                                                ),
-                                                child: Text(
-                                                  'Eliminar',
-                                                  style: TextStyle(color: kWhite),
-                                                ),
-                                                onPressed: () async {
-                                                  Navigator.of(context).pop(); // Cierra el BottomSheet de confirmación
-                                                  try {
-                                                    final response = await http.delete(
-                                                      Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/activity/delete/${activity.id}'),
-                                                      headers: <String, String>{
-                                                        'Content-Type': 'application/json; charset=UTF-8',
-                                                      },
-                                                    );
-                                                    if (response.statusCode == 204) {
-                                                      _removeActivityById(activity.id);
-                                                    }
-                                                  } catch (e) {
-                                                    ScaffoldMessenger.of(context).showSnackBar(
-                                                      SnackBar(content: Text('Error de conexión: $e')),
-                                                    );
-                                                  }
-                                                },
-                                              ),
-                                            ),
-                                            SizedBox(height: 10), // Espacio entre los botones
-                                            SizedBox(
-                                              width: double.infinity, // Hace que el botón ocupe todo el ancho
-                                              child: TextButton(
-                                                child: Text(
-                                                  'Cancelar',
-                                                  style: TextStyle(color: kGrey),
-                                                ),
-                                                onPressed: () {
-                                                  Navigator.of(context).pop(); // Cierra el BottomSheet
-                                                },
-                                                style: TextButton.styleFrom(
-                                                  padding: EdgeInsets.symmetric(vertical: 15),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              );
+                              _showDeleteConfirmation(context, activity);
                             },
                           ),
                         ),
