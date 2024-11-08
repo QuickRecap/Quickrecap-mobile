@@ -246,7 +246,6 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -364,18 +363,7 @@ class HomeScreenState extends State<HomeScreen> {
                       ),
                       child: Column(
                         children: [
-                          Text(
-                            "Estadisticas Generales",
-                            textAlign: TextAlign.left,
-                            style: TextStyle(
-                              fontSize: 15.sp,
-                              color: kGrey2,
-                              fontFamily: 'Poppins',
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          SizedBox(height: 10.h),
-                          Row(
+                          /*Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               _buildStatItem(
@@ -396,16 +384,18 @@ class HomeScreenState extends State<HomeScreen> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 15.h),
+                          SizedBox(height: 15.h),*/
                           Text(
-                            "Empieza ahora a crear tus propias actividades!",
+                            "!Empieza ahora a crear tus propias actividades!",
                             style: TextStyle(
-                              fontSize: 15.sp,
+                              fontSize: 16.sp,
                               color: kGrey2,
                               fontFamily: 'Poppins',
                               fontWeight: FontWeight.w500,
+                                height: 1.9
                             ),
                           ),
+                          SizedBox(height: 12.h),
                           Align(
                             alignment: Alignment.centerRight,
                             child: ElevatedButton(
@@ -415,7 +405,7 @@ class HomeScreenState extends State<HomeScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: kPrimary,
                                 padding: EdgeInsets.symmetric(
-                                    vertical: 8.h, horizontal: 12.w),
+                                    vertical: 10.h, horizontal: 12.w),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(15.r),
                                 ),
@@ -579,41 +569,45 @@ class HomeScreenState extends State<HomeScreen> {
     required IconData icon,
     required String name,
   }) {
-    return Container(
-      width: 90.w,
-      height: 90.h,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15.r),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05), // Sombra muy tenue
-            blurRadius: 10,
-            offset: Offset(1, 1), // Ajuste para la dirección de la sombra
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 10.h),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 32.sp,
-              color: kDark,
-            ),
-            SizedBox(height: 6.h),
-            Text(
-              name,
-              style: TextStyle(
-                color: kGrey2,
-                fontSize: 13.sp,
-                fontFamily: 'Poppins',
-                fontWeight: FontWeight.w500,
-              ),
+    return Padding(
+      padding: EdgeInsets.only(top: 10, bottom: 10, right: 0, left: 0), // Añade espacio alrededor para la sombra
+      child: Container(
+        width: 90.w,
+        height: 90.h,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(15.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(4, 4), // Reducido un poco el offset para que no se vea tan extremo
+              spreadRadius: 0, // Añadido para controlar la expansión de la sombra
             ),
           ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 10.h),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                size: 32.sp,
+                color: kDark,
+              ),
+              SizedBox(height: 6.h),
+              Text(
+                name,
+                style: TextStyle(
+                  color: kGrey2,
+                  fontSize: 13.sp,
+                  fontFamily: 'Poppins',
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

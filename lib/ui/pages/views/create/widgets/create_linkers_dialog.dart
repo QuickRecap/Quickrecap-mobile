@@ -176,7 +176,6 @@ class _CreateLinkersDialogState extends State<CreateLinkersDialog> {
                   const SizedBox(height: 10),
                   CustomSelectInput(
                     label: "Selecciona una opción",
-                    suffix: " segundos",
                     value: widget.activityTimeController.text.isEmpty ? null : widget.activityTimeController.text,
                     options: ["150", "120", "80", "60", "50"],
                     onChanged: (String? newValue) {
@@ -208,6 +207,7 @@ class _CreateLinkersDialogState extends State<CreateLinkersDialog> {
                   const SizedBox(height: 10),
                   CustomSelectInput(
                     label: "Selecciona una opción",
+                    isActivity: true,
                     suffix: " linkers",
                     value: widget.activityQuantityController.text.isEmpty ? null : widget.activityQuantityController.text,
                     options: ["6", "5", "4", "3"],

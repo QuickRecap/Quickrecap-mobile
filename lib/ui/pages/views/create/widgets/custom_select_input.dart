@@ -3,11 +3,12 @@ import 'package:flutter/material.dart';
 class CustomSelectInput extends StatelessWidget {
   final String label;
   final String? value;
-  final List<String> options;  // Changed to List<String> for type safety
-  final ValueChanged<String?> onChanged;  // Changed to ValueChanged for proper typing
-  final FormFieldValidator<String>? validator;  // Changed validator type
-  final String suffix;
+  final List<String> options;
+  final ValueChanged<String?> onChanged;
+  final FormFieldValidator<String>? validator;
   final bool isLoading;
+  final bool isActivity;
+  final String suffix;
 
   const CustomSelectInput({
     Key? key,
@@ -16,9 +17,31 @@ class CustomSelectInput extends StatelessWidget {
     required this.options,
     required this.onChanged,
     this.validator,
-    this.suffix = ' segundos',
     this.isLoading = false,
+    this.isActivity = false,
+    this.suffix = '',
   }) : super(key: key);
+
+  String _formatTimeDisplay(String value) {
+    if (isActivity) {
+      return '$value $suffix';
+    }
+
+    final int seconds = int.tryParse(value) ?? 0;
+
+    if (seconds <= 60) {
+      return '$seconds segundos';
+    } else {
+      final int minutes = seconds ~/ 60;
+      final int remainingSeconds = seconds % 60;
+
+      if (remainingSeconds == 0) {
+        return '$minutes ${minutes == 1 ? 'minuto' : 'minutos'}';
+      } else {
+        return '$minutes ${minutes == 1 ? 'min' : 'min'} $remainingSeconds seg';
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +56,7 @@ class CustomSelectInput extends StatelessWidget {
         builder: (BuildContext context) {
           final bool hasFocus = Focus.of(context).hasFocus;
 
-          return DropdownButtonFormField<String>(  // Added generic type
+          return DropdownButtonFormField<String>(
             value: value?.isEmpty ?? true ? options.first : value,
             decoration: InputDecoration(
               hintText: hasFocus ? null : label,
@@ -89,7 +112,7 @@ class CustomSelectInput extends StatelessWidget {
               return DropdownMenuItem(
                 value: option,
                 child: Text(
-                  option + suffix,
+                  _formatTimeDisplay(option),
                   style: TextStyle(
                     fontFamily: 'Poppins',
                     fontWeight: FontWeight.w500,

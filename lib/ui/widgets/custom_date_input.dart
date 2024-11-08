@@ -60,16 +60,23 @@ class CustomDateInput extends StatelessWidget {
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime now = DateTime.now();
+    final DateTime cutoffDate = DateTime(now.year - 8, now.month, now.day);
+
     DateTime initialDate;
+    // Guardamos el valor anterior del controller
+    final String previousValue = controller.text;
 
     if (controller.text.isNotEmpty) {
       try {
         initialDate = DateFormat('dd/MM/yyyy').parse(controller.text);
+        if (initialDate.isAfter(cutoffDate)) {
+          initialDate = cutoffDate;
+        }
       } catch (e) {
-        initialDate = now;
+        initialDate = cutoffDate;
       }
     } else {
-      initialDate = now;
+      initialDate = cutoffDate;
     }
 
     final DateTime? picked = await showDialog<DateTime>(
@@ -92,7 +99,7 @@ class CustomDateInput extends StatelessWidget {
               builder: (context) => CalendarDatePicker(
                 initialDate: initialDate,
                 firstDate: firstDate ?? DateTime(1900),
-                lastDate: lastDate ?? now,
+                lastDate: cutoffDate,
                 onDateChanged: (DateTime date) {
                   Navigator.pop(context, date);
                 },
@@ -103,8 +110,11 @@ class CustomDateInput extends StatelessWidget {
       },
     );
 
-    if (picked != null && picked != now) {
+    // Si no se seleccionó una fecha (picked es null), restauramos el valor anterior
+    if (picked != null) {
       controller.text = DateFormat('dd/MM/yyyy').format(picked);
+    } else {
+      controller.text = previousValue;  // Restauramos el valor anterior
     }
   }
 }

@@ -174,9 +174,8 @@ class _CreateGapsDialogState extends State<CreateGapsDialog> {
                   const SizedBox(height: 10),
                   CustomSelectInput(
                     label: "Selecciona una opción",
-                    suffix: " segundos",
                     value: widget.activityTimeController.text.isEmpty ? null : widget.activityTimeController.text,
-                    options: ["30", "20", "10", "5", "3"],
+                    options: ["60", "45", "30", "20", "15"],
                     onChanged: (String? newValue) {
                       setState(() {
                         widget.activityTimeController.text = newValue ?? '';
@@ -206,6 +205,7 @@ class _CreateGapsDialogState extends State<CreateGapsDialog> {
                   const SizedBox(height: 10),
                   CustomSelectInput(
                     label: "Selecciona una opción",
+                    isActivity: true,
                     suffix: " oraciones",
                     value: widget.activityQuantityController.text.isEmpty ? null : widget.activityQuantityController.text,
                     options: ["15", "10", "8", "5"],
