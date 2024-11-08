@@ -364,6 +364,17 @@ class HomeScreenState extends State<HomeScreen> {
                       ),
                       child: Column(
                         children: [
+                          Text(
+                            "Estadisticas Generales",
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                              fontSize: 15.sp,
+                              color: kGrey2,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: 10.h),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [

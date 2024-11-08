@@ -178,7 +178,7 @@ class _CreateLinkersDialogState extends State<CreateLinkersDialog> {
                     label: "Selecciona una opción",
                     suffix: " segundos",
                     value: widget.activityTimeController.text.isEmpty ? null : widget.activityTimeController.text,
-                    options: ["60", "40", "30", "20", "10"],
+                    options: ["150", "120", "80", "60", "50"],
                     onChanged: (String? newValue) {
                       setState(() {
                         widget.activityTimeController.text = newValue ?? '';
