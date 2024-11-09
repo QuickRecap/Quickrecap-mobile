@@ -7,6 +7,7 @@ class HistoryActivity {
   final DateTime date;
   final int activityId;
   final int userId;
+  final String author;
 
   HistoryActivity({
     required this.id,
@@ -17,10 +18,23 @@ class HistoryActivity {
     required this.date,
     required this.activityId,
     required this.userId,
+    required this.author
   });
 
-  // Método para crear una instancia de HistoryActivity desde un JSON
   factory HistoryActivity.fromJson(Map<String, dynamic> json) {
+    final userJson = json['user'] as Map<String, dynamic>;
+    final activityJson = json['activity'] as Map<String, dynamic>;
+
+    final userId = userJson['id'] as int;
+    final activityId = activityJson['id'] as int;
+
+    final firstName = userJson['nombres'] as String? ?? '';
+    final lastName = userJson['apellidos'] as String? ?? '';
+    final authorName = [firstName, lastName]
+        .where((name) => name.isNotEmpty)
+        .join(' ')
+        .trim();
+
     return HistoryActivity(
       id: json['id'],
       activityName: json['nombre_actividad'],
@@ -28,8 +42,9 @@ class HistoryActivity {
       numberOfQuestions: json['numero_preguntas'],
       correctAnswers: json['respuestas_correctas'],
       date: DateTime.parse(json['fecha']),
-      activityId: json['activity'],
-      userId: json['user'],
+      activityId: activityId,
+      userId: userId,
+      author: authorName.isNotEmpty ? authorName : 'Sin nombre', // Valor por defecto si no hay nombre
     );
   }
 }

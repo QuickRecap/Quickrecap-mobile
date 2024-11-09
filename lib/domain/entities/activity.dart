@@ -38,8 +38,8 @@ class Activity {
     final userId = userJson['id'] as int;
 
     // Construir el nombre del autor combinando nombres y apellidos
-    final firstName = userJson['first_name'] as String? ?? '';
-    final lastName = userJson['last_name'] as String? ?? '';
+    final firstName = userJson['nombres'] as String? ?? '';
+    final lastName = userJson['apellidos'] as String? ?? '';
     final authorName = [firstName, lastName]
         .where((name) => name.isNotEmpty)
         .join(' ')

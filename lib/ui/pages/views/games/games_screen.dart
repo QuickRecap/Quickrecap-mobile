@@ -757,14 +757,30 @@ class GamesScreenState extends State<GamesScreen> {
                   ),
                   SizedBox(width: 12),
                   Expanded(
-                    child: Text(
-                      activity.name,
-                      style: TextStyle(
-                        color: kGrey2,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          activity.name!,
+                          style: TextStyle(
+                            color: kGrey2,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14.sp,
+                          ),
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          'Por ${activity.author}',
+                          style: TextStyle(
+                            color: kGrey,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w500,
+                            fontSize: 12.sp,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(width: 10),
@@ -895,19 +911,35 @@ class GamesScreenState extends State<GamesScreen> {
           children: [
             Container(
               padding: EdgeInsets.symmetric(vertical: 10),
-              height: 65,
+              height: 70,
               child: Row(
                 children: [
-                  SizedBox(width: 12),
+                  SizedBox(width: 5),
                   Expanded(
-                    child: Text(
-                      activity.activityName,
-                      style: TextStyle(
-                        color: kGrey2,
-                        fontWeight: FontWeight.w600,
-                        fontFamily: 'Poppins',
-                        fontSize: 16,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          activity.activityName!,
+                          style: TextStyle(
+                            color: kGrey2,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14.sp,
+                          ),
+                        ),
+                        SizedBox(height: 4.h),
+                        Text(
+                          'Por ${activity.author}',
+                          style: TextStyle(
+                            color: kGrey,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w500,
+                            fontSize: 12.sp,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   SizedBox(width: 10),

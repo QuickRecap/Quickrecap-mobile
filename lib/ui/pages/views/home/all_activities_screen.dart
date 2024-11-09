@@ -258,6 +258,7 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
                                   final isLastItem = index == getFilteredActivities().length - 1;
                                   return Column(
                                     children: [
+                                      SizedBox(height: 5.h),
                                       GestureDetector(
                                         onTap: () {
                                           // Llamamos al bottom dialog pasándole la activity
@@ -284,14 +285,30 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
                                               ),
                                               SizedBox(width: 12.w),
                                               Expanded(
-                                                child: Text(
-                                                  activity.name,
-                                                  style: TextStyle(
-                                                    color: kGrey2,
-                                                    fontFamily: 'Poppins',
-                                                    fontWeight: FontWeight.w600,
-                                                    fontSize: 14.sp,
-                                                  ),
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      activity.name!,
+                                                      style: TextStyle(
+                                                        color: kGrey2,
+                                                        fontFamily: 'Poppins',
+                                                        fontWeight: FontWeight.w600,
+                                                        fontSize: 14.sp,
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 4.h),
+                                                    Text(
+                                                      'Por ${activity.author}',
+                                                      style: TextStyle(
+                                                        color: kGrey,
+                                                        fontFamily: 'Poppins',
+                                                        fontWeight: FontWeight.w500,
+                                                        fontSize: 12.sp,
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
                                               ),
                                               Row(
@@ -317,6 +334,7 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
                                           ),
                                         ),
                                       ),
+                                      SizedBox(height: 5.h),
                                       if (!isLastItem)
                                         Divider(
                                           color: Color(0xffD9D9D9),

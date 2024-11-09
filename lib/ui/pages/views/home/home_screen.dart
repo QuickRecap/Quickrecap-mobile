@@ -176,14 +176,13 @@ class HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    // Retornar la lista de actividades real si no está cargando
     return Column(
       children: topActivities.map((activity) => GestureDetector(
         onTap: () {
           _showOptionsBottomSheet(context, activity);
         },
         child: Container(
-          height: 65.h,
+          height: 75.h, // Aumentado de 65.h a 75.h
           margin: EdgeInsets.only(bottom: 10.h),
           padding: EdgeInsets.symmetric(horizontal: 10.0),
           decoration: BoxDecoration(
@@ -210,16 +209,32 @@ class HomeScreenState extends State<HomeScreen> {
                   size: 35.sp,
                 ),
               ),
-              SizedBox(width: 12.w),
+              SizedBox(width: 12.h),
               Expanded(
-                child: Text(
-                  activity.name!,
-                  style: TextStyle(
-                    color: kGrey2,
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14.sp,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      activity.name!,
+                      style: TextStyle(
+                        color: kGrey2,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14.sp,
+                      ),
+                    ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      'Por ${activity.author}',
+                      style: TextStyle(
+                        color: kGrey,
+                        fontFamily: 'Poppins',
+                        fontWeight: FontWeight.w500,
+                        fontSize: 12.sp,
+                      ),
+                    ),
+                  ],
                 ),
               ),
               Row(
@@ -255,7 +270,7 @@ class HomeScreenState extends State<HomeScreen> {
       body: Stack(
         children: [
           Container(
-            height: 200.h,
+            height: 187.h,
             decoration: BoxDecoration(
               color: kPrimary,
               image: DecorationImage(
@@ -348,84 +363,98 @@ class HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                     SizedBox(height: 20.h),
-                    // White container with statistics
-                    Container(
-                      padding: EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color: kWhite,
-                        borderRadius: BorderRadius.circular(20.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: kDark.withOpacity(0.2),
-                            spreadRadius: 1,
-                            blurRadius: 8,
-                            offset: Offset(0, 1),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          /*Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              _buildStatItem(
-                                title: "Actividades",
-                                icon: Icons.sports_esports,
-                                value:
-                                    _stats?.totalActividades.toString() ?? "0",
-                              ),
-                              _buildStatItem(
-                                title: "PDF's",
-                                icon: Icons.description,
-                                value: _stats?.totalArchivos.toString() ?? "0",
-                              ),
-                              _buildStatItem(
-                                title: "Usuarios",
-                                icon: Icons.person,
-                                value: _stats?.totalUsuarios.toString() ?? "0",
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 15.h),*/
-                          Text(
-                            "!Empieza ahora a crear tus propias actividades!",
+                  Container(
+                    padding: EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          spreadRadius: 0,
+                          blurRadius: 20,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            "Un Vistazo a Nuestros Números",
                             style: TextStyle(
                               fontSize: 16.sp,
-                              color: kGrey2,
-                              fontFamily: 'Poppins',
                               fontWeight: FontWeight.w500,
-                                height: 1.9
+                              color: kDark,
+                              fontFamily: 'Poppins',
                             ),
                           ),
-                          SizedBox(height: 12.h),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Get.find<TabIndexController>().tabIndex = 2;
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: kPrimary,
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 10.h, horizontal: 12.w),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(15.r),
-                                ),
+                        ),
+                        SizedBox(height: 15.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _buildNewStatItem(
+                              icon: Icons.sports_esports,
+                              value: _stats?.totalActividades.toString() ?? "0",
+                              title: "Actividades\nCreadas",
+                            ),
+                            _buildNewStatItem(
+                              icon: Icons.description,
+                              value: _stats?.totalArchivos.toString() ?? "0",
+                              title: "Archivos\nPDF",
+                            ),
+                            _buildNewStatItem(
+                              icon: Icons.person,
+                              value: _stats?.totalUsuarios.toString() ?? "0",
+                              title: "Usuarios\nActivos",
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 17.h),
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            "¡Empieza a crear tus propios desafios!",
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
+                              color: kDark,
+                              fontFamily: 'Poppins',
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 15.h),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Get.find<TabIndexController>().tabIndex = 2;
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFF6C5CE7), // Color morado del diseño
+                              padding: EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
                               ),
-                              child: Text(
-                                "Crear actividad",
-                                style: TextStyle(
-                                  color: kWhite,
-                                  fontSize: 14.sp,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.w600,
-                                ),
+                              elevation: 0,
+                            ),
+                            child: Text(
+                              "Crear Actividad",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14.sp,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
+                  ),
                     SizedBox(height: 30.h),
                     // Top Activities section
                     Row(
@@ -529,41 +558,48 @@ class HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildStatItem({
-    required String title,
+  Widget _buildNewStatItem({
     required IconData icon,
     required String value,
+    required String title,
   }) {
-    return Container(
-      child: Column(
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: kGrey2,
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.w500,
-            ),
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Color(0xFF6C5CE7).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12),
           ),
-          SizedBox(height: 7.h),
-          Row(
-            children: [
-              Icon(icon, color: kPrimary, size: 24.sp),
-              SizedBox(width: 5.w),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: kGrey2,
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
+          child: Icon(
+            icon,
+            color: Color(0xFF6C5CE7),
+            size: 30,
           ),
-        ],
-      ),
+        ),
+        SizedBox(height: 8),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 22.sp,
+            fontWeight: FontWeight.bold,
+            color: kPrimary,
+            fontFamily: 'Poppins',
+          ),
+        ),
+        SizedBox(height: 4),
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w600,
+            color: Colors.black54,
+            fontFamily: 'Poppins',
+            height: 1.3,
+          ),
+        ),
+      ],
     );
   }
 
@@ -572,49 +608,45 @@ class HomeScreenState extends State<HomeScreen> {
     required String name,
   }) {
     return Padding(
-      padding: EdgeInsets.only(top: 10, bottom: 10, right: 0, left: 0), // Añade espacio alrededor para la sombra
+      padding: EdgeInsets.only(bottom: 4.h), // Añadimos padding inferior para la sombra
       child: Container(
         width: 90.w,
-        height: 90.h,
+        height: 80.h,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(15.r),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(4, 4), // Reducido un poco el offset para que no se vea tan extremo
-              spreadRadius: 0, // Añadido para controlar la expansión de la sombra
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+              spreadRadius: 0,
             ),
           ],
         ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 10.h),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                icon,
-                size: 32.sp,
-                color: kDark,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              size: 32.sp,
+              color: kDark,
+            ),
+            SizedBox(height: 6.h),
+            Text(
+              name,
+              style: TextStyle(
+                color: kGrey2,
+                fontSize: 13.sp,
+                fontFamily: 'Poppins',
+                fontWeight: FontWeight.w500,
               ),
-              SizedBox(height: 6.h),
-              Text(
-                name,
-                style: TextStyle(
-                  color: kGrey2,
-                  fontSize: 13.sp,
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
-
 
   void _showOptionsBottomSheet(BuildContext context, Activity activity) {
     OptionsBottomSheet.show(
