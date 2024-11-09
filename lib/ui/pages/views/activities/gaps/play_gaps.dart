@@ -77,6 +77,19 @@ class _PlayGapsState extends State<PlayGaps> {
     );
   }
 
+  String _formatTime(int totalSeconds) {
+    if (totalSeconds <= 0) return "00:00";
+
+    int minutes = totalSeconds ~/ 60;  // Integer division to get minutes
+    int seconds = totalSeconds % 60;   // Remainder to get seconds
+
+    // Pad with zeros if needed
+    String minutesStr = minutes.toString().padLeft(2, '0');
+    String secondsStr = seconds.toString().padLeft(2, '0');
+
+    return "$minutesStr:$secondsStr";
+  }
+
   void _startTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
@@ -360,9 +373,7 @@ class _PlayGapsState extends State<PlayGaps> {
                     ),
                     SizedBox(height: 10),
                     Text(
-                      _remainingTime > 0
-                          ? "00:${_remainingTime.toString().padLeft(2, '0')}"
-                          : "00:00",
+                      _formatTime(_remainingTime),
                       style: TextStyle(
                         fontFamily: 'Poppins',
                         fontSize: 40,

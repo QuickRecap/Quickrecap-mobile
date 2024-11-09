@@ -69,6 +69,19 @@ class _PlayFlashcardsState extends State<PlayFlashcards> with SingleTickerProvid
     });
   }
 
+  String _formatTime(int totalSeconds) {
+    if (totalSeconds <= 0) return "00:00";
+
+    int minutes = totalSeconds ~/ 60;  // Integer division to get minutes
+    int seconds = totalSeconds % 60;   // Remainder to get seconds
+
+    // Pad with zeros if needed
+    String minutesStr = minutes.toString().padLeft(2, '0');
+    String secondsStr = seconds.toString().padLeft(2, '0');
+
+    return "$minutesStr:$secondsStr";
+  }
+
   void _flipCard() {
     setState(() {
       if (_controller.status == AnimationStatus.completed) {
@@ -246,7 +259,7 @@ class _PlayFlashcardsState extends State<PlayFlashcards> with SingleTickerProvid
               child: Center(
                 child: !_timerStopped
                     ? Text(
-                  "00:${_remainingTime.toString().padLeft(2, '0')}",
+                  _formatTime(_remainingTime),  // Aquí usamos la función
                   style: TextStyle(
                     color: Color(0xFF6D5BFF),
                     fontFamily: 'Poppins',
