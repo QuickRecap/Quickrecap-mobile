@@ -60,6 +60,7 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
   bool _isLoading = false;
   bool _isConfigView = true;
   bool _isSuccess = false;
+  bool _isRepeated = false;
 
   @override
   Widget build(BuildContext context) {
@@ -116,11 +117,13 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                   controller: widget.activityNameController,
                   label: 'Ingresa un nombre',
                   validator: (value) {
+                    if(_isRepeated == true){
+                      return 'Ya tienes una actividad con este nombre.';
+                    }
                     // Validar si el campo está vacío
                     if (value == null || value.isEmpty) {
                       return 'Este campo es obligatorio';
                     }
-
                     // Expresión regular para permitir solo letras, números y espacios
                     RegExp regExp = RegExp(r'^[a-zA-Z0-9\s\-_]+$');
                     if (!regExp.hasMatch(value)) {
@@ -230,6 +233,9 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                       onPressed: _isLoading
                           ? null
                           : () async {
+                        setState(() {
+                          _isRepeated = false;
+                        });
                         if (_formKey.currentState!.validate()) {
                           setState(() {
                             _isLoading = true;
@@ -237,29 +243,40 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
 
                           final flashcardProvider = Provider.of<FlashcardProvider>(context, listen: false);
 
-                          try {
-                            flashcardActivity = await flashcardProvider.createFlashcard(
-                              widget.activityNameController.text,
-                              int.parse(widget.activityTimeController.text),
-                              int.parse(widget.activityQuantityController.text),
-                              widget.selectedPdf?.url ?? "",
-                            );
+                          final result = await flashcardProvider.createFlashcard(
+                            widget.activityNameController.text,
+                            int.parse(widget.activityTimeController.text),
+                            int.parse(widget.activityQuantityController.text),
+                            widget.selectedPdf?.url ?? "",
+                          );
 
+                          if (result!.isSuccess) {
                             setState(() {
+                              flashcardActivity = result.data;
                               _isConfigView = false;
-                              _isSuccess = flashcardActivity != null;
+                              _isSuccess = true;
                             });
-                          } catch (e) {
-                            setState(() {
-                              _isConfigView = false;
-                              _isSuccess = false;
-                            });
-                          } finally {
-                            setState(() {
-                              _isLoading = false;
-                            });
+                          } else {
+                            if (result.statusCode == 400) {
+                              print('Error: Nombre de actividad duplicado');
+                              setState(() {
+                                _isConfigView = true;
+                                _isSuccess = false;
+                                _isRepeated = true;
+                                _formKey.currentState?.validate();
+                              });
+                            } else {
+                              print('Error inesperado: ${result.error}');
+                              setState(() {
+                                _isConfigView = false;
+                                _isSuccess = false;
+                              });
+                            }
                           }
 
+                          setState(() {
+                            _isLoading = false;
+                          });
                         }
                       },
                       style: ElevatedButton.styleFrom(

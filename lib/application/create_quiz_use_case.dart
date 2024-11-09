@@ -1,15 +1,15 @@
 import '../domain/repositories/activity_repository.dart';
 import '../domain/entities/quiz_activity.dart';
+import '../domain/entities/results.dart';
 
 class CreateQuizUseCase {
   final ActivityRepository activityRepository;
 
   CreateQuizUseCase(this.activityRepository);
 
-  Future<QuizActivity?> createQuiz(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
+  Future<Result<QuizActivity>?> createQuiz(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
     try {
-      final QuizActivity? quizActivity =  await activityRepository.createQuiz(activityName, activityTimer, activityQuantity,pdfUrl);
-      return quizActivity;
+      return await activityRepository.createQuiz(activityName, activityTimer, activityQuantity,pdfUrl);
     } catch (e) {
       return null;
     }

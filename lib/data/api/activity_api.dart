@@ -9,6 +9,7 @@ import '../../domain/entities/gaps_activity.dart';
 import '../../domain/entities/linkers_activity.dart';
 import '../../domain/entities/flashcard.dart';
 import '../../domain/entities/activity.dart';
+import '../../domain/entities/results.dart';
 import '../repositories/local_storage_service.dart';
 
 class ActivityApi {
@@ -18,8 +19,7 @@ class ActivityApi {
   };
   final LocalStorageService localStorageService = LocalStorageService();
 
-  Future<QuizActivity?> createQuiz(
-      String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
+  Future<Result<QuizActivity>> createQuiz(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
     try {
       int userId = await localStorageService.getCurrentUserId();
 
@@ -48,7 +48,7 @@ class ActivityApi {
               .map((quizJson) => Quiz.fromJson(quizJson))
               .toList();
 
-          return QuizActivity(
+          final activity = QuizActivity(
             flashcards: flashcards,
             quizzes: quizzes,
             id: data['activity']['id'],
@@ -57,17 +57,30 @@ class ActivityApi {
             timer: data['activity']['tiempo_pregunta'],
             isRated: false,
           );
+
+          return Result(data: activity);
         }
       }
-      throw Exception('Error al crear Quiz: ${response.statusCode}');
+
+      if (response.statusCode == 400) {
+        return Result(
+          error: 'Error 400: Este nombre ya está asignado a otra actividad',
+          statusCode: response.statusCode,
+        );
+      }
+
+      return Result(
+        error: 'Error al crear Quiz: ${response.statusCode}',
+        statusCode: response.statusCode,
+      );
+
     } catch (e) {
       print('Error en createQuiz: $e');
-      return null;
+      return Result(error: e.toString());
     }
   }
 
-  Future<GapsActivity?> createGaps(
-      String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
+  Future<Result<GapsActivity>> createGaps(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
     try {
       int userId = await localStorageService.getCurrentUserId();
 
@@ -96,7 +109,7 @@ class ActivityApi {
               .map((gapsJson) => Gaps.fromJson(gapsJson))
               .toList();
 
-          return GapsActivity(
+          final activity = GapsActivity(
             flashcards: flashcards,
             gaps: gaps,
             id: data['activity']['id'],
@@ -105,17 +118,30 @@ class ActivityApi {
             timer: data['activity']['tiempo_pregunta'],
             isRated: false,
           );
+
+          return Result(data: activity);
         }
       }
-      throw Exception('Error al crear Gaps: ${response.statusCode}');
+
+      if (response.statusCode == 400) {
+        return Result(
+          error: 'Error 400: Este nombre ya está asignado a otra actividad',
+          statusCode: response.statusCode,
+        );
+      }
+
+      return Result(
+        error: 'Error al crear Gaps: ${response.statusCode}',
+        statusCode: response.statusCode,
+      );
+
     } catch (e) {
       print('Error en createGaps: $e');
-      return null;
+      return Result(error: e.toString());
     }
   }
 
-  Future<LinkersActivity?> createLinkers(
-      String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
+  Future<Result<LinkersActivity>> createLinkers(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
     try {
       int userId = await localStorageService.getCurrentUserId();
 
@@ -152,7 +178,7 @@ class ActivityApi {
               .values
               .toList();
 
-          return LinkersActivity(
+          final activity = LinkersActivity(
             flashcards: flashcards,
             linkers: linkers,
             id: data['activity']['id'],
@@ -161,17 +187,29 @@ class ActivityApi {
             timer: data['activity']['tiempo_pregunta'],
             isRated: false,
           );
+
+          return Result(data: activity);
         }
       }
-      throw Exception('Error al crear Linkers: ${response.statusCode}');
+
+      if (response.statusCode == 400) {
+        return Result(
+            error: response.body,
+            statusCode: response.statusCode
+        );
+      }
+
+      return Result(
+          error: 'Error al crear Linkers: ${response.statusCode}',
+          statusCode: response.statusCode
+      );
     } catch (e) {
       print('Error en createLinkers: $e');
-      return null;
+      return Result(error: e.toString());
     }
   }
 
-  Future<FlashcardActivity?> createFlashCard(
-      String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
+  Future<Result<FlashcardActivity>> createFlashCard(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
     try {
       int userId = await localStorageService.getCurrentUserId();
 
@@ -196,7 +234,7 @@ class ActivityApi {
               .map((flashcardJson) => Flashcard.fromJson(flashcardJson))
               .toList();
 
-          return FlashcardActivity(
+          final activity = FlashcardActivity(
             id: data['activity']['id'],
             flashcards: flashcards,
             name: data['activity']['nombre'],
@@ -204,14 +242,28 @@ class ActivityApi {
             timer: data['activity']['tiempo_pregunta'],
             isRated: false,
           );
+
+          return Result(data: activity);
         }
       }
-      throw Exception('Error al crear Flashcard: ${response.statusCode}');
+
+      if (response.statusCode == 400) {
+        return Result(
+            error: response.body,
+            statusCode: response.statusCode
+        );
+      }
+
+      return Result(
+          error: 'Error al crear Flashcard: ${response.statusCode}',
+          statusCode: response.statusCode
+      );
     } catch (e) {
       print('Error en createFlashCard: $e');
-      return null;
+      return Result(error: e.toString());
     }
   }
+
 
   Future<bool> rateActivity(int activityId, int rating, String commentary) async {
     try {

@@ -1,5 +1,6 @@
 import '../domain/entities/linkers_activity.dart';
 import '../domain/entities/linkers.dart';
+import '../domain/entities/results.dart';
 import '../domain/repositories/activity_repository.dart';
 import 'dart:math';
 
@@ -8,16 +9,23 @@ class CreateLinkersUseCase {
 
   CreateLinkersUseCase(this.activityRepository);
 
-  Future<LinkersActivity?> createLinkers(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
+  Future<Result<LinkersActivity>?> createLinkers(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
     try {
-      final LinkersActivity? linkersActivity = await activityRepository.createLinkers(activityName, activityTimer, activityQuantity, pdfUrl);
+      final Result<LinkersActivity>? result = await activityRepository.createLinkers(activityName, activityTimer, activityQuantity, pdfUrl);
 
-      if (linkersActivity == null) {
+      if (result == null) {
         return null;
       }
 
+      if (!result.isSuccess || result.data == null) {
+        return Result(
+            error: result.error,
+            statusCode: result.statusCode
+        );
+      }
+
       // Mostrar los ítems de linkers antes de la mezcla
-      for (var linkers in linkersActivity.linkers ?? []) {
+      for (var linkers in result.data!.linkers ?? []) {
         print("Antes de mezclar:");
         for (var item in linkers.linkerItems) {
           print("Word: ${item.wordItem.position} ${item.wordItem.content}, Definition: ${item.definitionItem.position} ${item.definitionItem.content}");
@@ -33,10 +41,10 @@ class CreateLinkersUseCase {
         }
       }
 
-      return linkersActivity;
+      return Result(data: result.data);
     } catch (e) {
       print("Error: $e");
-      return null;
+      return Result(error: e.toString());
     }
   }
 

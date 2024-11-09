@@ -12,6 +12,7 @@ class Activity {
   final String name;
   final int flashcardId;
   final int userId;
+  final String author;
 
   Activity({
     required this.id,
@@ -27,10 +28,23 @@ class Activity {
     required this.name,
     required this.flashcardId,
     required this.userId,
+    required this.author
   });
 
   // Método para crear una instancia de Activity desde un JSON
   factory Activity.fromJson(Map<String, dynamic> json) {
+    // Obtener el ID del usuario del objeto usuario anidado
+    final userJson = json['usuario'] as Map<String, dynamic>;
+    final userId = userJson['id'] as int;
+
+    // Construir el nombre del autor combinando nombres y apellidos
+    final firstName = userJson['first_name'] as String? ?? '';
+    final lastName = userJson['last_name'] as String? ?? '';
+    final authorName = [firstName, lastName]
+        .where((name) => name.isNotEmpty)
+        .join(' ')
+        .trim();
+
     return Activity(
       id: json['id'],
       activityType: json['tipo_actividad'],
@@ -44,7 +58,8 @@ class Activity {
       rated: true,
       name: json['nombre'],
       flashcardId: json['flashcard_id'] ?? 0,
-      userId: json['usuario'],
+      userId: userId,
+      author: authorName.isNotEmpty ? authorName : 'Sin nombre', // Valor por defecto si no hay nombre
     );
   }
 }

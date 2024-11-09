@@ -1,4 +1,5 @@
 import '../domain/repositories/activity_repository.dart';
+import '../domain/entities/results.dart';
 import '../domain/entities/gaps_activity.dart';
 
 class CreateGapsUseCase {
@@ -6,10 +7,9 @@ class CreateGapsUseCase {
 
   CreateGapsUseCase(this.activityRepository);
 
-  Future<GapsActivity?> createGaps(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
+  Future<Result<GapsActivity>?> createGaps(String activityName, int activityTimer, int activityQuantity, String pdfUrl) async {
     try {
-      final GapsActivity? gapsActivity =  await activityRepository.createGaps(activityName, activityTimer, activityQuantity,pdfUrl);
-      return gapsActivity;
+      return await activityRepository.createGaps(activityName, activityTimer, activityQuantity,pdfUrl);
     } catch (e) {
       return null;
     }

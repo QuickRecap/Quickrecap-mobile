@@ -88,12 +88,14 @@ class HomeScreenState extends State<HomeScreen> {
       );
 
       if (response.statusCode == 200) {
+        print("Obtuve actividades");
         final List<dynamic> jsonData = json.decode(response.body);
         setState(() {
           activities = jsonData.take(2).map((data) => Activity.fromJson(data)).toList();
           topActivities = activities;
         });
       } else {
+        print("NO OBTUVE actividades");
         print('Error: ${response.statusCode}');
       }
     } catch (e) {
@@ -108,7 +110,7 @@ class HomeScreenState extends State<HomeScreen> {
   Widget _buildActivitiesList() {
     if (isLoading) {
       // Configurar datos falsos para mostrar el skeleton
-      final fakeActivities = List.filled(2, Activity(name: 'Loading...', timesPlayed: 0, id: 0, activityType: 'Quiz', timePerQuestion: 10, numberOfQuestions: 10, maxScore: 10, favorite: false, completed: true, private: false, rated: false, flashcardId: 1, userId: 7));
+      final fakeActivities = List.filled(2, Activity(name: 'Loading...', timesPlayed: 0, id: 0, activityType: 'Quiz', timePerQuestion: 10, numberOfQuestions: 10, maxScore: 10, favorite: false, completed: true, private: false, rated: false, flashcardId: 1, userId: 7, author:"Anonimo" ''));
 
       return Skeletonizer(
         enabled: isLoading,
