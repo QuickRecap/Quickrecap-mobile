@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class LoadingActivityDialog {
+  static final double progressSize = 60.w;
   static Future<void> show(BuildContext context) async {
     showDialog(
       context: context,
@@ -44,13 +45,13 @@ class LoadingActivityDialog {
                     );
                   },
                   child: SizedBox(
-                    width: 60.w,
-                    height: 53.h,
+                    width: progressSize,
+                    height: progressSize,
                     child: CircularProgressIndicator(
                       strokeWidth: 6.w,
                       valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF8375FD)),
                     ),
-                  ),
+                  )
                 ),
                 SizedBox(height: 30.h),
                 TweenAnimationBuilder(
