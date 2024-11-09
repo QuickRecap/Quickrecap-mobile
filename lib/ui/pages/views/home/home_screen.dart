@@ -110,7 +110,22 @@ class HomeScreenState extends State<HomeScreen> {
   Widget _buildActivitiesList() {
     if (isLoading) {
       // Configurar datos falsos para mostrar el skeleton
-      final fakeActivities = List.filled(2, Activity(name: 'Loading...', timesPlayed: 0, id: 0, activityType: 'Quiz', timePerQuestion: 10, numberOfQuestions: 10, maxScore: 10, favorite: false, completed: true, private: false, rated: false, flashcardId: 1, userId: 7, author:"Anonimo" ''));
+      final fakeActivities = List.filled(2, Activity(
+          name: 'Loading...',
+          timesPlayed: 0,
+          id: 0,
+          activityType: 'Quiz',
+          timePerQuestion: 10,
+          numberOfQuestions: 10,
+          maxScore: 10,
+          favorite: false,
+          completed: true,
+          private: false,
+          rated: false,
+          flashcardId: 1,
+          userId: 7,
+          author: 'Loading...'
+      ));
 
       return Skeletonizer(
         enabled: isLoading,
@@ -136,18 +151,34 @@ class HomeScreenState extends State<HomeScreen> {
                 Icon(
                   Icons.play_circle_fill_outlined,
                   color: Colors.grey.shade300,
-                  size: 35.sp,
+                  size: 40.sp,
                 ),
                 SizedBox(width: 12.w),
                 Expanded(
-                  child: Text(
-                    activity.name!,
-                    style: TextStyle(
-                      color: Colors.grey.shade300,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.w600,
-                      fontSize: 14.sp,
-                    ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        activity.name!,
+                        style: TextStyle(
+                          color: Colors.grey.shade300,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w600,
+                          fontSize: 15.sp,
+                        ),
+                      ),
+                      SizedBox(height: 2.h),
+                      Text(
+                        'Por ${activity.author}',
+                        style: TextStyle(
+                          color: Colors.grey.shade300,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12.sp,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
                 Row(
@@ -176,13 +207,14 @@ class HomeScreenState extends State<HomeScreen> {
       );
     }
 
+    // El resto del código permanece igual
     return Column(
       children: topActivities.map((activity) => GestureDetector(
         onTap: () {
           _showOptionsBottomSheet(context, activity);
         },
         child: Container(
-          height: 75.h, // Aumentado de 65.h a 75.h
+          height: 65.h,
           margin: EdgeInsets.only(bottom: 10.h),
           padding: EdgeInsets.symmetric(horizontal: 10.0),
           decoration: BoxDecoration(
@@ -206,7 +238,7 @@ class HomeScreenState extends State<HomeScreen> {
                 child: Icon(
                   Icons.play_circle_fill_outlined,
                   color: kPrimaryLight,
-                  size: 35.sp,
+                  size: 40.sp,
                 ),
               ),
               SizedBox(width: 12.h),
@@ -221,10 +253,10 @@ class HomeScreenState extends State<HomeScreen> {
                         color: kGrey2,
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w600,
-                        fontSize: 14.sp,
+                        fontSize: 15.sp,
                       ),
                     ),
-                    SizedBox(height: 4.h),
+                    SizedBox(height: 2.h),
                     Text(
                       'Por ${activity.author}',
                       style: TextStyle(
@@ -571,14 +603,14 @@ class HomeScreenState extends State<HomeScreen> {
             Icon(
               icon,
               color: kPrimary,
-              size: 25,
+              size: 28,
             ),
             SizedBox(width: 7),
             Text(
               value,
               style: TextStyle(
-                fontSize: 22.sp,
-                fontWeight: FontWeight.bold,
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w600,
                 color: kPrimary,
                 fontFamily: 'Poppins',
               ),

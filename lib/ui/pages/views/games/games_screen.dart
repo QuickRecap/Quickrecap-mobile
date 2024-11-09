@@ -752,7 +752,7 @@ class GamesScreenState extends State<GamesScreen> {
                     child: Icon(
                       Icons.play_circle_fill_outlined,
                       color: kPrimaryLight,
-                      size: 40,
+                      size: 45,
                     ),
                   ),
                   SizedBox(width: 12),
@@ -770,7 +770,7 @@ class GamesScreenState extends State<GamesScreen> {
                             fontSize: 14.sp,
                           ),
                         ),
-                        SizedBox(height: 4.h),
+                        SizedBox(height: 3.h),
                         Text(
                           'Por ${activity.author}',
                           style: TextStyle(
@@ -911,7 +911,7 @@ class GamesScreenState extends State<GamesScreen> {
           children: [
             Container(
               padding: EdgeInsets.symmetric(vertical: 10),
-              height: 70,
+              height: 75,
               child: Row(
                 children: [
                   SizedBox(width: 5),
@@ -929,7 +929,7 @@ class GamesScreenState extends State<GamesScreen> {
                             fontSize: 14.sp,
                           ),
                         ),
-                        SizedBox(height: 4.h),
+                        SizedBox(height: 2.h),
                         Text(
                           'Por ${activity.author}',
                           style: TextStyle(

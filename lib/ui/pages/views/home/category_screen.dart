@@ -247,7 +247,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                                   child: Icon(
                                                     Icons.play_circle_fill_outlined,
                                                     color: kPrimaryLight,
-                                                    size: 35.sp,
+                                                    size: 40.sp,
                                                   ),
                                                 ),
                                                 SizedBox(width: 12.w),
@@ -262,10 +262,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
                                                           color: kGrey2,
                                                           fontFamily: 'Poppins',
                                                           fontWeight: FontWeight.w600,
-                                                          fontSize: 14.sp,
+                                                          fontSize: 15.sp,
                                                         ),
                                                       ),
-                                                      SizedBox(height: 4.h),
+                                                      SizedBox(height: 2.h),
                                                       Text(
                                                         'Por ${activity.author}',
                                                         style: TextStyle(
