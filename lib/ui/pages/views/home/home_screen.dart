@@ -364,7 +364,7 @@ class HomeScreenState extends State<HomeScreen> {
                     ),
                     SizedBox(height: 20.h),
                   Container(
-                    padding: EdgeInsets.all(24),
+                    padding: EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(30),
@@ -413,7 +413,7 @@ class HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 17.h),
+                        SizedBox(height: 15.h),
                         Align(
                           alignment: Alignment.center,
                           child: Text(
@@ -565,27 +565,25 @@ class HomeScreenState extends State<HomeScreen> {
   }) {
     return Column(
       children: [
-        Container(
-          padding: EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: Color(0xFF6C5CE7).withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(
-            icon,
-            color: Color(0xFF6C5CE7),
-            size: 30,
-          ),
-        ),
-        SizedBox(height: 8),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 22.sp,
-            fontWeight: FontWeight.bold,
-            color: kPrimary,
-            fontFamily: 'Poppins',
-          ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              icon,
+              color: kPrimary,
+              size: 25,
+            ),
+            SizedBox(width: 7),
+            Text(
+              value,
+              style: TextStyle(
+                fontSize: 22.sp,
+                fontWeight: FontWeight.bold,
+                color: kPrimary,
+                fontFamily: 'Poppins',
+              ),
+            ),
+          ],
         ),
         SizedBox(height: 4),
         Text(
