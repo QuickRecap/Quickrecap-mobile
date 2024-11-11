@@ -412,9 +412,10 @@ class HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Align(
+                        /*Align(
                           alignment: Alignment.center,
-                          child: Text(
+                          child:
+                          Text(
                             "Un Vistazo a Nuestros Números",
                             style: TextStyle(
                               fontSize: 16.sp,
@@ -424,7 +425,7 @@ class HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 15.h),
+                        SizedBox(height: 10.h),*/
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
@@ -597,6 +598,18 @@ class HomeScreenState extends State<HomeScreen> {
   }) {
     return Column(
       children: [
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w600,
+            color: Colors.black54,
+            fontFamily: 'Poppins',
+            height: 1.3,
+          ),
+        ),
+        SizedBox(height: 4),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -617,18 +630,8 @@ class HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
-        SizedBox(height: 4),
-        Text(
-          title,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 12.sp,
-            fontWeight: FontWeight.w600,
-            color: Colors.black54,
-            fontFamily: 'Poppins',
-            height: 1.3,
-          ),
-        ),
+
+
       ],
     );
   }
