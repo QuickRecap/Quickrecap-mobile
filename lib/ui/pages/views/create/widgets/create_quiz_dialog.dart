@@ -94,7 +94,7 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                         child: Text(
                           'Configuracion de la actividad',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 17,
                             fontFamily: "Poppins",
                             fontWeight: FontWeight.w600,
                             color: Color(0xff424242),
@@ -323,7 +323,7 @@ class _CreateQuizDialogState extends State<CreateQuizDialog> {
                         child: Text(
                           'Configuracion de la actividad',
                           style: TextStyle(
-                            fontSize: 19,
+                            fontSize: 17,
                             fontFamily: "Poppins",
                             fontWeight: FontWeight.w600,
                             color: Color(0xff424242),

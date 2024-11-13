@@ -274,7 +274,7 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
         // Procesar el PDF subido
         await _processUploadedPDF(context, fileName, downloadUrl);
       } else {
-        _showErrorDialog(context, 'No se seleccionó ningún archivo');
+        //(context, 'No se seleccionó ningún archivo');
       }
     } catch (e) {
       // Si ocurre un error durante la subida, mostrar el diálogo de error

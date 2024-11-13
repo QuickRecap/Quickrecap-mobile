@@ -91,7 +91,7 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                       Text(
                         'Configuracion de la actividad',
                         style: TextStyle(
-                          fontSize: 18,
+                          fontSize: 17,
                           fontFamily: "Poppins",
                           fontWeight: FontWeight.w600,
                           color: Color(0xff424242),
@@ -320,7 +320,7 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                         child: Text(
                           'Configuracion de la actividad',
                           style: TextStyle(
-                            fontSize: 18,
+                            fontSize: 17,
                             fontFamily: "Poppins",
                             fontWeight: FontWeight.w600,
                             color: Color(0xff424242),

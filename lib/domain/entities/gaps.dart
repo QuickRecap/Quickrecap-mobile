@@ -15,10 +15,15 @@ class Gaps {
 
   // Método para crear una instancia de Gaps desde un JSON
   factory Gaps.fromJson(Map<String, dynamic> json) {
+    final incorrectAnswers = List<String>.from(json['incorrectas'] ?? []);
+    final maxIncorrectAnswers = 3; // Límite máximo de respuestas incorrectas
+
     return Gaps(
       completeText: json['texto_completo'],
       textWithGaps: json['texto_con_huecos'],
-      incorrectAnswers: List<String>.from(json['incorrectas'] ?? []),
+      incorrectAnswers: incorrectAnswers.length > maxIncorrectAnswers
+          ? incorrectAnswers.sublist(0, maxIncorrectAnswers)
+          : incorrectAnswers,
       answers: List<Answer>.from(json['respuestas'].map((answer) => Answer.fromJson(answer))),
     );
   }

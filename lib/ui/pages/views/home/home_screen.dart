@@ -446,7 +446,7 @@ class HomeScreenState extends State<HomeScreen> {
                             ),
                           ],
                         ),
-                        SizedBox(height: 15.h),
+                        SizedBox(height: 8.h),
                         Align(
                           alignment: Alignment.center,
                           child: Text(
@@ -459,7 +459,7 @@ class HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                         ),
-                        SizedBox(height: 15.h),
+                        SizedBox(height: 10.h),
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
