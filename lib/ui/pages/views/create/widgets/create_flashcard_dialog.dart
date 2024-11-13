@@ -166,7 +166,7 @@ class _CreateFlashcardDialogState extends State<CreateFlashcardDialog> {
                   Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Tiempo por pregunta: ',
+                      'Tiempo por flashcard: ',
                       style: TextStyle(
                         color: Color(0xff585858),
                         fontSize: 14.sp,

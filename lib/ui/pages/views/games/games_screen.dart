@@ -572,7 +572,7 @@ class GamesScreenState extends State<GamesScreen> {
                                     'Todos',
                                     'Quiz',
                                     'Flashcards',
-                                    'Gap',
+                                    'Gaps',
                                     'Linkers'
                                   ].map<DropdownMenuItem<String>>((String value) {
                                     return DropdownMenuItem<String>(
