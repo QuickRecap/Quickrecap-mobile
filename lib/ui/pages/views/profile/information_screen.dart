@@ -156,7 +156,7 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
     String baseFileName = path.basename(_image!.path);
 
     // Componer el nombre del archivo usando idController.text + '_' + baseFileName
-    String fileName = '${idController.text}_$baseFileName';
+    String fileName = '${idController.text}';
 
     // Usar el nombre compuesto en la referencia de almacenamiento
     Reference storageRef = storage.ref().child('profile_pics/$fileName');
@@ -194,6 +194,7 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Row(
           children: [
@@ -230,11 +231,19 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
               children: [
                 CircleAvatar(
                   radius: 50,
+                  backgroundColor: Color(0xffF0EFFE), // Color de fondo cuando se muestra el ícono
                   backgroundImage: _image != null
                       ? FileImage(File(_image!.path)) as ImageProvider
                       : (_downloadURL != null && _downloadURL!.isNotEmpty
                       ? NetworkImage(_downloadURL!)
-                      : AssetImage('assets/images/profile_pic.png')) as ImageProvider,
+                      : null), // No se establece una imagen si no hay URL o imagen seleccionada
+                  child: (_image == null && (_downloadURL == null || _downloadURL!.isEmpty))
+                      ? Icon(
+                    Icons.person,
+                    size: 60.sp,
+                    color: Color(0xff9489ff), // Ajusta este color según tu preferencia
+                  )
+                      : null, // El ícono solo aparece si no hay imagen o URL
                 ),
                 TextButton(
                   onPressed: _pickImage,
@@ -451,7 +460,7 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                       'Enviar',
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 16,
+                        fontSize: 18,
                       ),
                     ),
                     style: ElevatedButton.styleFrom(

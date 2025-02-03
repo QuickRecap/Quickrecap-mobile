@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +21,7 @@ class _SupportScreenState extends State<SupportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // Aquí defines el fondo blanco
       appBar: AppBar(
         title: Row(
           children: [
@@ -54,17 +54,17 @@ class _SupportScreenState extends State<SupportScreen> {
           children: [
             _buildExpansionTile(
               title: '¿Qué es QuickRecap?',
-              content: 'QuickRecap es una plataforma que te permite generar cuestionarios a partir de tus archivos de resumen o clases.',
+              content: 'QuickRecap es una plataforma que te permite generar actividades de refuerzo y aprendizaje a partir de tus archivos PDF.',
             ),
             const SizedBox(height: 10),
             _buildExpansionTile(
-              title: '¿Cómo puedo generar un quiz?',
-              content: 'Solo tienes que subir el PDF de tu resumen o clase...',
+              title: '¿Cómo puedo generar una actividad?',
+              content: 'Solo tienes que ir a la seccion de Crear y subir el PDF de tu resumen o clase y listo!!',
             ),
             const SizedBox(height: 10),
             _buildExpansionTile(
-              title: '¿Cómo juego el quiz?',
-              content: 'Puedes jugar el quiz accediendo a la sección de juegos...',
+              title: '¿Cómo jugar otras actividades?',
+              content: 'Puedes jugarlas en las secciones de Home, en donde encontraras todas las actividades generadas por diferentes los usuarios.',
             ),
             const Spacer(),
             SizedBox(
@@ -235,7 +235,7 @@ class _SupportScreenState extends State<SupportScreen> {
                               bool success = await supportProvider.reportError(
                                 nameController.text,
                                 descriptionController.text,
-                              ).timeout(Duration(seconds: 10));
+                              );
 
                               if (success) {
                                 Navigator.of(context).pop(); // Cierra el diálogo si la respuesta es exitosa
@@ -244,9 +244,6 @@ class _SupportScreenState extends State<SupportScreen> {
                                 Navigator.of(context).pop();
                                 _showErrorSnackBar('No se pudo reportar el error.');
                               }
-                            } on TimeoutException {
-                              Navigator.of(context).pop();
-                              _showErrorSnackBar('La operación está tardando demasiado. Por favor, verifica tu conexión e inténtalo de nuevo.');
                             } catch (e) {
                               Navigator.of(context).pop();
                               _showErrorSnackBar('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');
@@ -364,6 +361,8 @@ class _CustomExpansionTileState extends State<_CustomExpansionTile> {
       child: Theme(
         data: ThemeData().copyWith(
           dividerColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          highlightColor: Colors.transparent,
         ),
         child: ExpansionTile(
           title: Text(

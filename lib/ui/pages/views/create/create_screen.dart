@@ -1,19 +1,287 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:quickrecap/ui/common/custom_container.dart';
-import 'package:quickrecap/ui/constants/constants.dart';
+import '../../../../domain/entities/pdf.dart';
+import '../../../../ui/pages/views/activities/quiz/results_quiz.dart';
+import 'widgets/create_quiz_dialog.dart';
+import 'widgets/create_flashcard_dialog.dart';
+import 'widgets/create_linkers_dialog.dart';
+import 'widgets/create_gaps_dialog.dart';
+import '../../../../domain/entities/activity_review.dart';
 
-class CreateScreen extends StatelessWidget {
-  const CreateScreen({super.key});
+class CreateScreen extends StatefulWidget {
+  final Pdf? selectedPdf; // Cambiado a selectedPdf
+
+  const CreateScreen({Key? key, this.selectedPdf}) : super(key: key);
+
+  @override
+  CreateScreenState createState() => CreateScreenState();
+}
+
+class CreateScreenState extends State<CreateScreen> {
+
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController activityNameController = TextEditingController();
+  final TextEditingController activityTypeController = TextEditingController();
+  final TextEditingController activityTimeController = TextEditingController();
+  final TextEditingController activityQuantityController = TextEditingController();
+
+  Future<void> refresh() async {
+    // Aquí tu lógica para recargar datos del home
+    setState(() {
+      // Actualizar el estado
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final Pdf? selectedPdf = widget.selectedPdf; // Obtener el PDF directamente
+
+    print(selectedPdf != null ? 'PDF seleccionado en createScreen: ${selectedPdf.name}' : 'No se recibió un PDF seleccionado');
+
     return Scaffold(
-      backgroundColor: kPrimary,
-      appBar: PreferredSize(preferredSize: Size.fromHeight(105.h), child: Container(height: 130,)),
+      backgroundColor: const Color(0xFFF6F8FC),
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(75.h),
+        child: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          toolbarHeight: 75.h,
+          centerTitle: true,
+          automaticallyImplyLeading: false,
+          title: Text(
+            'Crear una actividad',
+            style: TextStyle(
+              color: Color(0xff212121),
+              fontSize: 24.sp,
+              fontFamily: 'Poppins',
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      ),
       body: SafeArea(
-        child: CustomContainer(containerContent: Container())
-      )
+        bottom: false,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 36.w),
+            child: Column(
+              children: [
+                // Botón para seleccionar PDF
+                InkWell(
+                  onTap: () async {
+                    // Navega a la pantalla de selección de PDF y espera a recibir el pdfUrl
+                    final pdf = await Navigator.pushNamed(context, '/select_pdf');
+                  },
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.all(16.w),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFEDEBFF),
+                        borderRadius: BorderRadius.circular(16.r),
+                        border: Border.all(
+                          color: const Color(0xFF6D5BFF),
+                          width: 2.w,
+                        ),
+                      ),
+                      child: Column(
+                        children: [
+                          Image.asset(
+                            'assets/images/pdf-create-icon.png',
+                            height: 60.h,
+                          ),
+                          SizedBox(height: 16.h),
+                          Center( // Add the Center widget here
+                            child: Text(
+                              selectedPdf != null ? selectedPdf!.name : 'Selecciona un PDF',
+                              style: TextStyle(
+                                color: const Color(0xFF6D5BFF),
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ),
+                SizedBox(height: 32.h),
+                Text(
+                  'Selecciona un modo',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontFamily: "Poppins",
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(height: 24.h),
+
+                // Modos de actividad
+                Column(
+                  children: [
+                    _buildModeOption(
+                      icon: Icons.quiz,
+                      title: 'Quiz',
+                      description: 'Elige la opción correcta.',
+                      isEnabled: selectedPdf != null, // Control de habilitación
+                    ),
+                    _buildModeOption(
+                      icon: Icons.extension,
+                      title: 'Gaps',
+                      description: 'Completa los espacios.',
+                      isEnabled: selectedPdf != null, // Control de habilitación
+                    ),
+                    _buildModeOption(
+                      icon: Icons.style,
+                      title: 'Flashcards',
+                      description: 'Responde antes de girar.',
+                      isEnabled: selectedPdf != null, // Control de habilitación
+                    ),
+                    _buildModeOption(
+                      icon: Icons.link,
+                      title: 'Linkers',
+                      description: 'Relaciona términos y conceptos.',
+                      isEnabled: selectedPdf != null, // Control de habilitación
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10.h),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+ // Mueve el estado aquí
+  void _showQuizConfigDialog(BuildContext context) {
+    CreateQuizDialog.show(
+      context,
+      activityNameController: activityNameController,
+      activityTypeController: activityTypeController,
+      activityTimeController: activityTimeController,
+      activityQuantityController: activityQuantityController,
+      selectedPdf: widget.selectedPdf,
+    );
+  }
+
+  void _showGapsConfigDialog(BuildContext context) {
+    CreateGapsDialog.show(
+      context,
+      activityNameController: activityNameController,
+      activityTypeController: activityTypeController,
+      activityTimeController: activityTimeController,
+      activityQuantityController: activityQuantityController,
+      selectedPdf: widget.selectedPdf,
+    );
+  }
+
+  void _showLinkersConfigDialog(BuildContext context) {
+    CreateLinkersDialog.show(
+      context,
+      activityNameController: activityNameController,
+      activityTypeController: activityTypeController,
+      activityTimeController: activityTimeController,
+      activityQuantityController: activityQuantityController,
+      selectedPdf: widget.selectedPdf,
+    );
+  }
+
+  void _showFlashcardDialog(BuildContext context) {
+    CreateFlashcardDialog.show(
+      context,
+      activityNameController: activityNameController,
+      activityTypeController: activityTypeController,
+      activityTimeController: activityTimeController,
+      activityQuantityController: activityQuantityController,
+      selectedPdf: widget.selectedPdf,
+    );
+  }
+
+  // Método para construir las opciones de modo
+  Widget _buildModeOption({
+    required IconData icon,
+    required String title,
+    required String description,
+    required bool isEnabled,
+  }) {
+    return GestureDetector(
+      onTap: isEnabled
+          ? () {
+        // Acción solo si el botón está habilitado
+        activityNameController.clear();
+        activityTypeController.text = title;
+        activityTimeController.clear();
+        activityQuantityController.clear();
+
+        switch (title) {
+          case 'Quiz':
+            _showQuizConfigDialog(context);
+            break;
+          case 'Flashcards':
+            _showFlashcardDialog(context);
+            break;
+          case 'Gaps':
+            _showGapsConfigDialog(context);
+            break;
+          case 'Linkers':
+            _showLinkersConfigDialog(context);
+            break;
+          default:
+          // Opcional: Manejar otros casos o errores
+            break;
+        }
+      }
+          : null, // No acción si está deshabilitado
+      child: Container(
+        margin: EdgeInsets.only(bottom: 16.h),
+        padding: EdgeInsets.symmetric(vertical: 16.h, horizontal: 14.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20.r),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 10.r,
+              offset: Offset(0, 5),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 36.sp,
+              color: isEnabled ? Colors.black : Colors.black.withOpacity(0.3),
+            ),
+            SizedBox(width: 16.w),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 20.sp,
+                      fontWeight: FontWeight.w600,
+                      color: isEnabled ? Colors.black : Colors.black.withOpacity(0.3),
+                    ),
+                  ),
+                  SizedBox(height: 4.h),
+                  Text(
+                    description,
+                    style: TextStyle(
+                      fontSize: 13.sp,
+                      color: isEnabled ? Colors.grey[600] : Colors.grey[600]!.withOpacity(0.3),
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

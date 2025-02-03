@@ -6,6 +6,7 @@ import '../../domain/entities/user.dart';
 import '../../ui/providers/login_provider.dart';
 import '../widgets/custom_input.dart';
 import '../../data/repositories/local_storage_service.dart';
+import '../../ui/providers/audio_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -92,7 +93,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       CustomInput(
                         controller: passwordController,
                         label: 'Contraseña',
-                        obscureText: true,
+                        obscureText: true, // Habilita el botón para mostrar/ocultar la contraseña
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return 'Por favor ingresa tu contraseña';
@@ -202,6 +203,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
       try {
         final loginProvider = Provider.of<LoginProvider>(context, listen: false);
+        final audioProvider = Provider.of<AudioProvider>(context, listen: false);
+
         User? user = await loginProvider.login(
           emailController.text,
           passwordController.text,
@@ -221,6 +224,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
           // Guardar usuario actual
           await _storageService.saveUser(user);
+          await audioProvider.loadSettings();
 
           Navigator.pushNamed(context, '/entrypoint');
         } else {

@@ -34,10 +34,16 @@ dependencies:
   http: ^1.1.0
   sqflite: ^2.0.0+3
   path: ^1.8.0
-  intl: ^0.18.0
+  intl: ^0.19.0
   image_picker: ^0.8.4+11
   firebase_core: ^2.24.2
   firebase_storage: ^11.6.0
+  file_picker: ^5.2.10
+  uuid: ^4.5.1
+  just_audio: ^0.9.42
+  syncfusion_flutter_pdf: ^27.1.50
+  dotted_border: ^2.1.0
+  skeletonizer: ^1.4.2
   flutter_localizations:
     sdk: flutter
 
@@ -49,6 +55,7 @@ dependencies:
   flutter_screenutil: ^5.9.0
   flutter_vector_icons: ^2.0.0
   font_awesome_flutter: ^10.7.0
+  flutter_launcher_icons: ^0.14.1
 
 dev_dependencies:
   flutter_test:
@@ -60,6 +67,13 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/icon.png"
+  adaptive_icon_background: "#6857FC" # or a path to a background image
+  adaptive_icon_foreground: "assets/icon/icon.png"
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -79,6 +93,9 @@ flutter:
   assets:
     - assets/images/
     - assets/fonts/
+    - assets/audio/background_music.mp3
+    - assets/audio/correct.wav
+    - assets/audio/incorrect.wav
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
 

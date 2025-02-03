@@ -1,42 +1,90 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'application/password_use_case.dart';
-import 'ui/providers/password_provider.dart';
-import 'application/support_use_case.dart';
-import 'application/edit_profile_use_case.dart';
+import 'package:flutter/services.dart';
 import 'data/api/support_api.dart';
+import 'data/api/pdf_api.dart';
+import 'data/api/user_api.dart';
+import 'data/api/history_api.dart';
+import 'data/api/activity_api.dart';
 import 'data/repositories/support_repository_impl.dart';
-import 'package:quickrecap/ui/pages/entrypoint.dart';
-import 'application/login_use_case.dart';
-import 'application/register_use_case.dart';
+import 'data/repositories/pdf_repository_impl.dart';
+import 'data/repositories/history_repository_impl.dart';
 import 'data/repositories/user_repository_impl.dart';
+import 'data/repositories/activity_repository_impl.dart';
+import 'application/login_use_case.dart';
+import 'application/save_pdf_use_case.dart';
+import 'application/delete_pdf_use_case.dart';
+import 'application/register_use_case.dart';
+import 'application/password_use_case.dart';
+import 'application/support_use_case.dart';
+import 'application/get_activities_for_user_use_case.dart';
+import 'application/create_quiz_use_case.dart';
+import 'application/create_linkers_use_case.dart';
+import 'application/create_gaps_use_case.dart';
+import 'application/create_flashcard_use_case.dart';
+import 'application/get_history_use_case.dart';
+import 'application/get_pdfs_use_case.dart';
+import 'application/rating_activity_use_case.dart';
+import 'application/edit_profile_use_case.dart';
+import 'application/add_user_points_use_case.dart';
+import 'ui/pages/entrypoint.dart';
 import 'ui/pages/login_screen.dart';
 import 'ui/pages/register_screen.dart';
 import 'ui/pages/terms_conditions_screen.dart';
 import 'ui/pages/views/profile/configuration_screen.dart';
+import 'ui/pages/views/games/games_screen.dart';
 import 'ui/pages/views/profile/support_screen.dart';
+import 'ui/pages/views/profile/music_screen.dart';
 import 'ui/pages/views/profile/password_screen.dart';
 import 'ui/pages/views/profile/information_screen.dart';
+import 'ui/pages/views/create/select_pdf_screen.dart';
 import 'ui/providers/login_provider.dart';
+import 'ui/providers/delete_pdf_provider.dart';
+import 'ui/providers/upload_pdf_provider.dart';
+import 'ui/providers/get_history_provider.dart';
 import 'ui/providers/register_provider.dart';
 import 'ui/providers/support_provider.dart';
+import 'ui/providers/quiz_provider.dart';
+import 'ui/providers/gaps_provider.dart';
+import 'ui/providers/linkers_provider.dart';
+import 'ui/providers/flashcard_provider.dart';
+import 'ui/providers/rate_activity_provider.dart';
 import 'ui/providers/edit_profile_provider.dart';
-import 'data/api/user_api.dart';
+import 'ui/providers/password_provider.dart';
+import 'ui/providers/add_user_points_provider.dart';
+import 'ui/providers/audio_provider.dart';
+import 'ui/providers/get_activities_for_user_provider.dart';
+import 'ui/providers/get_pdfs_provider.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+  ]);
   await Firebase.initializeApp();
 
   // Crear una instancia de UserApi
   final userApi = UserApi();
   final supportApi = SupportApi();
+  final pdfApi = PdfApi();
+  final activityApi = ActivityApi();
+  final historyApi = HistoryApi();
 
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(
+          create: (_) => AudioProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => GetHistoryProvider(GetHistoryUseCase(HistoryRepositoryImpl(historyApi))),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => DeletePdfsProvider(DeletePdfUseCase(PdfRepositoryImpl(pdfApi))),
+        ),
         ChangeNotifierProvider(
           create: (_) => LoginProvider(LoginUseCase(UserRepositoryImpl(userApi))),
         ),
@@ -52,11 +100,42 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => SupportProvider(SupportUseCase(SupportRepositoryImpl(supportApi))),
         ),
+        ChangeNotifierProvider(
+          create: (_) => UploadPdfProvider(SavePdfUseCase(PdfRepositoryImpl(pdfApi))),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => UploadPdfProvider(SavePdfUseCase(PdfRepositoryImpl(pdfApi))),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => GetPdfsProvider(GetPdfsUseCase(PdfRepositoryImpl(pdfApi))),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => QuizProvider(CreateQuizUseCase(ActivityRepositoryImpl(activityApi))),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => GapsProvider(CreateGapsUseCase(ActivityRepositoryImpl(activityApi))),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => RateActivityProvider(RatingActivityUseCase(ActivityRepositoryImpl(activityApi))),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => FlashcardProvider(CreateFlashcardUseCase(ActivityRepositoryImpl(activityApi))),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => LinkersProvider(CreateLinkersUseCase(ActivityRepositoryImpl(activityApi))),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => AddUserPointsProvider(AddUserPointsUseCase(UserRepositoryImpl(userApi))),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => GetActivitiesForUserProvider(GetActivitiesForUserUseCase(ActivityRepositoryImpl(activityApi))),
+        ),
       ],
-      child: const MyApp(),
+      child: const MyApp(), // Aquí usamos InitializerWidget
     ),
   );
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -94,8 +173,11 @@ class MyApp extends StatelessWidget {
             '/entrypoint': (context) => MainScreen(),
             '/configuration': (context) => ConfigurationScreen(),
             '/support': (context) => SupportScreen(),
+            '/music': (context) => MusicScreen(),
             '/password': (context) => PasswordScreen(),
             '/information': (context) => ProfileInformationScreen(),
+            '/select_pdf': (context) => SelectPdfScreen(),
+            '/games': (context) => GamesScreen(),
           },
         );
       },

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickrecap/main.dart';
+import 'package:quickrecap/ui/constants/constants.dart';
 
 class ConfigurationScreen extends StatelessWidget {
   const ConfigurationScreen({super.key});
@@ -8,13 +9,18 @@ class ConfigurationScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.arrow_back_ios, color: Color(0xFF000000)), // Color negro
           onPressed: () {
-            if (Navigator.canPop(context)) {
-              Navigator.pop(context);
-            }
+            Navigator.pushNamed(
+              context,
+              '/entrypoint',
+              arguments: {  // Aquí pasas el objeto Pdf
+                'initialIndex': 3    // Para asegurarte que la pestaña "Crear" esté seleccionada
+              },
+            );
           },
         ),
         title: Text('Configuración'),
@@ -57,6 +63,7 @@ class ConfigurationScreen extends StatelessWidget {
               icon: Icons.music_note,
               text: 'Música y Efectos',
               onTap: () {
+                Navigator.pushNamed(context, '/music');
                 // Acción al presionar
               },
             ),
@@ -80,13 +87,13 @@ class ConfigurationScreen extends StatelessWidget {
       {required IconData icon, required String text, required Function() onTap}) {
     return ListTile(
       leading: Container(
-        height: 40.w, // Ajuste del tamaño del contenedor
+        height: 40.w,
         width: 40.w,
         decoration: BoxDecoration(
-          color: Color(0xFFEBEAFC), // Color púrpura de fondo
-          borderRadius: BorderRadius.circular(12.r), // Forma circular con esquinas redondeadas
+          color: Color(0xFFEBEAFC),
+          borderRadius: BorderRadius.circular(12.r),
         ),
-        child: Icon(icon, color: Color(0xFF6D5BFF), size: 24.sp), // Ícono con color púrpura más oscuro
+        child: Icon(icon, color: Color(0xFF6D5BFF), size: 24.sp),
       ),
       title: Text(
         text,

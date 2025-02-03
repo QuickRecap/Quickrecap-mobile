@@ -6,111 +6,162 @@ import 'package:quickrecap/ui/pages/views/create/create_screen.dart';
 import 'package:quickrecap/ui/pages/views/games/games_screen.dart';
 import 'package:quickrecap/ui/pages/views/home/home_screen.dart';
 import 'package:quickrecap/ui/pages/views/profile/profile_dart.dart';
+import '../../domain/entities/pdf.dart';
+import '../../domain/entities/user.dart';
+import '../../data/repositories/local_storage_service.dart';
 
-class MainScreen extends StatelessWidget {
-  MainScreen({super.key});
+class MainScreen extends StatefulWidget {
+  const MainScreen({Key? key}) : super(key: key);
 
-  List<Widget> pageList = const [
-    HomeScreen(),
-    GamesScreen(),
-    CreateScreen(),
-    ProfileScreen(),
-  ];
+  @override
+  _MainScreenState createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  late final TabIndexController controller;
+  Pdf? selectedPdf;
+  final GlobalKey<HomeScreenState> homeKey = GlobalKey();
+  final GlobalKey<GamesScreenState> gamesKey = GlobalKey();
+  final GlobalKey<CreateScreenState> createKey = GlobalKey();
+  final GlobalKey<ProfileScreenState> profileKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    controller = Get.put(TabIndexController());
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+      if (args != null && args.containsKey('selectedPdf')) {
+        setState(() {
+          selectedPdf = args['selectedPdf'] as Pdf?;
+        });
+      }
+      final initialIndex = args?['initialIndex'] as int? ?? 0;
+      controller.tabIndex = initialIndex;
+    });
+  }
+
+  void refreshCurrentView(int index) {
+    switch (index) {
+      case 0:
+        if (homeKey.currentState != null) {
+          homeKey.currentState!.refresh();
+        }
+        break;
+      case 1:
+        if (gamesKey.currentState != null) {
+          gamesKey.currentState!.refresh();
+        }
+        break;
+      case 2:
+        if (createKey.currentState != null) {
+          createKey.currentState!.refresh();
+        }
+        break;
+      case 3:
+        if (profileKey.currentState != null) {
+          profileKey.currentState!.refresh();
+        }
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(TabIndexController());
-    return Obx(() => Scaffold(
-          body: Stack(children: [
-            pageList[controller.tabIndex],
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Theme(
-                data: Theme.of(context).copyWith(canvasColor: Colors.white),
-                child: BottomNavigationBar(
-                  // ------- UNSELECTED STYLES ------- //
-                  showUnselectedLabels: true,
-                  unselectedIconTheme:
-                      const IconThemeData(color: kDisabled, size: 45),
-                  unselectedItemColor: kDisabled,
-                  unselectedLabelStyle: const TextStyle(color: kDisabled),
+    return Obx(() {
+      final List<Widget> pageList = [
+        HomeScreen(key: homeKey),
+        GamesScreen(key: gamesKey),
+        CreateScreen(key: createKey, selectedPdf: selectedPdf),
+        ProfileScreen(key: profileKey),
+      ];
 
-                  // ------- SELECTED STYLES ------- //
-                  showSelectedLabels: true,
-                  selectedIconTheme:
-                      const IconThemeData(color: kDark, size: 45),
-                  selectedItemColor:
-                      kDark, // Color del label cuando está seleccionado
-                  selectedLabelStyle: const TextStyle(color: kDark),
+      return Scaffold(
+        body: IndexedStack(
+          index: controller.tabIndex,
+          children: pageList,
+        ),
+        bottomNavigationBar: Theme(
+          data: Theme.of(context).copyWith(canvasColor: Colors.white),
+          child: BottomNavigationBar(
+            showUnselectedLabels: true,
+            unselectedIconTheme: const IconThemeData(color: kDisabled, size: 45),
+            unselectedItemColor: kDisabled,
+            unselectedLabelStyle: const TextStyle(color: kDisabled, fontWeight: FontWeight.w500),
+            showSelectedLabels: true,
+            selectedIconTheme: const IconThemeData(color: Color(0xff212121), size: 45),
+            selectedItemColor: Color(0xff212121),
+            selectedLabelStyle: const TextStyle(color: Color(0xff212121), fontWeight: FontWeight.w600),
+            type: BottomNavigationBarType.fixed,
+            currentIndex: controller.tabIndex,
+            onTap: (value) async {
+              if (controller.tabIndex != value) {  // Only if we change tabs
+                controller.tabIndex = value;
+                refreshCurrentView(value);  // Refresh the current view
 
-                  // ------- FUNCTIONS ------- //
-                  type: BottomNavigationBarType.fixed,
-                  currentIndex: controller.tabIndex,
-                  onTap: (value) {
-                    controller.tabIndex = value;
-                  },
-
-                  // ------- ITEMS ------- //
-                  items: [
-                    const BottomNavigationBarItem(
-                      icon: Padding(
-                        padding: EdgeInsets.all(5.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.home),
-                            Text('Home', style: TextStyle(fontFamily: 'Poppins', fontSize: 15, color: Color(0xff565656))),
-                          ],
-                        ),
-                      ),
-                      label: '',
-                    ),
-                    const BottomNavigationBarItem(
-                      icon: Padding(
-                        padding: EdgeInsets.all(5.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.dashboard),
-                            Text('Minijuegos', style: TextStyle(fontFamily: 'Poppins', fontSize: 15, color: Color(0xff565656))),
-                          ],
-                        ),
-                      ),
-                      label: '',
-                    ),
-                    const BottomNavigationBarItem(
-                      icon: Padding(
-                        padding: EdgeInsets.all(5.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.add_circle_outline),
-                            Text('Crear', style: TextStyle(fontFamily: 'Poppins', fontSize: 15, color: Color(0xff565656))),
-                          ],
-                        ),
-                      ),
-                      label: '',
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Padding(
-                        padding: const EdgeInsets.all(5.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            controller.tabIndex == 3
-                                ? const Icon(Icons.person)
-                                : const Icon(Icons.person_2_outlined),
-                            const Text('Perfil', style: TextStyle(fontFamily: 'Poppins', fontSize: 15, color: Color(0xff565656))),
-                          ],
-                        ),
-                      ),
-                      label: '',
-                    ),
-                  ],
+                if (value == 2 && selectedPdf == null) {
+                  print('Navigating to CreateScreen without selected PDF');
+                }
+              }
+            },
+            items: [
+              BottomNavigationBarItem(
+                icon: Padding(
+                  padding: EdgeInsets.only(top: 5, right: 5, bottom: 0, left: 5),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.home, color: controller.tabIndex == 0 ? Color(0xff212121) : kDisabled),
+                      Text('Home', style: TextStyle(fontFamily: 'Poppins', fontSize: 12, fontWeight: controller.tabIndex == 0 ? FontWeight.w600 : FontWeight.w500, color: controller.tabIndex == 0 ? Color(0xff212121) : kDisabled)),
+                    ],
+                  ),
                 ),
+                label: '',
               ),
-            ),
-          ]),
-        ));
+              BottomNavigationBarItem(
+                icon: Padding(
+                  padding: EdgeInsets.only(top: 5, right: 5, bottom: 0, left: 5),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.dashboard, color: controller.tabIndex == 1 ? Color(0xff212121) : kDisabled),
+                      Text('Actividades', style: TextStyle(fontFamily: 'Poppins', fontSize: 12, fontWeight: controller.tabIndex == 1 ? FontWeight.w600 : FontWeight.w500, color: controller.tabIndex == 1 ? Color(0xff212121) : kDisabled)),
+                    ],
+                  ),
+                ),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Padding(
+                  padding: EdgeInsets.only(top: 5, right: 5, bottom: 0, left: 5),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.add_circle_outline, color: controller.tabIndex == 2 ? Color(0xff212121) : kDisabled),
+                      Text('Crear', style: TextStyle(fontFamily: 'Poppins', fontSize: 12, fontWeight: controller.tabIndex == 2 ? FontWeight.w600 : FontWeight.w500, color: controller.tabIndex == 2 ? Color(0xff212121) : kDisabled)),
+                    ],
+                  ),
+                ),
+                label: '',
+              ),
+              BottomNavigationBarItem(
+                icon: Padding(
+                  padding: const EdgeInsets.only(top: 5, right: 5, bottom: 0, left: 5),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.person, color: controller.tabIndex == 3 ? Color(0xff212121) : kDisabled),
+                      Text('Perfil', style: TextStyle(fontFamily: 'Poppins', fontSize: 12, fontWeight: controller.tabIndex == 3 ? FontWeight.w600 : FontWeight.w500, color: controller.tabIndex == 3 ? Color(0xff212121) : kDisabled)),
+                    ],
+                  ),
+                ),
+                label: '',
+              ),
+            ],
+          ),
+        ),
+      );
+    });
   }
 }
