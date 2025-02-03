@@ -3,11 +3,12 @@ import 'package:http/http.dart' as http;
 import '../../domain/entities/pdf.dart';
 import '../repositories/local_storage_service.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'api_constants.dart';
 
 
 class PdfApi {
+  final String baseUrl = ApiConstants.baseUrl;
   final FirebaseStorage _storage = FirebaseStorage.instance;
-  final String baseUrl = 'https://quickrecap.rj.r.appspot.com/quickrecap';
   final Map<String, String> headers = {'Content-Type': 'application/json'};
   final LocalStorageService localStorageService = LocalStorageService();
 

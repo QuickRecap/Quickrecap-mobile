@@ -11,9 +11,12 @@ import '../../domain/entities/flashcard.dart';
 import '../../domain/entities/activity.dart';
 import '../../domain/entities/results.dart';
 import '../repositories/local_storage_service.dart';
+import 'api_constants.dart';
+
 
 class ActivityApi {
-  final String baseUrl = 'https://quickrecap.rj.r.appspot.com/quickrecap';
+  final String baseUrl = ApiConstants.baseUrl;
+
   final Map<String, String> headers = {
     'Content-Type': 'application/json; charset=UTF-8',
   };

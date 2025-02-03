@@ -1,9 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:quickrecap/domain/entities/home.dart';
+import 'api_constants.dart';
 
 class HomeApi {
-  final String baseUrl = 'https://quickrecap.rj.r.appspot.com/quickrecap';
+  final String baseUrl = ApiConstants.baseUrl;
 
   Future<HomeStats> getHomeStats() async {
     try {

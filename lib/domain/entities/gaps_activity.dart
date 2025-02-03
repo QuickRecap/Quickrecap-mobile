@@ -1,23 +1,19 @@
 import 'gaps.dart';
 import 'flashcard.dart';
+import 'base_activity.dart';
 
-class GapsActivity {
+class GapsActivity extends BaseActivity {
   List<Flashcard>? flashcards;
   List<Gaps>? gaps;
-  int id;
-  String name;
-  int quantity;
-  int timer;
-  bool isRated;
 
   GapsActivity({
-    required this.id,
     required this.flashcards,
     required this.gaps,
-    required this.name,
-    required this.quantity,
-    required this.timer,
-    required this.isRated
+    required super.name,
+    required super.id,
+    required super.quantity,
+    required super.timer,
+    required super.isRated
 
   });
 }

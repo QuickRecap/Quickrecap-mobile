@@ -1,20 +1,16 @@
 import 'flashcard.dart';
+import 'base_activity.dart';
 
-class FlashcardActivity {
+class FlashcardActivity extends BaseActivity{
   List<Flashcard>? flashcards;
-  String name;
-  int quantity;
-  int timer;
-  int id;
-  bool isRated;
 
   FlashcardActivity({
     required this.flashcards,
-    required this.name,
-    required this.id,
-    required this.quantity,
-    required this.timer,
-    required this.isRated
+    required super.name,
+    required super.id,
+    required super.quantity,
+    required super.timer,
+    required super.isRated
 
   });
 }
