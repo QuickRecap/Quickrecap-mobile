@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../../../providers/rate_activity_provider.dart';
 import 'package:provider/provider.dart';
@@ -169,11 +170,12 @@ class _RatingDialogState extends State<RatingDialog> {
                         final rateActivityProvider = Provider.of<RateActivityProvider>(context, listen: false);
 
                         try {
+                          // Implementamos un timeout de 30 segundos
                           bool success = await rateActivityProvider.rateActivity(
                             widget.activityId,
                             _rating,
                             _commentController.text,
-                          );
+                          ).timeout(const Duration(seconds: 30));
 
                           if (success) {
                             Navigator.of(context).pop(); // Cierra el diálogo si la respuesta es exitosa
@@ -182,6 +184,10 @@ class _RatingDialogState extends State<RatingDialog> {
                             Navigator.of(context).pop();
                             _showErrorSnackBar('No se pudo calificar la actividad.');
                           }
+                        } on TimeoutException {
+                          // Manejo específico para timeout
+                          Navigator.of(context).pop();
+                          _showErrorSnackBar('La operación está tardando demasiado. Por favor, verifica tu conexión e inténtalo de nuevo.');
                         } catch (e) {
                           Navigator.of(context).pop();
                           _showErrorSnackBar('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');
@@ -195,7 +201,16 @@ class _RatingDialogState extends State<RatingDialog> {
                         }
                       }
                     },
-                    child: Text(
+                    child: _isLoading
+                        ? SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                        : Text(
                       'Enviar',
                       style: TextStyle(
                         fontSize: 20,
@@ -213,5 +228,4 @@ class _RatingDialogState extends State<RatingDialog> {
       ),
     );
   }
-
 }

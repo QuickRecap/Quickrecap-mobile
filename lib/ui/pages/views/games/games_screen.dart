@@ -1166,7 +1166,7 @@ class GamesScreenState extends State<GamesScreen> {
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           SnackBar(
                                             content: Text('No pudimos agregar esta actividad a tus favoritos'),
-                                            backgroundColor: Color(0xffFFCFD0),
+                                            backgroundColor: Colors.red,
                                             behavior: SnackBarBehavior.floating,
                                           ),
                                         );
@@ -1175,7 +1175,7 @@ class GamesScreenState extends State<GamesScreen> {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
                                           content: Text('Error de conexión: $e'),
-                                          backgroundColor: Color(0xffFFCFD0),
+                                          backgroundColor: Colors.red,
                                           behavior: SnackBarBehavior.floating,
                                         ),
                                       );

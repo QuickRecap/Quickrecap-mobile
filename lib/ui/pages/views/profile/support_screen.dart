@@ -104,7 +104,7 @@ class _SupportScreenState extends State<SupportScreen> {
         bool success = await supportProvider.reportError(
           nameController.text,
           descriptionController.text,
-        ).timeout(Duration(seconds: 10));
+        ).timeout(Duration(seconds: 30)); // Timeout de 10 segundos
 
         if (success) {
           Navigator.of(context).pop(); // Cierra el diálogo si la respuesta es exitosa
@@ -151,7 +151,7 @@ class _SupportScreenState extends State<SupportScreen> {
   }
 
   void _showReportDialog(BuildContext context) {
-    bool _isLoading = false; // Mueve el estado aquí
+    bool _isLoading = false; // Estado local para el modal
 
     showModalBottomSheet(
       context: context,
@@ -223,7 +223,7 @@ class _SupportScreenState extends State<SupportScreen> {
                       child: ElevatedButton(
                         onPressed: _isLoading
                             ? null
-                            : () async {  // Cambia a async para poder usar await
+                            : () async {
                           if (_formKey.currentState!.validate()) {
                             setState(() {
                               _isLoading = true;  // Activa el loading
@@ -232,10 +232,11 @@ class _SupportScreenState extends State<SupportScreen> {
                             final supportProvider = Provider.of<SupportProvider>(context, listen: false);
 
                             try {
+                              // Implementamos un timeout de 10 segundos
                               bool success = await supportProvider.reportError(
                                 nameController.text,
                                 descriptionController.text,
-                              );
+                              ).timeout(const Duration(seconds: 10));
 
                               if (success) {
                                 Navigator.of(context).pop(); // Cierra el diálogo si la respuesta es exitosa
@@ -244,6 +245,10 @@ class _SupportScreenState extends State<SupportScreen> {
                                 Navigator.of(context).pop();
                                 _showErrorSnackBar('No se pudo reportar el error.');
                               }
+                            } on TimeoutException {
+                              // Manejo específico para timeout
+                              Navigator.of(context).pop();
+                              _showErrorSnackBar('La operación está tardando demasiado. Por favor, verifica tu conexión e inténtalo de nuevo.');
                             } catch (e) {
                               Navigator.of(context).pop();
                               _showErrorSnackBar('Ocurrió un error inesperado. Por favor, inténtalo de nuevo.');
@@ -331,8 +336,6 @@ class _SupportScreenState extends State<SupportScreen> {
       validator: validator, // Validador añadido
     );
   }
-
-
 }
 
 class _CustomExpansionTile extends StatefulWidget {
