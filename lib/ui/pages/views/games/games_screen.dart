@@ -13,6 +13,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:provider/provider.dart';
 import '../activities/activity_service.dart';
+import '../../../../data/api/api_constants.dart';
 
 class GamesScreen extends StatefulWidget {
   const GamesScreen({super.key});
@@ -23,6 +24,7 @@ class GamesScreen extends StatefulWidget {
 
 class GamesScreenState extends State<GamesScreen> {
   //String? userId;
+  String baseUrl = ApiConstants.baseUrl;
   bool isCreatedTabLoading = false;
   bool isFavoriteTabLoading = false;
   bool isHistoryTabLoading = false;
@@ -161,7 +163,7 @@ class GamesScreenState extends State<GamesScreen> {
       print('Iniciando solicitud de actualización de privacidad para la actividad con ID: ${activity.id}');
 
       final response = await http.put(
-        Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/activity/update/${activity.id}'),
+        Uri.parse('$baseUrl/activity/update/${activity.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -204,7 +206,7 @@ class GamesScreenState extends State<GamesScreen> {
     });
     try {
       final response = await http.delete(
-        Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/activity/delete/${activity.id}'),
+        Uri.parse('$baseUrl/activity/delete/${activity.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
@@ -793,7 +795,7 @@ class GamesScreenState extends State<GamesScreen> {
 
                         int userId = await localStorageService.getCurrentUserId();
                         final response = await http.post(
-                          Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/favorite/update/${activity.id}'),
+                          Uri.parse('$baseUrl/favorite/update/${activity.id}'),
                           headers: <String, String>{
                             'Content-Type': 'application/json; charset=UTF-8',
                           },
@@ -1073,7 +1075,7 @@ class GamesScreenState extends State<GamesScreen> {
                                     try {
                                       int userId = await localStorageService.getCurrentUserId();
                                       final response = await http.post(
-                                        Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/favorite/update/${activity.id}'),
+                                        Uri.parse('$baseUrl/favorite/update/${activity.id}'),
                                         headers: <String, String>{
                                           'Content-Type': 'application/json; charset=UTF-8',
                                         },

@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import '../../../providers/delete_pdf_provider.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../../../../data/api/api_constants.dart';
 import 'package:flutter/material.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -19,6 +20,7 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class ProfileScreenState extends State<ProfileScreen> {
+  String baseUrl = ApiConstants.baseUrl;
   final LocalStorageService localStorageService = LocalStorageService();
   List<Map<String, String>> pdfList = [];
   bool isLoading = false;
@@ -74,7 +76,7 @@ class ProfileScreenState extends State<ProfileScreen> {
   Future<void> _fetchEstadisticas(int userId) async {
     try {
       final response = await http.get(
-        Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/user/estadistics/$userId'),
+        Uri.parse('$baseUrl/user/estadistics/$userId'),
       );
 
       if (!_mounted) return;  // Check if still mounted

@@ -16,6 +16,7 @@ import 'package:http/http.dart' as http;
 import '../activities/activity_service.dart';
 import 'widgets/options_bottom_sheet.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import '../../../../data/api/api_constants.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,6 +26,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class HomeScreenState extends State<HomeScreen> {
+  String baseUrl = ApiConstants.baseUrl;
   final HomeApi _homeService = HomeApi();
   HomeStats? _stats;
   List<Activity> activities = [];
@@ -81,7 +83,7 @@ class HomeScreenState extends State<HomeScreen> {
 
     try {
       final response = await http.get(
-        Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/activity/research'),
+        Uri.parse('$baseUrl/activity/research'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -442,7 +444,7 @@ class HomeScreenState extends State<HomeScreen> {
                             _buildNewStatItem(
                               icon: Icons.person,
                               value: _stats?.totalUsuarios.toString() ?? "0",
-                              title: "Usuarios\nActivos",
+                              title: "Usuarios\nRegistrados",
                             ),
                           ],
                         ),

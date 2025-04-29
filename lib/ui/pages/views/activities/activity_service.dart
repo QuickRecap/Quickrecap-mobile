@@ -15,8 +15,10 @@ import 'gaps/play_gaps_activity.dart';
 import 'linkers/play_linkers_activity.dart';
 import 'flashcards/play_flashcards.dart';
 import '../home/widgets/loading_activity_dialog.dart';
+import '../../../../data/api/api_constants.dart';
 
 Future<void> playActivity(BuildContext context, int activityId) async {
+  String baseUrl = ApiConstants.baseUrl;
   dynamic activityData;
 
   // Mostrar el diálogo de carga
@@ -24,7 +26,7 @@ Future<void> playActivity(BuildContext context, int activityId) async {
 
   try {
     final response = await http.get(
-      Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/activity/research?id=$activityId'),
+      Uri.parse('$baseUrl/activity/research?id=$activityId'),
       headers: {
         'Content-Type': 'application/json',
       },

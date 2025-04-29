@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import '../../../../data/repositories/local_storage_service.dart';
 import '../activities/activity_service.dart';
 import 'widgets/options_bottom_sheet.dart';
+import '../../../../data/api/api_constants.dart';
 
 class CategoryScreen extends StatefulWidget {
   final String title;
@@ -23,6 +24,7 @@ class CategoryScreen extends StatefulWidget {
 }
 
 class _CategoryScreenState extends State<CategoryScreen> {
+  String baseUrl = ApiConstants.baseUrl;
   String searchQuery = '';
   List<Activity> activities = [];
   bool isLoading = false;
@@ -42,7 +44,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
     int userId = await localStorageService.getCurrentUserId();
     try {
-      final url = 'https://quickrecap.rj.r.appspot.com/quickrecap/activity/research?user_id=$userId&tipo=${widget.activityType}';
+      final url = '$baseUrl/activity/research?user_id=$userId&tipo=${widget.activityType}';
       final response = await http.get(
         Uri.parse(url),
         headers: {
@@ -51,11 +53,12 @@ class _CategoryScreenState extends State<CategoryScreen> {
       );
 
       if (response.statusCode == 200) {
+        print("Actividades listas");
         final List<dynamic> jsonData = json.decode(response.body);
         setState(() {
           activities = jsonData.map((data) => Activity.fromJson(data)).toList();
         });
-      } else {
+        } else {
         print('Error: ${response.statusCode}');
       }
     } catch (e) {

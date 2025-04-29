@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:quickrecap/ui/constants/constants.dart';
 import '../../../../../domain/entities/activity.dart';
 import '../../../../../data/repositories/local_storage_service.dart';
+import '../../../../../data/api/api_constants.dart';
 
 class OptionsBottomSheet extends StatefulWidget {
   final Activity activity;
@@ -34,6 +35,7 @@ class OptionsBottomSheet extends StatefulWidget {
 }
 
 class _OptionsBottomSheetState extends State<OptionsBottomSheet> {
+  String baseUrl = ApiConstants.baseUrl;
   bool isLoading = false;
   late bool isFavorite;
   final LocalStorageService localStorageService = LocalStorageService();
@@ -52,7 +54,7 @@ class _OptionsBottomSheetState extends State<OptionsBottomSheet> {
     try {
       int userId = await localStorageService.getCurrentUserId();
       final response = await http.post(
-        Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/favorite/update/${widget.activity.id}'),
+        Uri.parse('$baseUrl/favorite/update/${widget.activity.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },

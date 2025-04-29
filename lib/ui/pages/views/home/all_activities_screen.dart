@@ -7,6 +7,7 @@ import 'package:quickrecap/domain/entities/activity.dart';
 import 'package:http/http.dart' as http;
 import '../../../../data/repositories/local_storage_service.dart';
 import '../activities/activity_service.dart';
+import '../../../../data/api/api_constants.dart';
 import 'widgets/loading_activity_dialog.dart';
 
 class AllActivitiesScreen extends StatefulWidget {
@@ -17,6 +18,7 @@ class AllActivitiesScreen extends StatefulWidget {
 }
 
 class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
+  String baseUrl = ApiConstants.baseUrl;
   String _currentValue = 'Todos';
   String searchQuery = '';
   List<Activity> activities = [];
@@ -39,7 +41,7 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
     int userId = await localStorageService.getCurrentUserId();
     try {
       final response = await http.get(
-        Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/activity/research?user_id=$userId'),
+        Uri.parse('$baseUrl/activity/research?user_id=$userId'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -426,7 +428,7 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
                                     try {
                                       int userId = await localStorageService.getCurrentUserId();
                                       final response = await http.post(
-                                        Uri.parse('https://quickrecap.rj.r.appspot.com/quickrecap/favorite/update/${activity.id}'),
+                                        Uri.parse('$baseUrl/favorite/update/${activity.id}'),
                                         headers: <String, String>{
                                           'Content-Type': 'application/json; charset=UTF-8',
                                         },
