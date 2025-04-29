@@ -557,14 +557,86 @@ class ProfileScreenState extends State<ProfileScreen> {
                       IconButton(
                         icon: Icon(
                           Icons.logout,
-                          color: Colors.white,
+                          color: kWhite,
                           size: 30.sp,
                         ),
                         onPressed: () {
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, '/login', (route) => false);
+                          showModalBottomSheet(
+                            context: context,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+                            ),
+                            builder: (BuildContext context) {
+                              return Container(
+                                padding: EdgeInsets.all(24.w),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      'Cerrar sesión',
+                                      style: TextStyle(
+                                        fontSize: 17.sp,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    SizedBox(height: 16.h),
+                                    Text(
+                                      '¿Estás seguro que quieres cerrar sesión?',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 14.sp,
+                                        color: Color(0xff9A9A9A),
+                                        fontFamily: "Poppins",
+                                      ),
+                                    ),
+                                    SizedBox(height: 24.h),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.pushNamedAndRemoveUntil(
+                                            context, '/login', (route) => false);
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Color(0xFFFF3B30),
+                                        minimumSize: Size(double.infinity, 45.h),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(15.r),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Cerrar sesión',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontFamily: 'Poppins',
+                                          fontSize: 16.sp,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 12.h),
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context);
+                                      },
+                                      style: TextButton.styleFrom(
+                                        minimumSize: Size(double.infinity, 48.h),
+                                      ),
+                                      child: Text(
+                                        'Cancelar',
+                                        style: TextStyle(
+                                          fontSize: 14.sp,
+                                          color: Color(0xff9A9A9A),
+                                          fontFamily: "Poppins",
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
+                          );
                         },
-                      ),
+                      )
                     ],
                   ),
                 ),
@@ -653,16 +725,15 @@ class ProfileScreenState extends State<ProfileScreen> {
               ),
             ],
           ),
-          SizedBox(height: 10.h),
+          SizedBox(height: 8.h),
           Divider(
             color: Color(0xffD9D9D9),
             thickness: 1.0,
           ),
-          SizedBox(height: 16.h),
+          SizedBox(height: 5.h),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildStatColumn('$puntos', 'puntos\n'),
+              Expanded(child: _buildStatColumn('$puntos', 'puntos\n')),
               Container(
                 height: 78.0,
                 child: VerticalDivider(
@@ -671,7 +742,7 @@ class ProfileScreenState extends State<ProfileScreen> {
                   width: 1,
                 ),
               ),
-              _buildStatColumn('$completadas', 'actividades\ncompletadas'),
+              Expanded(child: _buildStatColumn('$completadas', 'actividades\ncompletadas')),
               Container(
                 height: 78.0,
                 child: VerticalDivider(
@@ -680,9 +751,9 @@ class ProfileScreenState extends State<ProfileScreen> {
                   width: 1,
                 ),
               ),
-              _buildStatColumn('$generadas', 'actividades\ngeneradas'),
+              Expanded(child: _buildStatColumn('$generadas', 'actividades\ngeneradas')),
             ],
-          ),
+          )
         ],
       ),
     );
@@ -696,17 +767,17 @@ class ProfileScreenState extends State<ProfileScreen> {
         Text(
           value,
           style: TextStyle(
-            fontSize: 24.0,
+            fontSize: 21.0,
             fontWeight: FontWeight.w500,
             color: Color(0xFF212121),
           ),
         ),
-        SizedBox(height: 8.0),
+        SizedBox(height: 3.0),
         Text(
           label,
           textAlign: TextAlign.center,
           style: TextStyle(
-            fontSize: 16.0,
+            fontSize: 14.0,
             fontWeight: FontWeight.w400,
             color: Color(0xFF5B5B5B),
           ),

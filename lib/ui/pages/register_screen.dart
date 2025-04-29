@@ -341,6 +341,7 @@ class _RegisterScreen extends State<RegisterScreen> {
         ).timeout(Duration(seconds: 15)); // Añadimos un timeout de 15 segundos
 
         if (success) {
+          _showSuccessSnackBar("Registro exitoso!.");
           Navigator.pushNamed(context, '/login');
         } else {
           _showErrorSnackBar("Registro fallido. Por favor verifica tus datos.");
@@ -353,6 +354,15 @@ class _RegisterScreen extends State<RegisterScreen> {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+      ),
+    );
   }
 
   void _showErrorSnackBar(String message) {

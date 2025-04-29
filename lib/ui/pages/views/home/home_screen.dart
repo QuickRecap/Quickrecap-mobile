@@ -383,15 +383,87 @@ class HomeScreenState extends State<HomeScreen> {
               ),
               ],
             ),
-            IconButton(
+                        IconButton(
                           icon: Icon(
                             Icons.logout,
                             color: kWhite,
                             size: 30.sp,
                           ),
                           onPressed: () {
-                            Navigator.pushNamedAndRemoveUntil(
-                                context, '/login', (route) => false);
+                            showModalBottomSheet(
+                              context: context,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+                              ),
+                              builder: (BuildContext context) {
+                                return Container(
+                                  padding: EdgeInsets.all(24.w),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        'Cerrar sesión',
+                                        style: TextStyle(
+                                          fontSize: 17.sp,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      SizedBox(height: 16.h),
+                                      Text(
+                                        '¿Estás seguro que quieres cerrar sesión?',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 14.sp,
+                                          color: Color(0xff9A9A9A),
+                                          fontFamily: "Poppins",
+                                        ),
+                                      ),
+                                      SizedBox(height: 24.h),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pushNamedAndRemoveUntil(
+                                              context, '/login', (route) => false);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Color(0xFFFF3B30),
+                                          minimumSize: Size(double.infinity, 45.h),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(15.r),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'Cerrar sesión',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontFamily: 'Poppins',
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 12.h),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        style: TextButton.styleFrom(
+                                          minimumSize: Size(double.infinity, 48.h),
+                                        ),
+                                        child: Text(
+                                          'Cancelar',
+                                          style: TextStyle(
+                                            fontSize: 14.sp,
+                                            color: Color(0xff9A9A9A),
+                                            fontFamily: "Poppins",
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                            );
                           },
                         )
                       ],
@@ -434,12 +506,12 @@ class HomeScreenState extends State<HomeScreen> {
                             _buildNewStatItem(
                               icon: Icons.sports_esports,
                               value: _stats?.totalActividades.toString() ?? "0",
-                              title: "Actividades\nCreadas",
+                              title: "Actividades\nExistentes",
                             ),
                             _buildNewStatItem(
                               icon: Icons.description,
                               value: _stats?.totalArchivos.toString() ?? "0",
-                              title: "Archivos\nPDF",
+                              title: "Archivos\nSubidos",
                             ),
                             _buildNewStatItem(
                               icon: Icons.person,
