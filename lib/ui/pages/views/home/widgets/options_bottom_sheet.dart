@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:quickrecap/ui/constants/constants.dart';
@@ -39,6 +40,7 @@ class _OptionsBottomSheetState extends State<OptionsBottomSheet> {
   bool isLoading = false;
   late bool isFavorite;
   final LocalStorageService localStorageService = LocalStorageService();
+  Timer? timeoutTimer;
 
   @override
   void initState() {
@@ -46,9 +48,37 @@ class _OptionsBottomSheetState extends State<OptionsBottomSheet> {
     isFavorite = widget.activity.favorite;
   }
 
+  @override
+  void dispose() {
+    timeoutTimer?.cancel();
+    super.dispose();
+  }
+
   Future<void> _updateFavoriteStatus() async {
+    // Mostrar el indicador de carga
     setState(() {
       isLoading = true;
+    });
+
+    // Crear un temporizador de 30 segundos
+    bool requestCompleted = false;
+
+    // Iniciar el temporizador
+    timeoutTimer = Timer(Duration(seconds: 30), () {
+      if (!requestCompleted && mounted) {
+        // Si no se completó la solicitud en 30 segundos:
+        // 1. Cerrar el diálogo
+        Navigator.of(context).pop();
+
+        // 2. Mostrar el mensaje de error
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('No pudimos conectar con el servidor. Inténtalo más tarde.'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     });
 
     try {
@@ -64,24 +94,45 @@ class _OptionsBottomSheetState extends State<OptionsBottomSheet> {
         }),
       );
 
+      // Marcar la solicitud como completada
+      requestCompleted = true;
+
+      // Cancelar el temporizador si se completó la solicitud
+      timeoutTimer?.cancel();
+
       if (response.statusCode == 200) {
-        setState(() {
-          isFavorite = !isFavorite;
+        if (mounted) {
+          setState(() {
+            isFavorite = !isFavorite;
+            isLoading = false;
+          });
           widget.onFavoriteUpdated(widget.activity.id);
-        });
+        }
       } else {
         if (mounted) {
+          setState(() {
+            isLoading = false;
+          });
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('No pudimos agregar esta actividad a tus favoritos'),
-              backgroundColor: Color(0xffFFCFD0),
+            const SnackBar(
+              content: Text('No pudimos actualizar esta actividad en tus favoritos'),
+              backgroundColor: Colors.red,
               behavior: SnackBarBehavior.floating,
             ),
           );
         }
       }
     } catch (e) {
+      // Marcar la solicitud como completada (aunque sea con error)
+      requestCompleted = true;
+
+      // Cancelar el temporizador
+      timeoutTimer?.cancel();
+
       if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error de conexión: $e'),
@@ -90,10 +141,6 @@ class _OptionsBottomSheetState extends State<OptionsBottomSheet> {
           ),
         );
       }
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
     }
   }
 
@@ -145,7 +192,7 @@ class _OptionsBottomSheetState extends State<OptionsBottomSheet> {
                       Expanded(
                         flex: 40,
                         child: GestureDetector(
-                          onTap: _updateFavoriteStatus,
+                          onTap: isLoading ? null : _updateFavoriteStatus,
                           child: Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(

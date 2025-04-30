@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -9,7 +10,6 @@ import '../../../../domain/entities/gaps.dart';
 import '../../../../domain/entities/gaps_activity.dart';
 import '../../../../domain/entities/linkers.dart';
 import '../../../../domain/entities/linkers_activity.dart';
-import '../../../../domain/entities/quiz_activity.dart';
 import 'quiz/play_quiz_activity.dart';
 import 'gaps/play_gaps_activity.dart';
 import 'linkers/play_linkers_activity.dart';
@@ -30,7 +30,7 @@ Future<void> playActivity(BuildContext context, int activityId) async {
       headers: {
         'Content-Type': 'application/json',
       },
-    );
+    ).timeout(const Duration(seconds: 30)); // ⏱ Timeout;
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       final data = json.decode(utf8.decode(response.bodyBytes));
@@ -183,6 +183,14 @@ Future<void> playActivity(BuildContext context, int activityId) async {
       Navigator.pop(context);
       print('Error: ${response.statusCode}');
     }
+  }on TimeoutException {
+    Navigator.pop(context);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+          content: Text("Tiempo de espera agotado. Intenta nuevamente."),
+          backgroundColor: Colors.red,
+      ),
+    );
   } catch (e) {
     // Cerrar el diálogo si hay una excepción
     Navigator.pop(context);

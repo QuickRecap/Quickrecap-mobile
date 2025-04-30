@@ -81,9 +81,11 @@ class HomeScreenState extends State<HomeScreen> {
       isLoading = true;
     });
 
+    int userId = await localStorageService.getCurrentUserId();
+
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl/activity/research'),
+        Uri.parse('$baseUrl/activity/research?user_id=$userId'),
         headers: {
           'Content-Type': 'application/json',
         },

@@ -202,13 +202,21 @@ class GamesScreenState extends State<GamesScreen> {
   Future<void> _deleteActivity(BuildContext context, Activity activity) async {
     print('Iniciando eliminación de actividad: ${activity.id}');
     setState(() {
-      isActivityDeleteLoading = true; // Activar el indicador de carga
+      isActivityDeleteLoading = true;
     });
+
     try {
-      final response = await http.delete(
+      final response = await http
+          .delete(
         Uri.parse('$baseUrl/activity/delete/${activity.id}'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
+        },
+      )
+          .timeout(
+        const Duration(seconds: 30),
+        onTimeout: () {
+          throw TimeoutException("La solicitud de eliminación tardó demasiado");
         },
       );
 
@@ -220,13 +228,18 @@ class GamesScreenState extends State<GamesScreen> {
         print("Error al eliminar la actividad: ${response.statusCode}");
         _showErrorSnackBar('Error al eliminar la actividad. Inténtalo de nuevo.');
       }
+    } on TimeoutException {
+      Navigator.of(context).pop(); // Cerrar el diálogo si se produce timeout
+      _showErrorSnackBar('La solicitud tardó demasiado. Inténtalo nuevamente.');
     } catch (e) {
       print("Error de conexión: $e");
       _showErrorSnackBar('Error de conexión: $e');
     } finally {
-      setState(() {
-        isActivityDeleteLoading = false; // Desactivar el indicador de carga
-      });
+      if (mounted) {
+        setState(() {
+          isActivityDeleteLoading = false;
+        });
+      }
     }
   }
 
@@ -859,14 +872,18 @@ class GamesScreenState extends State<GamesScreen> {
                   ),
                   SizedBox(width: 10),
                   GestureDetector(
-                    onTap: isProcessing ? null : () async {
+                    onTap: isProcessing
+                        ? null
+                        : () async {
                       try {
                         setState(() {
                           processingFavoriteId = activity.id;
                         });
 
                         int userId = await localStorageService.getCurrentUserId();
-                        final response = await http.post(
+
+                        final response = await http
+                            .post(
                           Uri.parse('$baseUrl/favorite/update/${activity.id}'),
                           headers: <String, String>{
                             'Content-Type': 'application/json; charset=UTF-8',
@@ -875,35 +892,50 @@ class GamesScreenState extends State<GamesScreen> {
                             'favorito': !isFavorite,
                             'user': userId,
                           }),
+                        )
+                            .timeout(
+                          const Duration(seconds: 30),
+                          onTimeout: () {
+                            throw TimeoutException("La solicitud tardó demasiado");
+                          },
                         );
 
                         if (response.statusCode == 200) {
                           setState(() {
-                            // Eliminar la actividad con el id `processingFavoriteId` de favoriteActivities
-                            favoriteActivities.removeWhere((activity) => activity.id == processingFavoriteId);
+                            favoriteActivities
+                                .removeWhere((activity) => activity.id == processingFavoriteId);
 
-                            // Intentar encontrar la actividad en createdActivities
-                            final activityIndex = createdActivities.indexWhere((activity) => activity.id == processingFavoriteId);
+                            final activityIndex = createdActivities
+                                .indexWhere((activity) => activity.id == processingFavoriteId);
 
-                            // Si se encontró la actividad, cambiar su estado favorite a false
-                            if (activityIndex != -1) { // Verifica que se encontró
+                            if (activityIndex != -1) {
                               createdActivities[activityIndex].favorite = false;
                             }
                           });
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('No pudimos agregar esta actividad a tus favoritos'),
-                              backgroundColor: Color(0xffFFCFD0),
+                              content: Text(
+                                  'No pudimos agregar esta actividad a tus favoritos'),
+                              backgroundColor: Colors.red,
                               behavior: SnackBarBehavior.floating,
                             ),
                           );
                         }
+                      } on TimeoutException {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('La solicitud tardó demasiado. Inténtalo nuevamente.'),
+                            backgroundColor: Colors.red,
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
                       } catch (e) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('Error de conexión: $e'),
-                            backgroundColor: Color(0xffFFCFD0),
+                            content: Text(
+                                'No pudimos conectar con el servidor. Inténtalo más tarde.'),
+                            backgroundColor: Colors.red,
                             behavior: SnackBarBehavior.floating,
                           ),
                         );
@@ -917,14 +949,13 @@ class GamesScreenState extends State<GamesScreen> {
                     },
                     child: isProcessing
                         ? SizedBox(
-                          width: 30,
-                          height: 30,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                                isFavorite ? Color(0xffc0c0c0) : Color(0xffc0c0c0)
-                            ),
-                          ),
+                      width: 30,
+                      height: 30,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            isFavorite ? Color(0xffc0c0c0) : Color(0xffc0c0c0)),
+                      ),
                     )
                         : Icon(
                       Icons.bookmark,
@@ -932,6 +963,7 @@ class GamesScreenState extends State<GamesScreen> {
                       size: 30,
                     ),
                   ),
+
                 ],
               ),
             ),
@@ -1080,12 +1112,12 @@ class GamesScreenState extends State<GamesScreen> {
 
   void _showOptionsBottomSheet(BuildContext context, Activity activity) {
     bool isFavorite = activity.favorite;
-    isDialogLoading=false;
+    isDialogLoading = false;
     setState(() {
-      isFavoriteLoading=false;
+      isFavoriteLoading = false;
     });
 
-        showModalBottomSheet(
+    showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
@@ -1137,11 +1169,34 @@ class GamesScreenState extends State<GamesScreen> {
                             children: [
                               // Primer item (Favoritos)
                               Expanded(
-                                flex: 40, // Ocupa el 45% del ancho
+                                flex: 40,
                                 child: GestureDetector(
                                   onTap: () async {
                                     setState(() {
                                       isFavoriteLoading = true;
+                                    });
+
+                                    // Crear una variable para controlar si la solicitud se completó
+                                    bool requestCompleted = false;
+
+                                    // Iniciar un timer de 30 segundos
+                                    Timer timeoutTimer = Timer(Duration(seconds: 5), () {
+                                      if (!requestCompleted) {
+                                        // Cerrar el diálogo si todavía está abierto
+                                        Navigator.of(context).pop();
+
+                                        // Mostrar mensaje de error
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(
+                                            content: Text('No pudimos conectar con el servidor. Inténtalo más tarde.'),
+                                            backgroundColor: Colors.red,
+                                            behavior: SnackBarBehavior.floating,
+                                          ),
+                                        );
+
+                                        // Actualizar el estado
+                                        isFavoriteLoading = false;
+                                      }
                                     });
 
                                     try {
@@ -1156,6 +1211,10 @@ class GamesScreenState extends State<GamesScreen> {
                                           'user': userId,
                                         }),
                                       );
+
+                                      // Marcar que la solicitud se completó
+                                      requestCompleted = true;
+                                      timeoutTimer.cancel();
 
                                       if (response.statusCode == 200) {
                                         setState(() {
@@ -1172,17 +1231,23 @@ class GamesScreenState extends State<GamesScreen> {
                                         );
                                       }
                                     } catch (e) {
+                                      // Marcar que la solicitud se completó (aunque con error)
+                                      requestCompleted = true;
+                                      timeoutTimer.cancel();
+
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         SnackBar(
                                           content: Text('Error de conexión: $e'),
-                                          backgroundColor: Colors.red,
+                                          backgroundColor: Color(0xffFFCFD0),
                                           behavior: SnackBarBehavior.floating,
                                         ),
                                       );
                                     } finally {
-                                      setState(() {
-                                        isFavoriteLoading = false;
-                                      });
+                                      if (requestCompleted) {
+                                        setState(() {
+                                          isFavoriteLoading = false;
+                                        });
+                                      }
                                     }
                                   },
                                   child: Container(
@@ -1197,17 +1262,17 @@ class GamesScreenState extends State<GamesScreen> {
                                       children: [
                                         isFavoriteLoading
                                             ? SizedBox(
-                                              width: 25,
-                                              height: 25,
-                                              child: CircularProgressIndicator(
-                                                color: Color(0xFFB3B3B3),
-                                                strokeWidth: 2,
-                                              ),
+                                          width: 25,
+                                          height: 25,
+                                          child: CircularProgressIndicator(
+                                            color: Color(0xFFB3B3B3),
+                                            strokeWidth: 2,
+                                          ),
                                         )
                                             : Icon(
                                           Icons.bookmark,
                                           color: isFavorite ? Color(0xffffd100) : Color(0xff4d4a4b),
-                                          size: 30, // Aumentar el tamaño del icono
+                                          size: 30,
                                         ),
                                         SizedBox(width: 10),
                                         Text(
@@ -1216,8 +1281,8 @@ class GamesScreenState extends State<GamesScreen> {
                                           style: TextStyle(
                                             color: Color(0XFF212121),
                                             fontFamily: 'Poppins',
-                                            fontWeight: FontWeight.w600, // Aumentar el grosor del texto
-                                            fontSize: 14, // Aumentar el tamaño del texto
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
                                           ),
                                         ),
                                       ],
@@ -1225,7 +1290,7 @@ class GamesScreenState extends State<GamesScreen> {
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 20), // Espacio entre los elementos
+                              SizedBox(width: 20),
                               // Segundo item (Ajustes de privacidad)
                               Expanded(
                                 flex: 40,
@@ -1251,7 +1316,7 @@ class GamesScreenState extends State<GamesScreen> {
                                                   Stack(
                                                     children: [
                                                       Align(
-                                                        alignment: Alignment.centerLeft, // Alinear el icono a la izquierda
+                                                        alignment: Alignment.centerLeft,
                                                         child: IconButton(
                                                           icon: Icon(Icons.close),
                                                           onPressed: () => Navigator.pop(context),
@@ -1259,7 +1324,7 @@ class GamesScreenState extends State<GamesScreen> {
                                                       ),
                                                       Center(
                                                         child: Padding(
-                                                          padding: const EdgeInsets.only(top: 10), // Ajusta este valor según necesites
+                                                          padding: const EdgeInsets.only(top: 10),
                                                           child: Text(
                                                             'Ajustes de privacidad',
                                                             style: TextStyle(
@@ -1294,8 +1359,7 @@ class GamesScreenState extends State<GamesScreen> {
                                                           height: 24,
                                                           decoration: BoxDecoration(
                                                             shape: BoxShape.circle,
-                                                            border: Border.all(color: Color(
-                                                                0xFFCEC6FF), width: 2),
+                                                            border: Border.all(color: Color(0xFFCEC6FF), width: 2),
                                                           ),
                                                           child: isDialogLoading && isChangingPrivacyFor == 'public'
                                                               ? SizedBox(
@@ -1319,13 +1383,49 @@ class GamesScreenState extends State<GamesScreen> {
                                                           if (activity.private == true) {
                                                             setModalState(() {
                                                               isDialogLoading = true;
-                                                              isChangingPrivacyFor = 'public'; // Indicar que se está cambiando a público
+                                                              isChangingPrivacyFor = 'public';
                                                             });
-                                                            await _updateActivityPrivacy(activity, false);
-                                                            setModalState(() {
-                                                              isDialogLoading = false;
-                                                              isChangingPrivacyFor = null; // Restablecer el estado
+
+                                                            // Variable para controlar si la solicitud se completó
+                                                            bool requestCompleted = false;
+
+                                                            // Timer de 30 segundos
+                                                            Timer timeoutTimer = Timer(Duration(seconds: 30), () {
+                                                              if (!requestCompleted) {
+                                                                // Cerrar el diálogo
+                                                                Navigator.of(context).pop();
+
+                                                                // Mostrar mensaje de error
+                                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                                  SnackBar(
+                                                                    content: Text('La operación tomó demasiado tiempo. Por favor, inténtalo de nuevo.'),
+                                                                    backgroundColor: Colors.red,
+                                                                    behavior: SnackBarBehavior.floating,
+                                                                  ),
+                                                                );
+
+                                                                // Actualizar el estado
+                                                                isDialogLoading = false;
+                                                                isChangingPrivacyFor = null;
+                                                              }
                                                             });
+
+                                                            try {
+                                                              await _updateActivityPrivacy(activity, false);
+                                                              requestCompleted = true;
+                                                              timeoutTimer.cancel();
+                                                            } catch (e) {
+                                                              requestCompleted = true;
+                                                              timeoutTimer.cancel();
+                                                              // Aquí podrías manejar errores específicos si es necesario
+                                                            }
+
+                                                            if (requestCompleted) {
+                                                              setModalState(() {
+                                                                isDialogLoading = false;
+                                                                isChangingPrivacyFor = null;
+                                                              });
+                                                            }
                                                           }
                                                         },
                                                       ),
@@ -1361,13 +1461,49 @@ class GamesScreenState extends State<GamesScreen> {
                                                           if (activity.private == false) {
                                                             setModalState(() {
                                                               isDialogLoading = true;
-                                                              isChangingPrivacyFor = 'private'; // Indicar que se está cambiando a privado
+                                                              isChangingPrivacyFor = 'private';
                                                             });
-                                                            await _updateActivityPrivacy(activity, true);
-                                                            setModalState(() {
-                                                              isDialogLoading = false;
-                                                              isChangingPrivacyFor = null; // Restablecer el estado
+
+                                                            // Variable para controlar si la solicitud se completó
+                                                            bool requestCompleted = false;
+
+                                                            // Timer de 30 segundos
+                                                            Timer timeoutTimer = Timer(Duration(seconds: 30), () {
+                                                              if (!requestCompleted) {
+                                                                // Cerrar el diálogo
+                                                                Navigator.of(context).pop();
+
+                                                                // Mostrar mensaje de error
+                                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                                  SnackBar(
+                                                                    content: Text('La operación tomó demasiado tiempo. Por favor, inténtalo de nuevo.'),
+                                                                    backgroundColor: Colors.red,
+                                                                    behavior: SnackBarBehavior.floating,
+                                                                  ),
+                                                                );
+
+                                                                // Actualizar el estado
+                                                                isDialogLoading = false;
+                                                                isChangingPrivacyFor = null;
+                                                              }
                                                             });
+
+                                                            try {
+                                                              await _updateActivityPrivacy(activity, true);
+                                                              requestCompleted = true;
+                                                              timeoutTimer.cancel();
+                                                            } catch (e) {
+                                                              requestCompleted = true;
+                                                              timeoutTimer.cancel();
+                                                              // Aquí podrías manejar errores específicos si es necesario
+                                                            }
+
+                                                            if (requestCompleted) {
+                                                              setModalState(() {
+                                                                isDialogLoading = false;
+                                                                isChangingPrivacyFor = null;
+                                                              });
+                                                            }
                                                           }
                                                         },
                                                       ),
@@ -1394,7 +1530,7 @@ class GamesScreenState extends State<GamesScreen> {
                                         Icon(
                                           Icons.lock,
                                           color: Color(0xff4d4a4b),
-                                          size: 30, // Aumentar el tamaño del icono
+                                          size: 30,
                                         ),
                                         SizedBox(width: 10),
                                         Text(
@@ -1403,8 +1539,8 @@ class GamesScreenState extends State<GamesScreen> {
                                           style: TextStyle(
                                             color: Color(0XFF212121),
                                             fontFamily: 'Poppins',
-                                            fontWeight: FontWeight.w600, // Aumentar el grosor del texto
-                                            fontSize: 14, // Aumentar el tamaño del texto
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 14,
                                           ),
                                         ),
                                       ],
@@ -1412,8 +1548,6 @@ class GamesScreenState extends State<GamesScreen> {
                                   ),
                                 ),
                               ),
-
-
                             ],
                           ),
                         ),
@@ -1485,8 +1619,8 @@ class GamesScreenState extends State<GamesScreen> {
                                 borderRadius: BorderRadius.circular(15),
                               ),
                               elevation: 0,
-                              minimumSize: Size(100, 60), // Especifica width y height
-                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15), // Añade padding si es necesario
+                              minimumSize: Size(100, 60),
+                              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                             ),
                             child: Text(
                               'Eliminar Actividad',
