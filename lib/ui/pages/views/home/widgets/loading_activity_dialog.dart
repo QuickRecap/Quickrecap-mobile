@@ -31,27 +31,56 @@ class LoadingActivityDialog {
               borderRadius: BorderRadius.circular(20.r), // Borde redondeado de 20
             ),
             width: 250.w,
-            padding: EdgeInsets.symmetric(vertical: 40.h, horizontal: 20.w),
+            padding: EdgeInsets.only(left: 20.w, right: 20.w, bottom: 40.h),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TweenAnimationBuilder(
-                  duration: const Duration(seconds: 1),
-                  tween: Tween<double>(begin: 0, end: 1),
-                  builder: (context, double value, child) {
-                    return Transform.rotate(
-                      angle: value * 2 * 3.14159,
-                      child: child,
-                    );
-                  },
-                  child: SizedBox(
-                    width: progressSize,
-                    height: progressSize,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 6.w,
-                      valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF8375FD)),
+                // Botón de cierre (X) alineado a la derecha
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 16.h),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.of(context).pop(); // Cierra el diálogo
+                      },
+                      child: Container(
+                        width: 30.w,
+                        height: 30.w,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Icon(
+                            Icons.close,
+                            size: 25.w,
+                            color: const Color(0xFF8375FD),
+                          ),
+                        ),
+                      ),
                     ),
-                  )
+                  ),
+                ),
+                // Ajusto el espacio según el nuevo diseño
+                SizedBox(height: 24.h),
+                TweenAnimationBuilder(
+                    duration: const Duration(seconds: 1),
+                    tween: Tween<double>(begin: 0, end: 1),
+                    builder: (context, double value, child) {
+                      return Transform.rotate(
+                        angle: value * 2 * 3.14159,
+                        child: child,
+                      );
+                    },
+                    child: SizedBox(
+                      width: progressSize,
+                      height: progressSize,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 6.w,
+                        valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF8375FD)),
+                      ),
+                    )
                 ),
                 SizedBox(height: 30.h),
                 TweenAnimationBuilder(

@@ -18,6 +18,7 @@ class CreateScreen extends StatefulWidget {
 }
 
 class CreateScreenState extends State<CreateScreen> {
+  Pdf? _localSelectedPdf; // Variable local mutable
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController activityNameController = TextEditingController();
@@ -33,10 +34,23 @@ class CreateScreenState extends State<CreateScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final Pdf? selectedPdf = widget.selectedPdf; // Obtener el PDF directamente
+  void initState() {
+    super.initState();
+    _localSelectedPdf = widget.selectedPdf; // Inicializa con el valor del widget
+  }
 
-    print(selectedPdf != null ? 'PDF seleccionado en createScreen: ${selectedPdf.name}' : 'No se recibió un PDF seleccionado');
+  @override
+  void didUpdateWidget(CreateScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selectedPdf != widget.selectedPdf) {
+      _localSelectedPdf = widget.selectedPdf; // Actualiza si la prop cambia
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    print(_localSelectedPdf != null ? 'PDF seleccionado en createScreen: ${_localSelectedPdf!.name}' : 'No se recibió un PDF seleccionado');
 
     return Scaffold(
       backgroundColor: const Color(0xFFF6F8FC),
@@ -67,42 +81,73 @@ class CreateScreenState extends State<CreateScreen> {
             child: Column(
               children: [
                 // Botón para seleccionar PDF
-                InkWell(
-                  onTap: () async {
-                    // Navega a la pantalla de selección de PDF y espera a recibir el pdfUrl
-                    final pdf = await Navigator.pushNamed(context, '/select_pdf');
-                  },
-                    child: Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.all(16.w),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFEDEBFF),
-                        borderRadius: BorderRadius.circular(16.r),
-                        border: Border.all(
-                          color: const Color(0xFF6D5BFF),
-                          width: 2.w,
-                        ),
-                      ),
-                      child: Column(
-                        children: [
-                          Image.asset(
-                            'assets/images/pdf-create-icon.png',
-                            height: 60.h,
+                Stack(
+                  children: [
+                    // InkWell principal para seleccionar PDF
+                    InkWell(
+                      onTap: () async {
+                        // Navega a la pantalla de selección de PDF y espera a recibir el pdfUrl
+                        final pdf = await Navigator.pushNamed(context, '/select_pdf');
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(16.w),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFEDEBFF),
+                          borderRadius: BorderRadius.circular(16.r),
+                          border: Border.all(
+                            color: const Color(0xFF6D5BFF),
+                            width: 2.w,
                           ),
-                          SizedBox(height: 16.h),
-                          Center( // Add the Center widget here
-                            child: Text(
-                              selectedPdf != null ? selectedPdf!.name : 'Selecciona un PDF',
-                              style: TextStyle(
-                                color: const Color(0xFF6D5BFF),
-                                fontSize: 16.sp,
-                                fontWeight: FontWeight.bold,
+                        ),
+                        child: Column(
+                          children: [
+                            Image.asset(
+                              'assets/images/pdf-create-icon.png',
+                              height: 60.h,
+                            ),
+                            SizedBox(height: 16.h),
+                            Center(
+                              child: Text(
+                                _localSelectedPdf != null ? _localSelectedPdf!.name : 'Selecciona un PDF',
+                                style: TextStyle(
+                                  color: const Color(0xFF6D5BFF),
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
+
+                    // Botón de eliminar superpuesto
+                    if (_localSelectedPdf != null)
+                      Positioned(
+                        top: 3.h,
+                        right: 3.w,
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              _localSelectedPdf = null;
+                            });
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(8.w),
+                            decoration: BoxDecoration(
+                              color: Color(0xeceafe),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.delete_outline,
+                              color: Colors.red,
+                              size: 25.w,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
                 SizedBox(height: 32.h),
                 Text(
@@ -115,7 +160,6 @@ class CreateScreenState extends State<CreateScreen> {
                   ),
                 ),
                 SizedBox(height: 24.h),
-
                 // Modos de actividad
                 Column(
                   children: [
@@ -123,25 +167,25 @@ class CreateScreenState extends State<CreateScreen> {
                       icon: Icons.quiz,
                       title: 'Quiz',
                       description: 'Elige la opción correcta.',
-                      isEnabled: selectedPdf != null, // Control de habilitación
+                      isEnabled: _localSelectedPdf != null, // Control de habilitación
                     ),
                     _buildModeOption(
                       icon: Icons.extension,
                       title: 'Gaps',
                       description: 'Completa los espacios.',
-                      isEnabled: selectedPdf != null, // Control de habilitación
+                      isEnabled: _localSelectedPdf != null, // Control de habilitación
                     ),
                     _buildModeOption(
                       icon: Icons.style,
                       title: 'Flashcards',
                       description: 'Responde antes de girar.',
-                      isEnabled: selectedPdf != null, // Control de habilitación
+                      isEnabled: _localSelectedPdf != null, // Control de habilitación
                     ),
                     _buildModeOption(
                       icon: Icons.link,
                       title: 'Linkers',
                       description: 'Relaciona términos y conceptos.',
-                      isEnabled: selectedPdf != null, // Control de habilitación
+                      isEnabled: _localSelectedPdf != null, // Control de habilitación
                     ),
                   ],
                 ),

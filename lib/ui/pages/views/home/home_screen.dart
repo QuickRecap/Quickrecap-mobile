@@ -170,7 +170,10 @@ class HomeScreenState extends State<HomeScreen> {
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w600,
                           fontSize: 15.sp,
+                          height: 1.2,
                         ),
+                        maxLines: 2,                     // Limita el texto a 2 líneas
+                        overflow: TextOverflow.ellipsis, // Muestra ... si el texto excede el espacio
                       ),
                       SizedBox(height: 2.h),
                       Text(
@@ -181,6 +184,8 @@ class HomeScreenState extends State<HomeScreen> {
                           fontWeight: FontWeight.w500,
                           fontSize: 12.sp,
                         ),
+                        overflow: TextOverflow.ellipsis,  // Añade puntos suspensivos cuando el texto es demasiado largo
+                        maxLines: 1,  // Limita el texto a una sola línea
                       ),
                     ],
                   ),
@@ -513,7 +518,7 @@ class HomeScreenState extends State<HomeScreen> {
                             _buildNewStatItem(
                               icon: Icons.description,
                               value: _stats?.totalArchivos.toString() ?? "0",
-                              title: "Archivos\nSubidos",
+                              title: "Archivos\nTotales",
                             ),
                             _buildNewStatItem(
                               icon: Icons.person,
@@ -726,7 +731,7 @@ class HomeScreenState extends State<HomeScreen> {
           borderRadius: BorderRadius.circular(15.r),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withOpacity(0.12),
               blurRadius: 8,
               offset: const Offset(0, 2),
               spreadRadius: 0,

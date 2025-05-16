@@ -773,6 +773,8 @@ class GamesScreenState extends State<GamesScreen> {
                             fontWeight: FontWeight.w600,
                             fontSize: 14.sp,
                           ),
+                          maxLines: 1,                     // Limita el texto a 2 líneas
+                          overflow: TextOverflow.ellipsis, // Muestra ... si el texto excede el espacio
                         ),
                         SizedBox(height: 3.h),
                         Text(
@@ -783,6 +785,8 @@ class GamesScreenState extends State<GamesScreen> {
                             fontWeight: FontWeight.w500,
                             fontSize: 12.sp,
                           ),
+                          overflow: TextOverflow.ellipsis,  // Añade puntos suspensivos cuando el texto es demasiado largo
+                          maxLines: 1,  // Limita el texto a una sola línea
                         ),
                       ],
                     ),
@@ -951,10 +955,12 @@ class GamesScreenState extends State<GamesScreen> {
                             fontWeight: FontWeight.w600,
                             fontSize: 14.sp,
                           ),
+                          maxLines: 1,                     // Limita el texto a 2 líneas
+                          overflow: TextOverflow.ellipsis, // Muestra ... si el texto excede el espacio
                         ),
                         SizedBox(height: 2.h),
                         Text(
-                          'Por ${activity.author}',
+                          '${activity.activityType}',
                           style: TextStyle(
                             color: kGrey,
                             fontFamily: 'Poppins',
@@ -1491,7 +1497,11 @@ class GamesScreenState extends State<GamesScreen> {
                             style: TextStyle(
                                 color: kPrimary,
                                 fontWeight: FontWeight.w500,
-                                fontSize: 15),
+                                fontSize: 15,
+                                height: 1.2,
+                            ),
+                            maxLines: 2,                     // Limita el texto a 2 líneas
+                            overflow: TextOverflow.ellipsis, // Muestra ... si el texto excede el espacio
                           ),
                         ),
                         SizedBox(height: 16),

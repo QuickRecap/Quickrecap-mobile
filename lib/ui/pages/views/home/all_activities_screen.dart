@@ -298,7 +298,10 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
                                                         fontFamily: 'Poppins',
                                                         fontWeight: FontWeight.w600,
                                                         fontSize: 15.sp,
+                                                        height: 1.2,
                                                       ),
+                                                      maxLines: 2,                     // Limita el texto a 2 líneas
+                                                      overflow: TextOverflow.ellipsis, // Muestra ... si el texto excede el espacio
                                                     ),
                                                     SizedBox(height: 2.h),
                                                     Text(
@@ -309,7 +312,9 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
                                                         fontWeight: FontWeight.w500,
                                                         fontSize: 11.sp,
                                                       ),
-                                                    ),
+                                                      overflow: TextOverflow.ellipsis,  // Añade puntos suspensivos cuando el texto es demasiado largo
+                                                      maxLines: 1,  // Limita el texto a una sola línea
+                                                    )
                                                   ],
                                                 ),
                                               ),
