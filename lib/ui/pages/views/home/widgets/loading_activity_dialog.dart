@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class LoadingActivityDialog {
   static final double progressSize = 60.w;
-  static Future<void> show(BuildContext context) async {
+  static Future<void> show(BuildContext context, VoidCallback onCancel) async {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -42,6 +42,7 @@ class LoadingActivityDialog {
                     padding: EdgeInsets.only(top: 16.h),
                     child: InkWell(
                       onTap: () {
+                        onCancel();
                         Navigator.of(context).pop(); // Cierra el diálogo
                       },
                       child: Container(

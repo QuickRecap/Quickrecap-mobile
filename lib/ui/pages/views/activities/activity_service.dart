@@ -19,10 +19,17 @@ import '../../../../data/api/api_constants.dart';
 
 Future<void> playActivity(BuildContext context, int activityId) async {
   String baseUrl = ApiConstants.baseUrl;
+  bool canceled = false;
   dynamic activityData;
 
   // Mostrar el diálogo de carga
-  await LoadingActivityDialog.show(context);
+  await LoadingActivityDialog.show(context, () {
+    canceled = true;
+  });
+
+  if (canceled){
+    print("Cancele la actividad");
+  };
 
   try {
     final response = await http.get(
@@ -30,7 +37,7 @@ Future<void> playActivity(BuildContext context, int activityId) async {
       headers: {
         'Content-Type': 'application/json',
       },
-    ).timeout(const Duration(seconds: 30)); // ⏱ Timeout;
+    ).timeout(const Duration(seconds: 50)); // ⏱ Timeout;
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       final data = json.decode(utf8.decode(response.bodyBytes));
@@ -38,6 +45,7 @@ Future<void> playActivity(BuildContext context, int activityId) async {
 
       switch (tipoActividad) {
         case 'Quiz':
+          if (canceled) return;
           if (data['flashcards'] != null && data['quiz'] != null && data['actividad'] != null) {
             List<Flashcard> flashcards = (data['flashcards'] as List)
                 .map((flashcardJson) => Flashcard.fromJson(flashcardJson))
@@ -71,6 +79,7 @@ Future<void> playActivity(BuildContext context, int activityId) async {
           break;
 
         case 'Gaps':
+          if (canceled) return;
           if (data['flashcards'] != null && data['gaps'] != null && data['actividad'] != null) {
             List<Flashcard> flashcards = (data['flashcards'] as List)
                 .map((flashcardJson) => Flashcard.fromJson(flashcardJson))
@@ -104,6 +113,7 @@ Future<void> playActivity(BuildContext context, int activityId) async {
           break;
 
         case 'Linkers':
+          if (canceled) return;
           if (data['flashcards'] != null && data['linkers'] != null && data['actividad'] != null) {
             List<Flashcard> flashcards = (data['flashcards'] as List)
                 .asMap()
@@ -142,6 +152,7 @@ Future<void> playActivity(BuildContext context, int activityId) async {
           break;
 
         case 'Flashcards':
+          if (canceled) return;
           if (data['flashcards'] != null) {
             List<Flashcard> flashcards = (data['flashcards'] as List)
                 .map((flashcardJson) => Flashcard.fromJson(flashcardJson))
