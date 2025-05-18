@@ -32,6 +32,7 @@ class HomeScreenState extends State<HomeScreen> {
   List<Activity> activities = [];
   List<Activity> topActivities = []; // Corrected type
   bool isLoading = false;
+  bool hasError = false;
 
   LocalStorageService localStorageService = LocalStorageService();
 
@@ -79,6 +80,7 @@ class HomeScreenState extends State<HomeScreen> {
   Future<void> fetchActivities() async {
     setState(() {
       isLoading = true;
+      hasError = false;
     });
 
     int userId = await localStorageService.getCurrentUserId();
@@ -89,7 +91,13 @@ class HomeScreenState extends State<HomeScreen> {
         headers: {
           'Content-Type': 'application/json',
         },
-      );
+      ).timeout(Duration(seconds: 20), onTimeout: () {
+        setState(() {
+          isLoading = false;
+          hasError = true;
+        });
+        return http.Response('', 408); // Código 408 indica timeout
+      });
 
       if (response.statusCode == 200) {
         print("Obtuve actividades");
@@ -112,6 +120,7 @@ class HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildActivitiesList() {
+    // Caso 1: Cargando datos
     if (isLoading) {
       // Configurar datos falsos para mostrar el skeleton
       final fakeActivities = List.filled(2, Activity(
@@ -216,7 +225,50 @@ class HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    // El resto del código permanece igual
+    // Caso 3: Error de timeout
+    if (hasError) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              size: 64.sp,
+              color: Color(0xFFA5A5A5),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'No pudimos cargar las actividades',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13.sp,
+                color: Color(0xFFA5A5A5),
+                fontFamily: "Poppins",
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            SizedBox(height: 24.h)
+          ],
+        ),
+      );
+    }
+
+    // Caso 2: Carga exitosa pero sin elementos
+    if (topActivities.isEmpty) {
+      return Center(
+        child: Text(
+          'No hay actividades que mostrar',
+          style: TextStyle(
+            color: Color(0xff9A9A9A),
+            fontSize: 16.sp,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      );
+    }
+
+    // Caso 1: Carga exitosa con elementos
     return Column(
       children: topActivities.map((activity) => GestureDetector(
         onTap: () {
@@ -264,6 +316,8 @@ class HomeScreenState extends State<HomeScreen> {
                         fontWeight: FontWeight.w600,
                         fontSize: 15.sp,
                       ),
+                      maxLines: 2,                    // Limita el texto a 2 líneas
+                      overflow: TextOverflow.ellipsis, // Muestra ... si el texto excede el espacio
                     ),
                     SizedBox(height: 2.h),
                     Text(
@@ -274,6 +328,8 @@ class HomeScreenState extends State<HomeScreen> {
                         fontWeight: FontWeight.w500,
                         fontSize: 12.sp,
                       ),
+                      overflow: TextOverflow.ellipsis,  // Añade puntos suspensivos cuando el texto es demasiado largo
+                      maxLines: 1,  // Limita el texto a una sola línea
                     ),
                   ],
                 ),
