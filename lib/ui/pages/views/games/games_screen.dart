@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickrecap/data/repositories/local_storage_service.dart';
@@ -26,8 +27,11 @@ class GamesScreenState extends State<GamesScreen> {
   //String? userId;
   String baseUrl = ApiConstants.baseUrl;
   bool isCreatedTabLoading = false;
+  bool hasCreatedTabError = false;
   bool isFavoriteTabLoading = false;
+  bool hasFavoriteTabError = false;
   bool isHistoryTabLoading = false;
+  bool hasHistoryTabError = false;
   bool isFavoriteLoading = false;
   bool isDialogLoading = false;
   bool isActivityDeleteLoading = false;
@@ -81,10 +85,19 @@ class GamesScreenState extends State<GamesScreen> {
     if(tabIndex!=2){
       if(tabIndex==0){//Created Case
         if(createdActivities.length==0){
+          setState(() {
+            hasCreatedTabError = false;
+          });
           try {
             // Llamada a la función de la API
             final getActivitiesForUserProvider = Provider.of<GetActivitiesForUserProvider>(context, listen: false);
-            List<Activity>? activityList = await getActivitiesForUserProvider.getActivityListByUserId(tabIndex);
+            List<Activity>? activityList = await getActivitiesForUserProvider.getActivityListByUserId(tabIndex).timeout(Duration(seconds: 20), onTimeout: () {
+              setState(() {
+                hasCreatedTabError = true;
+                isCreatedTabLoading = false;
+              });
+              return null;
+            });
             if (activityList != null) {
               setState(() {
                 createdActivities = activityList;
@@ -107,10 +120,19 @@ class GamesScreenState extends State<GamesScreen> {
         }
       }else{// Favorite Case
         if(favoriteActivities.length==0){
+          setState(() {
+            hasFavoriteTabError = false;
+          });
           try {
             // Llamada a la función de la API
             final getActivitiesForUserProvider = Provider.of<GetActivitiesForUserProvider>(context, listen: false);
-            List<Activity>? activityList = await getActivitiesForUserProvider.getActivityListByUserId(tabIndex);
+            List<Activity>? activityList = await getActivitiesForUserProvider.getActivityListByUserId(tabIndex).timeout(Duration(seconds: 20), onTimeout: () {
+              setState(() {
+                hasFavoriteTabError = true;
+                isFavoriteTabLoading = false;
+              });
+              return null;
+            });
             if (activityList != null) {
               setState(() {
                 favoriteActivities=activityList;
@@ -141,8 +163,17 @@ class GamesScreenState extends State<GamesScreen> {
       }
     }else{
       if(historyActivities.length==0){
+        setState(() {
+          hasHistoryTabError = false;
+        });
         final getHistoryForUserProvider = Provider.of<GetHistoryProvider>(context, listen: false);
-        List<HistoryActivity>? historyList = await getHistoryForUserProvider.getHistoryByUserId();
+        List<HistoryActivity>? historyList = await getHistoryForUserProvider.getHistoryByUserId().timeout(Duration(seconds: 20), onTimeout: () {
+          setState(() {
+            hasHistoryTabError = true;
+            isHistoryTabLoading = false;
+          });
+          return null;
+        });
         if(historyList != null){
           setState(() {
             historyActivities = historyList;
@@ -627,6 +658,7 @@ class GamesScreenState extends State<GamesScreen> {
   }
 
   Widget _buildCreatedActivityList(int currentTabIndex, BuildContext context) {
+    // ESCENARIO 1: Cargando (mostrando skeleton)
     if (isCreatedTabLoading) {
       // Datos falsos para el Skeletonizer
       final fakeActivities = List.filled(6, Activity(
@@ -702,12 +734,36 @@ class GamesScreenState extends State<GamesScreen> {
       );
     }
 
-    if (error != null) {
-      return Center(child: Text(error!, style: TextStyle(color: Colors.red)));
+    // ESCENARIO 3: Error de timeout (usando hasCreatedTabError)
+    if (hasCreatedTabError) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              size: 64.sp,
+              color: Color(0xFFA5A5A5),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'No pudimos cargar las actividades',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13.sp,
+                color: Color(0xFFA5A5A5),
+                fontFamily: "Poppins",
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            SizedBox(height: 24.h)
+          ],
+        ),
+      );
     }
 
+    // ESCENARIO 2: Lista vacía
     List<Activity> filteredActivities = getFilteredCreatedActivities();
-
     if (filteredActivities.isEmpty) {
       return Center(
         child: Text(
@@ -722,6 +778,7 @@ class GamesScreenState extends State<GamesScreen> {
       );
     }
 
+    // ESCENARIO 1: Carga exitosa con elementos
     return ListView.builder(
       padding: EdgeInsets.symmetric(horizontal: 30.w),
       itemCount: filteredActivities.length,
@@ -784,6 +841,7 @@ class GamesScreenState extends State<GamesScreen> {
 
 
   Widget _buildFavoriteActivityList(int currentTabIndex, BuildContext context) {
+    // ESCENARIO 1: Cargando (mostrando skeleton)
     if (isFavoriteTabLoading) {
       // Datos falsos para el Skeletonizer
       final fakeActivities = List.filled(6, Activity(
@@ -879,12 +937,36 @@ class GamesScreenState extends State<GamesScreen> {
       );
     }
 
-    if (error != null) {
-      return Center(child: Text(error!, style: TextStyle(color: Colors.red)));
+    // ESCENARIO 3: Error de timeout (usando hasFavoriteTabError)
+    if (hasFavoriteTabError) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              size: 64.sp,
+              color: Color(0xFFA5A5A5),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'No pudimos cargar las actividades',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13.sp,
+                color: Color(0xFFA5A5A5),
+                fontFamily: "Poppins",
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            SizedBox(height: 24.h)
+          ],
+        ),
+      );
     }
 
+    // ESCENARIO 2: Lista vacía
     List<dynamic> filteredActivities = getFilteredFavoriteActivities();
-
     if (filteredActivities.isEmpty) {
       return Center(
         child: Text(
@@ -899,6 +981,7 @@ class GamesScreenState extends State<GamesScreen> {
       );
     }
 
+    // ESCENARIO 1: Carga exitosa con elementos
     return ListView.builder(
       padding: EdgeInsets.symmetric(horizontal: 30.w),
       itemCount: filteredActivities.length,
@@ -1067,6 +1150,7 @@ class GamesScreenState extends State<GamesScreen> {
 
 
   Widget _buildHistoryActivityList(int currentTabIndex, BuildContext context) {
+    // Caso 1: Cargando los datos
     if (isHistoryTabLoading) {
       // Datos falsos para el Skeletonizer
       final fakeHistoryActivities = List.filled(6, Activity(
@@ -1173,12 +1257,38 @@ class GamesScreenState extends State<GamesScreen> {
       );
     }
 
-    if (error != null) {
-      return Center(child: Text(error!, style: TextStyle(color: Colors.red)));
+    // Caso 3: Error de timeout
+    if (hasHistoryTabError) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              size: 64.sp,
+              color: Color(0xFFA5A5A5),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'No pudimos cargar las actividades',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13.sp,
+                color: Color(0xFFA5A5A5),
+                fontFamily: "Poppins",
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            SizedBox(height: 24.h)
+          ],
+        ),
+      );
     }
 
+    // Caso normal: Procesar datos cargados
     List<HistoryActivity> historyActivities = getFilteredHistoryActivities();
 
+    // Caso 2: Lista vacía (carga exitosa pero sin elementos)
     if (historyActivities.isEmpty) {
       return Center(
         child: Text(
@@ -1193,6 +1303,7 @@ class GamesScreenState extends State<GamesScreen> {
       );
     }
 
+    // Caso 1: Mostrar lista con datos
     return ListView.builder(
       padding: EdgeInsets.symmetric(horizontal: 30.w),
       itemCount: historyActivities.length,

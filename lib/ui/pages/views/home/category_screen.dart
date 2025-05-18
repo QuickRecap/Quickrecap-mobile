@@ -29,6 +29,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
   String searchQuery = '';
   List<Activity> activities = [];
   bool isLoading = false;
+  bool hasError = false;
 
   LocalStorageService localStorageService = LocalStorageService();
 
@@ -41,6 +42,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
   Future<void> fetchActivities() async {
     setState(() {
       isLoading = true;
+      hasError = false;
     });
 
     int userId = await localStorageService.getCurrentUserId();
@@ -51,7 +53,13 @@ class _CategoryScreenState extends State<CategoryScreen> {
         headers: {
           'Content-Type': 'application/json',
         },
-      );
+      ).timeout(Duration(seconds: 30), onTimeout: () {
+        setState(() {
+          isLoading = false;
+          hasError = true;
+        });
+        return http.Response('', 408); // Código 408 indica timeout
+      });
 
       if (response.statusCode == 200) {
         print("Actividades listas");
@@ -60,6 +68,10 @@ class _CategoryScreenState extends State<CategoryScreen> {
           activities = jsonData.map((data) => Activity.fromJson(data)).toList();
         });
       } else {
+        setState(() {
+          isLoading = false;
+          hasError = true;
+        });
         print('Error: ${response.statusCode}');
       }
     } catch (e) {
@@ -67,6 +79,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
     } finally {
       setState(() {
         isLoading = false;
+
       });
     }
   }
@@ -276,7 +289,8 @@ class _CategoryScreenState extends State<CategoryScreen> {
 
                 SizedBox(height: 5.h),
 
-                // Contenedor blanco con contador y lista
+
+// Contenedor blanco con contador y lista
                 Expanded(
                   child: Container(
                     decoration: BoxDecoration(
@@ -317,12 +331,37 @@ class _CategoryScreenState extends State<CategoryScreen> {
                           ),
                         ),
 
-                        // Lista de actividades
+                        // Lista de actividades - maneja los 3 escenarios
                         Expanded(
                           child: isLoading
-                              ? _buildSkeletonListView()  // Usamos nuestra función de skeleton
-                              : activities.isEmpty
-                              ? Center(
+                              ? _buildSkeletonListView()  // Escenario de carga
+                              : hasError
+                              ? Center(  // Escenario de error por timeout
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.warning_amber_rounded,
+                                  size: 64.sp,
+                                  color: Color(0xFFA5A5A5),
+                                ),
+                                SizedBox(height: 16.h),
+                                Text(
+                                  'No pudimos cargar las actividades',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 13.sp,
+                                    color: Color(0xFFA5A5A5),
+                                    fontFamily: "Poppins",
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                SizedBox(height: 24.h)
+                              ],
+                            ),
+                          )
+                              : getFilteredActivities().isEmpty
+                              ? Center(  // Escenario de lista vacía
                             child: Text(
                               'No hay actividades que mostrar',
                               style: TextStyle(
@@ -333,7 +372,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                               ),
                             ),
                           )
-                              : ListView.builder(
+                              : ListView.builder(  // Escenario de lista con elementos
                             padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 1.h),
                             itemCount: getFilteredActivities().length,
                             itemBuilder: (context, index) {
@@ -438,6 +477,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     ),
                   ),
                 ),
+
               ],
             ),
           ),

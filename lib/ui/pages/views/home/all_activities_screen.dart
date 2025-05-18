@@ -62,6 +62,10 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
           activities = jsonData.map((data) => Activity.fromJson(data)).toList();
         });
       } else {
+        setState(() {
+          isLoading = false;
+          hasError = true; // También establecemos error si hay un código de respuesta no exitoso
+        });
         print('Error: ${response.statusCode}');
       }
     } catch (e) {
