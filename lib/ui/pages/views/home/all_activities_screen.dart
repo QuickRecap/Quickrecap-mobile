@@ -600,6 +600,11 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
                                           'favorito': !isFavorite,
                                           'user': userId,
                                         }),
+                                      ).timeout(
+                                        Duration(seconds: 5),
+                                        onTimeout: () {
+                                          return http.Response('', 408); // Código 408 indica timeout
+                                        },
                                       );
 
                                       if (response.statusCode == 200) {
@@ -609,10 +614,12 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
                                           getFilteredActivities();
                                         });
                                       } else {
+                                        Navigator.pop(context);
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           SnackBar(
-                                            content: Text('No pudimos agregar esta actividad a tus favoritos'),
-                                            backgroundColor: Color(0xffFFCFD0),
+                                            content: Text(
+                                                'No pudimos agregar esta actividad a tus favoritos'),
+                                            backgroundColor: Colors.red,
                                             behavior: SnackBarBehavior.floating,
                                           ),
                                         );
