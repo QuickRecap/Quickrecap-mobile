@@ -153,8 +153,8 @@ class _RegisterScreen extends State<RegisterScreen> {
                                       return 'Por favor ingrese su número de celular';
                                     } else if (!RegExp(r'^\d+$').hasMatch(value)) {
                                       return 'El número de celular solo debe contener dígitos';
-                                    } else if (value.length < 9) {
-                                      return 'El número de celular debe tener al menos 9 dígitos';
+                                    } else if (value.length != 9) {
+                                      return 'El número de celular debe tener 9 dígitos';
                                     }
                                     return null;
                                   },

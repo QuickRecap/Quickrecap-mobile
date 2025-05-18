@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickrecap/ui/constants/constants.dart';
 import 'package:quickrecap/domain/entities/activity.dart';
 import 'package:http/http.dart' as http;
+import 'package:skeletonizer/skeletonizer.dart'; // Importamos el paquete Skeletonizer
 import '../../../../data/repositories/local_storage_service.dart';
 import '../activities/activity_service.dart';
 import '../../../../data/api/api_constants.dart';
@@ -71,7 +72,7 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
 
     return activities.where((activity) {
       bool matchesSearch =
-          activity.name.toLowerCase().contains(searchQuery.toLowerCase());
+      activity.name.toLowerCase().contains(searchQuery.toLowerCase());
       bool matchesFilter =
           _currentValue == 'Todos' || activity.activityType == _currentValue;
       return matchesSearch && matchesFilter;
@@ -87,6 +88,243 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
 
       activity.favorite = true; // Cambiamos favorite porque ya no es final
     });
+  }
+
+  // Método para crear actividades falsas para el skeleton
+  List<Activity> _createFakeActivities() {
+    return List.filled(6, Activity(
+        name: 'Actividad de ejemplo',
+        timesPlayed: 10,
+        id: 0,
+        activityType: 'Quiz',
+        timePerQuestion: 10,
+        numberOfQuestions: 10,
+        maxScore: 10,
+        favorite: false,
+        completed: true,
+        private: false,
+        rated: false,
+        flashcardId: 1,
+        userId: 7,
+        author: 'Autor de ejemplo'
+    ));
+  }
+
+  // Método para construir el listado con el Skeletonizer
+  Widget _buildActivityList() {
+    // Si estamos cargando, mostrar skeletons
+    if (isLoading) {
+      final fakeActivities = _createFakeActivities();
+
+      return Skeletonizer(
+        enabled: true,
+        child: ListView.builder(
+          padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 1.h),
+          itemCount: fakeActivities.length,
+          itemBuilder: (context, index) {
+            final activity = fakeActivities[index];
+            final isLastItem = index == fakeActivities.length - 1;
+            return Column(
+              children: [
+                SizedBox(height: 5.h),
+                Container(
+                  height: 50.h,
+                  padding: EdgeInsets.symmetric(horizontal: 10.0),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.play_circle_fill_outlined,
+                        color: kPrimaryLight,
+                        size: 40.sp,
+                      ),
+                      SizedBox(width: 12.w),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              activity.name!,
+                              style: TextStyle(
+                                color: kGrey2,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15.sp,
+                                height: 1.2,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            SizedBox(height: 2.h),
+                            Text(
+                              'Por ${activity.author}',
+                              style: TextStyle(
+                                color: kGrey,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w500,
+                                fontSize: 11.sp,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            )
+                          ],
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.play_arrow_rounded,
+                            color: kDark,
+                            size: 22.sp,
+                          ),
+                          SizedBox(width: 5.w),
+                          Text(
+                            activity.timesPlayed.toString(),
+                            style: TextStyle(
+                              color: kGrey2,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14.sp,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 5.h),
+                if (!isLastItem)
+                  Divider(
+                    color: Color(0xffD9D9D9),
+                    thickness: 1.0,
+                    indent: 12.w,
+                    endIndent: 12.w,
+                  ),
+              ],
+            );
+          },
+        ),
+      );
+    }
+
+    // Si no hay actividades, mostrar mensaje
+    if (activities.isEmpty) {
+      return Center(
+        child: Text(
+          'No hay actividades que mostrar',
+          style: TextStyle(
+            color: Color(0xff9A9A9A),
+            fontSize: 16.sp,
+            fontFamily: 'Poppins',
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      );
+    }
+
+    // Mostrar lista real de actividades
+    return ListView.builder(
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 1.h),
+      itemCount: getFilteredActivities().length,
+      itemBuilder: (context, index) {
+        final activity = getFilteredActivities()[index];
+        final isLastItem = index == getFilteredActivities().length - 1;
+        return Column(
+          children: [
+            SizedBox(height: 5.h),
+            GestureDetector(
+              onTap: () {
+                _showOptionsBottomSheet(context, activity);
+              },
+              child: Container(
+                height: 50.h,
+                padding: EdgeInsets.symmetric(horizontal: 10.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                ),
+                child: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        playActivity(context, activity.id);
+                      },
+                      child: Icon(
+                        Icons.play_circle_fill_outlined,
+                        color: kPrimaryLight,
+                        size: 40.sp,
+                      ),
+                    ),
+                    SizedBox(width: 12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            activity.name!,
+                            style: TextStyle(
+                              color: kGrey2,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15.sp,
+                              height: 1.2,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          SizedBox(height: 2.h),
+                          Text(
+                            'Por ${activity.author}',
+                            style: TextStyle(
+                              color: kGrey,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.w500,
+                              fontSize: 11.sp,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          )
+                        ],
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.play_arrow_rounded,
+                          color: kDark,
+                          size: 22.sp,
+                        ),
+                        SizedBox(width: 5.w),
+                        Text(
+                          activity.timesPlayed.toString(),
+                          style: TextStyle(
+                            color: kGrey2,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14.sp,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(height: 5.h),
+            if (!isLastItem)
+              Divider(
+                color: Color(0xffD9D9D9),
+                thickness: 1.0,
+                indent: 12.w,
+                endIndent: 12.w,
+              ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -114,7 +352,7 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
                 // Barra superior con flecha de regreso y título
                 Padding(
                   padding:
-                      EdgeInsets.only(top: 20, bottom: 10, left: 10, right: 10),
+                  EdgeInsets.only(top: 20, bottom: 10, left: 10, right: 10),
                   child: Row(
                     children: [
                       IconButton(
@@ -182,179 +420,65 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
                     margin: EdgeInsets.all(20),
                     child: Column(
                       children: [
-                        // Contador y filtro
+                        // Contador y filtro (también con Skeletonizer)
                         Padding(
-                          padding: EdgeInsets.only( top: 10.h, bottom: 10, left: 0.w, right: 0.w),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Text(
-                                '${getFilteredActivities().length} actividades',
-                                style: TextStyle(
-                                  color: kDark,
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: 'Poppins',
+                          padding: EdgeInsets.only(top: 10.h, bottom: 10, left: 0.w, right: 0.w),
+                          child: Skeletonizer(
+                            enabled: isLoading,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Text(
+                                  '${isLoading ? "0" : getFilteredActivities().length} actividades',
+                                  style: TextStyle(
+                                    color: kDark,
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: 'Poppins',
+                                  ),
                                 ),
-                              ),
-                              DropdownButton<String>(
-                                value: _currentValue,
-                                icon: Icon(Icons.arrow_drop_down, color: kDark),
-                                underline: Container(),
-                                dropdownColor: Colors.white,
-                                style: TextStyle(
-                                  color: kDark,
-                                  fontFamily: 'Poppins',
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                                items: [
-                                  'Todos',
-                                  'Quiz',
-                                  'Flashcards',
-                                  'Gaps',
-                                  'Linkers'
-                                ].map<DropdownMenuItem<String>>((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(
-                                      value,
-                                      style: TextStyle(color: kDark),
-                                    ),
-                                  );
-                                }).toList(),
-                                onChanged: (String? newValue) {
-                                  if (newValue != null) {
-                                    setState(() {
-                                      _currentValue = newValue;
-                                    });
-                                  }
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                        // Lista de actividades
-                        Expanded(
-                          child: isLoading
-                              ? Center(
-                            child: CircularProgressIndicator(),
-                          )
-                              : activities.isEmpty
-                              ? Center(
-                            child: Text(
-                              'No hay actividades que mostrar',
-                              style: TextStyle(
-                                color: Color(0xff9A9A9A),
-                                fontSize: 16.sp,
-                                fontFamily: 'Poppins',
-                                fontWeight: FontWeight.w400,
-                              ),
-                            ),
-                          )
-                              : ListView.builder(
-                                padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 1.h),
-                                itemCount: getFilteredActivities().length,
-                                itemBuilder: (context, index) {
-                                  final activity = getFilteredActivities()[index];
-                                  final isLastItem = index == getFilteredActivities().length - 1;
-                                  return Column(
-                                    children: [
-                                      SizedBox(height: 5.h),
-                                      GestureDetector(
-                                        onTap: () {
-                                          // Llamamos al bottom dialog pasándole la activity
-                                          _showOptionsBottomSheet(context, activity);
-                                        },
-                                        child: Container(
-                                          height: 50.h,
-                                          padding: EdgeInsets.symmetric(horizontal: 10.0),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                          ),
-                                          child: Row(
-                                            children: [
-                                              GestureDetector(
-                                                onTap: () {
-                                                  // Llama a la función PlayActivity
-                                                  playActivity(context, activity.id);  // Llama a playActivity
-                                                },
-                                                child: Icon(
-                                                  Icons.play_circle_fill_outlined,
-                                                  color: kPrimaryLight,
-                                                  size: 40.sp,
-                                                ),
-                                              ),
-                                              SizedBox(width: 12.w),
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  mainAxisAlignment: MainAxisAlignment.center,
-                                                  children: [
-                                                    Text(
-                                                      activity.name!,
-                                                      style: TextStyle(
-                                                        color: kGrey2,
-                                                        fontFamily: 'Poppins',
-                                                        fontWeight: FontWeight.w600,
-                                                        fontSize: 15.sp,
-                                                        height: 1.2,
-                                                      ),
-                                                      maxLines: 2,                     // Limita el texto a 2 líneas
-                                                      overflow: TextOverflow.ellipsis, // Muestra ... si el texto excede el espacio
-                                                    ),
-                                                    SizedBox(height: 2.h),
-                                                    Text(
-                                                      'Por ${activity.author}',
-                                                      style: TextStyle(
-                                                        color: kGrey,
-                                                        fontFamily: 'Poppins',
-                                                        fontWeight: FontWeight.w500,
-                                                        fontSize: 11.sp,
-                                                      ),
-                                                      overflow: TextOverflow.ellipsis,  // Añade puntos suspensivos cuando el texto es demasiado largo
-                                                      maxLines: 1,  // Limita el texto a una sola línea
-                                                    )
-                                                  ],
-                                                ),
-                                              ),
-                                              Row(
-                                                children: [
-                                                  Icon(
-                                                    Icons.play_arrow_rounded,
-                                                    color: kDark,
-                                                    size: 22.sp,
-                                                  ),
-                                                  SizedBox(width: 5.w),
-                                                  Text(
-                                                    activity.timesPlayed.toString(),
-                                                    style: TextStyle(
-                                                      color: kGrey2,
-                                                      fontFamily: 'Poppins',
-                                                      fontWeight: FontWeight.w500,
-                                                      fontSize: 14.sp,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
+                                DropdownButton<String>(
+                                  value: _currentValue,
+                                  icon: Icon(Icons.arrow_drop_down, color: kDark),
+                                  underline: Container(),
+                                  dropdownColor: Colors.white,
+                                  style: TextStyle(
+                                    color: kDark,
+                                    fontFamily: 'Poppins',
+                                    fontSize: 14.sp,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                  items: [
+                                    'Todos',
+                                    'Quiz',
+                                    'Flashcards',
+                                    'Gaps',
+                                    'Linkers'
+                                  ].map<DropdownMenuItem<String>>((String value) {
+                                    return DropdownMenuItem<String>(
+                                      value: value,
+                                      child: Text(
+                                        value,
+                                        style: TextStyle(color: kDark),
                                       ),
-                                      SizedBox(height: 5.h),
-                                      if (!isLastItem)
-                                        Divider(
-                                          color: Color(0xffD9D9D9),
-                                          thickness: 1.0,
-                                          indent: 12.w,
-                                          endIndent: 12.w,
-                                        ),
-                                    ],
-                                  );
-                                },
+                                    );
+                                  }).toList(),
+                                  onChanged: isLoading ? null : (String? newValue) {
+                                    if (newValue != null) {
+                                      setState(() {
+                                        _currentValue = newValue;
+                                      });
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-
+                        // Lista de actividades con Skeletonizer
+                        Expanded(
+                          child: _buildActivityList(),
+                        ),
                       ],
                     ),
                   ),
@@ -366,7 +490,6 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
       ),
     );
   }
-
 
   void _showOptionsBottomSheet(BuildContext context, Activity activity) {
     bool isFavorite = activity.favorite;
@@ -547,9 +670,6 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
                                   ),
                                 ),
                               ),
-
-
-
                             ],
                           ),
                         ),

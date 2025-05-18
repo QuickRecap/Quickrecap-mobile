@@ -6,7 +6,7 @@ import 'package:quickrecap/data/repositories/local_storage_service.dart';
 import '../../../../domain/entities/history_activity.dart';
 import 'package:quickrecap/ui/constants/constants.dart';
 import '../../../../domain/entities/activity.dart';
-import '../../../../domain/entities/history_activity.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import '../../../providers/get_activities_for_user_provider.dart';
 import '../../../providers/get_history_provider.dart';
 import 'package:http/http.dart' as http;
@@ -549,56 +549,59 @@ class GamesScreenState extends State<GamesScreen> {
                               vertical: 10.h,
                               horizontal: 10.w,
                             ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                Text(
-                                  '${_getActivityCount()} actividades',
-                                  style: TextStyle(
-                                    color: kDark,
-                                    fontSize: 14.sp,
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: 'Poppins',
-                                  ),
-                                ),
-                                DropdownButton<String>(
-                                  value: _currentValue,
-                                  icon: Icon(Icons.arrow_drop_down, color: kDark),
-                                  underline: Container(),
-                                  dropdownColor: Colors.white,
-                                  style: TextStyle(
+                            child: Skeletonizer(
+                              enabled: (isCreatedTabLoading && currentTabIndex == 0) || (isFavoriteTabLoading && currentTabIndex == 1) || (isHistoryTabLoading && currentTabIndex == 2) ,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children: [
+                                  Text(
+                                    '${_getActivityCount()} actividades',
+                                    style: TextStyle(
                                       color: kDark,
-                                      fontFamily: 'Poppins',
                                       fontSize: 14.sp,
-                                      fontWeight: FontWeight.w500
+                                      fontWeight: FontWeight.w500,
+                                      fontFamily: 'Poppins',
+                                    ),
                                   ),
-                                  items: <String>[
-                                    'Todos',
-                                    'Quiz',
-                                    'Flashcards',
-                                    'Gaps',
-                                    'Linkers'
-                                  ].map<DropdownMenuItem<String>>((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                        child: Text(
-                                          value,
-                                          style: TextStyle(color: kDark),
+                                  DropdownButton<String>(
+                                    value: _currentValue,
+                                    icon: Icon(Icons.arrow_drop_down, color: kDark),
+                                    underline: Container(),
+                                    dropdownColor: Colors.white,
+                                    style: TextStyle(
+                                        color: kDark,
+                                        fontFamily: 'Poppins',
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w500
+                                    ),
+                                    items: <String>[
+                                      'Todos',
+                                      'Quiz',
+                                      'Flashcards',
+                                      'Gaps',
+                                      'Linkers'
+                                    ].map<DropdownMenuItem<String>>((String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                          child: Text(
+                                            value,
+                                            style: TextStyle(color: kDark),
+                                          ),
                                         ),
-                                      ),
-                                    );
-                                  }).toList(),
-                                  onChanged: (String? newValue) {
-                                    if (newValue != null) {
-                                      setState(() {
-                                        _currentValue = newValue;
-                                      });
-                                    }
-                                  },
-                                ),
-                              ],
+                                      );
+                                    }).toList(),
+                                    onChanged: (String? newValue) {
+                                      if (newValue != null) {
+                                        setState(() {
+                                          _currentValue = newValue;
+                                        });
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           Expanded(
@@ -625,7 +628,78 @@ class GamesScreenState extends State<GamesScreen> {
 
   Widget _buildCreatedActivityList(int currentTabIndex, BuildContext context) {
     if (isCreatedTabLoading) {
-      return Center(child: CircularProgressIndicator());
+      // Datos falsos para el Skeletonizer
+      final fakeActivities = List.filled(6, Activity(
+          name: 'Cargando actividad...',
+          timesPlayed: 0,
+          id: 0,
+          activityType: 'Quiz',
+          timePerQuestion: 10,
+          numberOfQuestions: 10,
+          maxScore: 10,
+          favorite: false,
+          completed: true,
+          private: false,
+          rated: false,
+          flashcardId: 1,
+          userId: 7,
+          author: 'Cargando...'
+      ));
+
+      // Retornar el ListView con Skeletonizer
+      return Skeletonizer(
+        enabled: true,
+        child: ListView.builder(
+          padding: EdgeInsets.symmetric(horizontal: 30.w),
+          itemCount: fakeActivities.length,
+          itemBuilder: (context, index) {
+            final activity = fakeActivities[index];
+            final isLastItem = index == fakeActivities.length - 1;
+
+            return Column(
+              children: [
+                Container(
+                  height: 65,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.play_circle_fill_outlined,
+                        color: kPrimaryLight,
+                        size: 40,
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          activity.name,
+                          style: TextStyle(
+                            color: kGrey2,
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Icon(
+                        Icons.settings,
+                        color: kGrey,
+                        size: 25,
+                      ),
+                    ],
+                  ),
+                ),
+                if (!isLastItem)
+                  Divider(
+                    color: Color(0xffD9D9D9),
+                    thickness: 1.0,
+                    indent: 12,
+                    endIndent: 12,
+                  ),
+              ],
+            );
+          },
+        ),
+      );
     }
 
     if (error != null) {
@@ -711,7 +785,98 @@ class GamesScreenState extends State<GamesScreen> {
 
   Widget _buildFavoriteActivityList(int currentTabIndex, BuildContext context) {
     if (isFavoriteTabLoading) {
-      return Center(child: CircularProgressIndicator());
+      // Datos falsos para el Skeletonizer
+      final fakeActivities = List.filled(6, Activity(
+          name: 'Cargando actividad...',
+          timesPlayed: 0,
+          id: 0,
+          activityType: 'Quiz',
+          timePerQuestion: 10,
+          numberOfQuestions: 10,
+          maxScore: 10,
+          favorite: true,
+          completed: true,
+          private: false,
+          rated: false,
+          flashcardId: 1,
+          userId: 7,
+          author: 'Cargando...'
+      ));
+
+      // Retornar el ListView con Skeletonizer
+      return Skeletonizer(
+        enabled: true,
+        child: ListView.builder(
+          padding: EdgeInsets.symmetric(horizontal: 30.w),
+          itemCount: fakeActivities.length,
+          itemBuilder: (context, index) {
+            final activity = fakeActivities[index];
+            final isLastItem = index == fakeActivities.length - 1;
+
+            return Column(
+              children: [
+                Container(
+                  height: 65,
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.play_circle_fill_outlined,
+                        color: kPrimaryLight,
+                        size: 45,
+                      ),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              activity.name!,
+                              style: TextStyle(
+                                color: kGrey2,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14.sp,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            SizedBox(height: 3.h),
+                            Text(
+                              'Por ${activity.author}',
+                              style: TextStyle(
+                                color: kGrey,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w500,
+                                fontSize: 12.sp,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Icon(
+                        Icons.bookmark,
+                        color: Color(0xffffd100),
+                        size: 30,
+                      ),
+                    ],
+                  ),
+                ),
+                if (!isLastItem)
+                  Divider(
+                    color: Color(0xffD9D9D9),
+                    thickness: 1.0,
+                    indent: 12,
+                    endIndent: 12,
+                  ),
+              ],
+            );
+          },
+        ),
+      );
     }
 
     if (error != null) {
@@ -773,8 +938,8 @@ class GamesScreenState extends State<GamesScreen> {
                             fontWeight: FontWeight.w600,
                             fontSize: 14.sp,
                           ),
-                          maxLines: 1,                     // Limita el texto a 2 líneas
-                          overflow: TextOverflow.ellipsis, // Muestra ... si el texto excede el espacio
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         SizedBox(height: 3.h),
                         Text(
@@ -785,8 +950,8 @@ class GamesScreenState extends State<GamesScreen> {
                             fontWeight: FontWeight.w500,
                             fontSize: 12.sp,
                           ),
-                          overflow: TextOverflow.ellipsis,  // Añade puntos suspensivos cuando el texto es demasiado largo
-                          maxLines: 1,  // Limita el texto a una sola línea
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                       ],
                     ),
@@ -884,7 +1049,6 @@ class GamesScreenState extends State<GamesScreen> {
                       size: 30,
                     ),
                   ),
-
                 ],
               ),
             ),
@@ -904,7 +1068,109 @@ class GamesScreenState extends State<GamesScreen> {
 
   Widget _buildHistoryActivityList(int currentTabIndex, BuildContext context) {
     if (isHistoryTabLoading) {
-      return Center(child: CircularProgressIndicator());
+      // Datos falsos para el Skeletonizer
+      final fakeHistoryActivities = List.filled(6, Activity(
+          name: 'Cargando actividad...',
+          timesPlayed: 0,
+          id: 0,
+          activityType: 'Quiz',
+          timePerQuestion: 10,
+          numberOfQuestions: 10,
+          maxScore: 10,
+          favorite: true,
+          completed: true,
+          private: false,
+          rated: false,
+          flashcardId: 1,
+          userId: 7,
+          author: 'Cargando...'
+      ));
+
+      // Retornar el ListView con Skeletonizer
+      return Skeletonizer(
+        enabled: true,
+        child: ListView.builder(
+          padding: EdgeInsets.symmetric(horizontal: 30.w),
+          itemCount: fakeHistoryActivities.length,
+          itemBuilder: (context, index) {
+            final activity = fakeHistoryActivities[index];
+            final isLastItem = index == fakeHistoryActivities.length - 1;
+
+            return Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.symmetric(vertical: 10),
+                  height: 75,
+                  child: Row(
+                    children: [
+                      SizedBox(width: 5),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              activity.name!,
+                              style: TextStyle(
+                                color: kGrey2,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14.sp,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            SizedBox(height: 2.h),
+                            Text(
+                              '${activity.activityType}',
+                              style: TextStyle(
+                                color: kGrey,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w500,
+                                fontSize: 12.sp,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 10),
+                      Container(
+                        width: 60,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: kPrimaryLight.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "${activity.timePerQuestion}/${activity.numberOfQuestions}",
+                              style: TextStyle(
+                                color: kPrimaryLight,
+                                fontFamily: 'Poppins',
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (!isLastItem)
+                  Divider(
+                    color: Color(0xffD9D9D9),
+                    thickness: 1.0,
+                    indent: 12,
+                    endIndent: 12,
+                  ),
+              ],
+            );
+          },
+        ),
+      );
     }
 
     if (error != null) {
@@ -955,8 +1221,8 @@ class GamesScreenState extends State<GamesScreen> {
                             fontWeight: FontWeight.w600,
                             fontSize: 14.sp,
                           ),
-                          maxLines: 1,                     // Limita el texto a 2 líneas
-                          overflow: TextOverflow.ellipsis, // Muestra ... si el texto excede el espacio
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         SizedBox(height: 2.h),
                         Text(
