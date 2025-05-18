@@ -26,6 +26,7 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
   int userId=0;
   List<Map<String, String>> pdfList = [];
   bool isLoading = false;
+  bool hasError = false;
 
   @override
   void initState() {
@@ -37,13 +38,21 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
 
     setState(() {
       isLoading = true;
+      hasError = false;
     });
 
     try {
       final getPdfsProvider = Provider.of<GetPdfsProvider>(context, listen: false);
-      List<Pdf>? pdfs = await getPdfsProvider.getPdfsByUserId();
-
-      //await Future.delayed(Duration(seconds: 2)); // Temporizador de 2 segundos
+      List<Pdf>? pdfs = await getPdfsProvider.getPdfsByUserId().timeout(
+        Duration(seconds: 15),
+        onTimeout: () {
+          setState(() {
+            isLoading = false;
+            hasError = true;
+          });
+          return [];
+        },
+      );
 
       setState(() {
         if (pdfs != null) {
@@ -376,6 +385,34 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
     );
   }
 
+  Widget _buildErrorMessage() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(height: 40.h),
+          Icon(
+            Icons.warning_amber_rounded,
+            size: 64.sp,
+            color: Color(0xFFA5A5A5),
+          ),
+          SizedBox(height: 10.h),
+          Text(
+            'No pudimos cargar tus archivos',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: Color(0xFFA5A5A5),
+              fontFamily: "Poppins",
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          SizedBox(height: 24.h)
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -517,7 +554,9 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
             child: Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 10.h),
-              child: !isLoading && pdfList.isEmpty
+              child: hasError
+                  ? _buildErrorMessage()
+                  : !isLoading && pdfList.isEmpty
                   ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
