@@ -1,15 +1,14 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:quickrecap/ui/constants/constants.dart';
 import 'package:quickrecap/domain/entities/activity.dart';
 import 'package:http/http.dart' as http;
-import 'package:skeletonizer/skeletonizer.dart'; // Importamos el paquete Skeletonizer
+import 'package:skeletonizer/skeletonizer.dart';
 import '../../../../data/repositories/local_storage_service.dart';
 import '../activities/activity_service.dart';
 import '../../../../data/api/api_constants.dart';
-import 'widgets/loading_activity_dialog.dart';
+import 'dart:async';
 
 class AllActivitiesScreen extends StatefulWidget {
   const AllActivitiesScreen({Key? key}) : super(key: key);
@@ -25,6 +24,7 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
   List<Activity> activities = [];
   bool isDialogLoading = false;
   bool isLoading = false;
+  bool hasError = false;
   LocalStorageService localStorageService = LocalStorageService();
 
 
@@ -34,9 +34,11 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
     fetchActivities();
   }
 
+
   Future<void> fetchActivities() async {
     setState(() {
       isLoading = true;
+      hasError = false;
     });
 
     int userId = await localStorageService.getCurrentUserId();
@@ -46,7 +48,13 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
         headers: {
           'Content-Type': 'application/json',
         },
-      );
+      ).timeout(Duration(seconds: 30), onTimeout: () {
+        setState(() {
+          isLoading = false;
+          hasError = true;
+        });
+        return http.Response('', 408); // Código 408 indica timeout
+      });
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonData = json.decode(response.body);
@@ -58,11 +66,12 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
       }
     } catch (e) {
       print('Error fetching activities: $e');
-    } finally{
+    } finally {
       setState(() {
         isLoading = false;
       });
     }
+
   }
 
   List<Activity> getFilteredActivities() {
@@ -113,7 +122,7 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
   // Método para construir el listado con el Skeletonizer
   Widget _buildActivityList() {
     // Si estamos cargando, mostrar skeletons
-    if (isLoading) {
+    if (isLoading && !hasError) {
       final fakeActivities = _createFakeActivities();
 
       return Skeletonizer(
@@ -206,6 +215,33 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
               ],
             );
           },
+        ),
+      );
+    }
+
+    if(hasError && !isLoading){
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.warning_amber_rounded,
+              size: 64.sp,
+              color: Color(0xFFA5A5A5),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'No pudimos cargar las actividades',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13.sp,
+                color: Color(0xFFA5A5A5),
+                fontFamily: "Poppins",
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            SizedBox(height: 24.h)
+          ],
         ),
       );
     }
