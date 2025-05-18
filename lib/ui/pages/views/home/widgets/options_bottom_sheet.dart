@@ -64,7 +64,7 @@ class _OptionsBottomSheetState extends State<OptionsBottomSheet> {
     bool requestCompleted = false;
 
     // Iniciar el temporizador
-    timeoutTimer = Timer(Duration(seconds: 30), () {
+    timeoutTimer = Timer(Duration(seconds: 10), () {
       if (!requestCompleted && mounted) {
         // Si no se completó la solicitud en 30 segundos:
         // 1. Cerrar el diálogo

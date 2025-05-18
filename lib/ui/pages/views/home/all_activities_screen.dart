@@ -605,7 +605,7 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
                                           'user': userId,
                                         }),
                                       ).timeout(
-                                        Duration(seconds: 5),
+                                        Duration(seconds: 10),
                                         onTimeout: () {
                                           return http.Response('', 408); // Código 408 indica timeout
                                         },
@@ -622,7 +622,7 @@ class _AllActivitiesScreenState extends State<AllActivitiesScreen> {
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           SnackBar(
                                             content: Text(
-                                                'No pudimos agregar esta actividad a tus favoritos'),
+                                                'No pudimos conectar con el servidor. Inténtalo más tarde.'),
                                             backgroundColor: Colors.red,
                                             behavior: SnackBarBehavior.floating,
                                           ),

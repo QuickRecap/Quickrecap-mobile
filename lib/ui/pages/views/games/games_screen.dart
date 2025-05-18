@@ -245,7 +245,7 @@ class GamesScreenState extends State<GamesScreen> {
         },
       )
           .timeout(
-        const Duration(seconds: 30),
+        const Duration(seconds: 15),
         onTimeout: () {
           throw TimeoutException("La solicitud de eliminación tardó demasiado");
         },
@@ -397,12 +397,14 @@ class GamesScreenState extends State<GamesScreen> {
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
             decoration: BoxDecoration(
-              color: Color(0xff2d2d2d),
+              color: Colors.red,
               borderRadius: BorderRadius.circular(8.0),
             ),
             child: Text(
               message,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(
+                  color: Colors.white
+              ),
             ),
           ),
         ),
@@ -916,7 +918,7 @@ class GamesScreenState extends State<GamesScreen> {
                       ),
                       SizedBox(width: 10),
                       Icon(
-                        Icons.bookmark,
+                        Icons.timer,
                         color: Color(0xffffd100),
                         size: 30,
                       ),
@@ -1063,7 +1065,7 @@ class GamesScreenState extends State<GamesScreen> {
                           }),
                         )
                             .timeout(
-                          const Duration(seconds: 30),
+                          const Duration(seconds: 10),
                           onTimeout: () {
                             throw TimeoutException("La solicitud tardó demasiado");
                           },
@@ -1085,7 +1087,7 @@ class GamesScreenState extends State<GamesScreen> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                  'No pudimos agregar esta actividad a tus favoritos'),
+                                  'No pudimos actualizar esta actividad. Inténtalo nuevamente.'),
                               backgroundColor: Colors.red,
                               behavior: SnackBarBehavior.floating,
                             ),
@@ -1118,13 +1120,13 @@ class GamesScreenState extends State<GamesScreen> {
                     },
                     child: isProcessing
                         ? SizedBox(
-                      width: 30,
-                      height: 30,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                            isFavorite ? Color(0xffc0c0c0) : Color(0xffc0c0c0)),
-                      ),
+                          width: 30,
+                          height: 30,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                isFavorite ? Color(0xffc0c0c0) : Color(0xffc0c0c0)),
+                          ),
                     )
                         : Icon(
                       Icons.bookmark,
@@ -1480,11 +1482,10 @@ class GamesScreenState extends State<GamesScreen> {
                                     bool requestCompleted = false;
 
                                     // Iniciar un timer de 30 segundos
-                                    Timer timeoutTimer = Timer(Duration(seconds: 5), () {
+                                    Timer timeoutTimer = Timer(Duration(seconds: 10), () {
                                       if (!requestCompleted) {
                                         // Cerrar el diálogo si todavía está abierto
                                         Navigator.of(context).pop();
-
                                         // Mostrar mensaje de error
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           SnackBar(
@@ -1522,9 +1523,12 @@ class GamesScreenState extends State<GamesScreen> {
                                           _changeFavoriteActivityById(activity.id);
                                         });
                                       } else {
+                                        // Cerrar el diálogo si todavía está abierto
+                                        Navigator.of(context).pop();
+                                        // Mostrar mensaje de error
                                         ScaffoldMessenger.of(context).showSnackBar(
                                           SnackBar(
-                                            content: Text('No pudimos agregar esta actividad a tus favoritos'),
+                                            content: Text('No pudimos conectar con el servidor. Inténtalo más tarde.'),
                                             backgroundColor: Colors.red,
                                             behavior: SnackBarBehavior.floating,
                                           ),
@@ -1562,12 +1566,12 @@ class GamesScreenState extends State<GamesScreen> {
                                       children: [
                                         isFavoriteLoading
                                             ? SizedBox(
-                                          width: 25,
-                                          height: 25,
-                                          child: CircularProgressIndicator(
-                                            color: Color(0xFFB3B3B3),
-                                            strokeWidth: 2,
-                                          ),
+                                              width: 25,
+                                              height: 25,
+                                              child: CircularProgressIndicator(
+                                                color: Color(0xFFB3B3B3),
+                                                strokeWidth: 2,
+                                              ),
                                         )
                                             : Icon(
                                           Icons.bookmark,
