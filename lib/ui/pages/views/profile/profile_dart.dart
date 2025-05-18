@@ -10,7 +10,7 @@ import '../../../providers/delete_pdf_provider.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../../../../data/api/api_constants.dart';
-import 'package:flutter/material.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -437,11 +437,30 @@ class ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
           if (isLoading)
-            Center(
-              child: Padding(
-                padding: EdgeInsets.all(20.h),
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xffdadada)),
+          // Replace CircularProgressIndicator with Skeletonizer for PDF grid
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Container(
+                margin: EdgeInsets.only(top: 15.h),
+                child: Skeletonizer(
+                  enabled: true,
+                  child: GridView.builder(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 16.w,
+                      mainAxisSpacing: 16.h,
+                      childAspectRatio: 0.75,
+                    ),
+                    itemCount: 4, // Show 4 skeleton items while loading
+                    itemBuilder: (context, index) {
+                      return Container(
+                        child: _buildSkeletonPdfItem(),
+                      );
+                    },
+                  ),
                 ),
               ),
             )
@@ -510,6 +529,47 @@ class ProfileScreenState extends State<ProfileScreen> {
                 ),
               ),
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSkeletonPdfItem() {
+    return Container(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            width: 125.w,
+            height: 125.w,
+            decoration: BoxDecoration(
+              color: Color(0xfff4f4f4),
+              borderRadius: BorderRadius.circular(10.r),
+            )
+          ),
+          SizedBox(height: 10.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.w),
+            child: Container(
+              height: 12.sp,
+              decoration: BoxDecoration(
+                color: Color(0xffe3e3e3),
+                borderRadius: BorderRadius.circular(4.r),
+              ),
+            ),
+          ),
+          SizedBox(height: 4.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15.w),
+            child: Container(
+              height: 12.sp,
+              width: 80.w,
+              decoration: BoxDecoration(
+                color: Color(0xffe1e1e1),
+                borderRadius: BorderRadius.circular(4.r),
+              ),
+            ),
+          ),
         ],
       ),
     );

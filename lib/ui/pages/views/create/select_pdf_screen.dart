@@ -7,6 +7,7 @@ import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'dart:async';
 import 'package:uuid/uuid.dart';
 import 'dart:convert';
+import 'package:skeletonizer/skeletonizer.dart';
 import '../../../../domain/entities/pdf.dart';
 import '../../../providers/upload_pdf_provider.dart';
 import '../../../providers/get_pdfs_provider.dart';
@@ -333,6 +334,48 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
     );
   }
 
+  // Nuevo método para construir items skeleton
+  Widget _buildSkeletonPdfItem() {
+    return Container(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+              width: 125.w,
+              height: 125.w,
+              decoration: BoxDecoration(
+                color: Color(0xfff4f4f4),
+                borderRadius: BorderRadius.circular(10.r),
+              )
+          ),
+          SizedBox(height: 10.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.w),
+            child: Container(
+              height: 12.sp,
+              decoration: BoxDecoration(
+                color: Color(0xffe3e3e3),
+                borderRadius: BorderRadius.circular(4.r),
+              ),
+            ),
+          ),
+          SizedBox(height: 4.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 15.w),
+            child: Container(
+              height: 12.sp,
+              width: 80.w,
+              decoration: BoxDecoration(
+                color: Color(0xffe1e1e1),
+                borderRadius: BorderRadius.circular(4.r),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -437,9 +480,25 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
               ),
             ),
           ),
+          // Modificamos esta sección para mostrar skeletons cuando está cargando
           SliverPadding(
             padding: EdgeInsets.all(10.w),
-            sliver: SliverGrid(
+            sliver: isLoading
+                ? SliverGrid(
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 10.w,
+                mainAxisSpacing: 10.h,
+                childAspectRatio: 0.8,
+              ),
+              delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                  return _buildSkeletonPdfItem();
+                },
+                childCount: 6, // Mostramos 6 skeletons mientras carga
+              ),
+            )
+                : SliverGrid(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 crossAxisSpacing: 10.w,
@@ -458,13 +517,7 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
             child: Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(vertical: 10.h),
-              child: isLoading
-                  ? Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF8375FD)),
-                ),
-              )
-                  : pdfList.isEmpty
+              child: !isLoading && pdfList.isEmpty
                   ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -485,7 +538,8 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
                   ),
                 ],
               )
-                  : Text(
+                  : !isLoading && pdfList.isNotEmpty
+                  ? Text(
                 'Has llegado al final de los resultados',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -493,7 +547,8 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
                   fontSize: 14.sp,
                   fontFamily: "poppins",
                 ),
-              ),
+              )
+                  : SizedBox(), // No mostramos nada si está cargando
             ),
           ),
           SliverToBoxAdapter(
