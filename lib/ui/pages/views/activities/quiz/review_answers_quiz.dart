@@ -14,11 +14,13 @@ class ReviewAnswersQuiz extends StatefulWidget {
 
 class _ReviewAnswersQuizState extends State<ReviewAnswersQuiz> {
   int _currentIndex = 0;
+  bool isShowingCorrectAnswers = false;
 
   void _nextQuestion() {
     if (_currentIndex < widget.quizActivity.quizzes!.length - 1) {
       setState(() {
         _currentIndex++;
+        isShowingCorrectAnswers = false;
       });
     } else {
       Navigator.pop(context);
@@ -29,8 +31,15 @@ class _ReviewAnswersQuizState extends State<ReviewAnswersQuiz> {
     if (_currentIndex > 0) {
       setState(() {
         _currentIndex--;
+        isShowingCorrectAnswers = false;
       });
     }
+  }
+
+  void toggleShowCorrectAnswers() {
+    setState(() {
+      isShowingCorrectAnswers = !isShowingCorrectAnswers;
+    });
   }
 
   @override
@@ -97,14 +106,26 @@ class _ReviewAnswersQuizState extends State<ReviewAnswersQuiz> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
-                "Pregunta ${_currentIndex + 1}",
-                style: TextStyle(
-                  fontSize: 20,
-                  fontFamily: 'Poppins',
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xff212121),
-                ),
+              Row(
+                children: [
+                  Text(
+                    "Pregunta ${_currentIndex + 1}",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF212121),
+                    ),
+                  ),
+                  Spacer(),
+                  IconButton(
+                    icon: Icon(
+                      isShowingCorrectAnswers ? Icons.remove_red_eye_outlined : Icons.remove_red_eye,
+                      color: Color(0xFF212121),
+                    ),
+                    onPressed: toggleShowCorrectAnswers,
+                  ),
+                ],
               ),
               SizedBox(height: 16),
               Center(
@@ -173,7 +194,7 @@ class _ReviewAnswersQuizState extends State<ReviewAnswersQuiz> {
                           ),
                         ),
                       ),
-                      if (isCorrectAnswer)
+                      if ((isCorrectAnswer && isShowingCorrectAnswers) || (isSelected && isCorrectAnswer))
                         Positioned(
                           right: -8, // Se sobresale un poco fuera del contenedor
                           top: -8,
