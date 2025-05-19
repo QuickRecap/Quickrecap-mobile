@@ -1694,7 +1694,7 @@ class GamesScreenState extends State<GamesScreen> {
                                                             bool requestCompleted = false;
 
                                                             // Timer de 30 segundos
-                                                            Timer timeoutTimer = Timer(Duration(seconds: 30), () {
+                                                            Timer timeoutTimer = Timer(Duration(seconds: 10), () {
                                                               if (!requestCompleted) {
                                                                 // Cerrar el diálogo
                                                                 Navigator.of(context).pop();
@@ -1702,7 +1702,7 @@ class GamesScreenState extends State<GamesScreen> {
                                                                 // Mostrar mensaje de error
                                                                 ScaffoldMessenger.of(context).showSnackBar(
                                                                   SnackBar(
-                                                                    content: Text('La operación tomó demasiado tiempo. Por favor, inténtalo de nuevo.'),
+                                                                    content: Text('No pudimos conectar con el servidor. Por favor, inténtalo de nuevo.'),
                                                                     backgroundColor: Colors.red,
                                                                     behavior: SnackBarBehavior.floating,
                                                                   ),
