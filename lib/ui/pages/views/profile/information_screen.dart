@@ -268,7 +268,16 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                 CustomInput(
                   controller: nameController,
                   label: 'Ingrese su nombre',
-                  validator: (value) => value!.isEmpty ? 'Campo obligatorio' : null,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Campo obligatorio';
+                    } else if (!RegExp(r"^[a-zA-ZÀ-ÿ\u00f1\u00d1\s]+$").hasMatch(value)) {
+                      return 'El nombre solo puede contener letras';
+                    } else if (value.trim().length < 2) {
+                      return 'El nombre debe tener al menos 2 caracteres';
+                    }
+                    return null;
+                  },
                 ),
                 SizedBox(height: 16),
                 Align(
@@ -286,7 +295,16 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                 CustomInput(
                   controller: lastNameController,
                   label: 'Ingrese sus apellidos',
-                  validator: (value) => value!.isEmpty ? 'Campo obligatorio' : null,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Campo obligatorio';
+                    } else if (!RegExp(r"^[a-zA-ZÀ-ÿ\u00f1\u00d1\s]+$").hasMatch(value)) {
+                      return 'Los apellidos solo pueden contener letras';
+                    } else if (value.trim().length < 2) {
+                      return 'Los apellidos deben tener al menos 2 caracteres';
+                    }
+                    return null;
+                  },
                 ),
                 SizedBox(height: 16),
                 Align(
@@ -310,8 +328,8 @@ class _ProfileInformationScreenState extends State<ProfileInformationScreen> {
                       return 'Campo obligatorio';
                     } else if (!RegExp(r'^\d+$').hasMatch(value)) {
                       return 'El número de celular solo debe contener dígitos';
-                    } else if (value.length < 9) {
-                      return 'El número de celular debe tener al menos 9 dígitos';
+                    } else if (value.length != 9) {
+                      return 'El número de celular debe tener exactamente 9 dígitos';
                     }
                     return null;
                   },

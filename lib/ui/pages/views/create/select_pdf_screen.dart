@@ -210,7 +210,7 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
                   color: Colors.grey[600],
                 ),
               ),
-              SizedBox(height: 30.h),
+              SizedBox(height: 20.h),
               SizedBox(
                 width: double.infinity, // Para que el botón ocupe todo el ancho posible
                 child: ElevatedButton(
@@ -255,16 +255,17 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
         type: FileType.custom,
         allowedExtensions: ['pdf'],
       );
+
       if (result != null) {
         PlatformFile file = result.files.first;
         File pdfFile = File(file.path!);
         bool isValid = await isPDFValid(pdfFile);
+
         if (!isValid) {
           _showErrorDialog(context, 'El archivo PDF seleccionado es inválido o está corrupto.');
           return;
         }
 
-        //_showErrorDialog(context, 'Subiendo PDF...');
         await _showLoadingDialog(context, 'Subiendo PDF...');
 
         FirebaseStorage storage = FirebaseStorage.instance;
@@ -275,23 +276,38 @@ class _SelectPdfScreenState extends State<SelectPdfScreen> {
         Reference ref = storage.ref().child('uploads/$uniqueFileName');
         final metadata = SettableMetadata(contentType: 'application/pdf');
         UploadTask uploadTask = ref.putFile(pdfFile, metadata);
-        TaskSnapshot taskSnapshot = await uploadTask;
+
+        TaskSnapshot taskSnapshot;
+
+        try {
+          // Aplicamos un timeout de 30 segundos al upload
+          taskSnapshot = await uploadTask.timeout(
+            const Duration(seconds: 30),
+            onTimeout: () {
+              // Cancelar la subida si se demora demasiado
+              uploadTask.cancel();
+              throw TimeoutException('La subida del archivo tomó demasiado tiempo.');
+            },
+          );
+        } on TimeoutException catch (_) {
+          Navigator.of(context).pop(); // Cierra el diálogo de carga
+          _showErrorDialog(context, 'La subida del archivo tomó demasiado tiempo. Intenta nuevamente.');
+          return;
+        }
+
+        // Si todo fue bien y no hubo timeout, continuamos
         String downloadUrl = await taskSnapshot.ref.getDownloadURL();
 
-        // Cerrar el diálogo de carga antes de procesar el PDF
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(); // Cierra el diálogo de carga
 
-        // Procesar el PDF subido
         await _processUploadedPDF(context, fileName, downloadUrl);
-      } else {
-        //(context, 'No se seleccionó ningún archivo');
       }
     } catch (e) {
-      // Si ocurre un error durante la subida, mostrar el diálogo de error
-      Navigator.of(context).pop(); // Cerrar el diálogo de carga si está abierto
+      Navigator.of(context).pop(); // Asegura que el diálogo se cierre ante errores
       _showErrorDialog(context, 'Error al subir el PDF: $e');
     }
   }
+
 
   Widget _buildPdfItem({required Map<String, String> pdfData}) {
     return InkWell(

@@ -162,38 +162,6 @@ class _ResultsLinkersState extends State<ResultsLinkers> {
                         ],
                       ),
                       const SizedBox(height: 30),
-                      // Botón 'Continuar'
-                      SizedBox(
-                        width: 300, // Aquí puedes ajustar el ancho para todos los botones
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFFFF6803), // Color #FF6803
-                            padding: EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.pushNamed(
-                              context,
-                              '/entrypoint',
-                              arguments: {
-                                'initialIndex': 1    // Para asegurarte que la pestaña "Crear" esté seleccionada
-                              },
-                            );
-                          },
-                          child: Text(
-                            'Finalizar',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontFamily: 'Poppins',
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
                       // Botón 'Ver respuestas' (Fondo transparente con borde blanco)
                       SizedBox(
                         width: 300,
@@ -251,6 +219,38 @@ class _ResultsLinkersState extends State<ResultsLinkers> {
                               fontFamily: 'Poppins',
                               color: Colors.white,
                   
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      // Botón 'Continuar'
+                      SizedBox(
+                        width: 300, // Aquí puedes ajustar el ancho para todos los botones
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFFFF6803), // Color #FF6803
+                            padding: EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/entrypoint',
+                              arguments: {
+                                'initialIndex': 1    // Para asegurarte que la pestaña "Crear" esté seleccionada
+                              },
+                            );
+                          },
+                          child: Text(
+                            'Finalizar',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontFamily: 'Poppins',
+                              color: Colors.white,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
